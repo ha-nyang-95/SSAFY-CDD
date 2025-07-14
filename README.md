@@ -1,7 +1,7 @@
 # 🤖 B102팀 - AIoT 트랙 프로젝트
 
 ## 🧠 Track
-- AIoT (Artificial Intelligence of Things)
+- AIoT Track
 
 ## 👥 Team Members
 | 이름     | 역할/관심 분야 |
