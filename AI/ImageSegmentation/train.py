@@ -20,7 +20,7 @@ def main():
     model_arg_name = sys.argv[1].lower()
 
     if model_arg_name not in MODEL_NAME_MAP:
-        print(f"Error: Model '{model_arg_name}' not found in mapping.\n Available: \n{list(MODEL_NAME_MAP.keys())}")
+        print(f"Error: Model '{model_arg_name}' not found in mapping.\n Available: \n{list(MODEL_NAME_MAP.values())}")
         sys.exit(1)
 
     model_dir_name = MODEL_NAME_MAP[model_arg_name]
@@ -99,7 +99,8 @@ def main():
         devices=1 if torch.cuda.is_available() else None,
         logger=mlflow_logger,
         callbacks=[checkpoint_callback, lr_monitor],
-        deterministic=True if SEED is not None else False, # 재현성
+        # deterministic=True if SEED is not None else False, # 재현성
+        deterministic=False, # MaxPooling 레이어가 비결정적이라 False로 설정.
         enable_progress_bar=True,
         # 기타 트레이너 설정 (예: gradient_clip_val, precision 등)
     )
@@ -113,6 +114,9 @@ def main():
 
 
 if __name__ == '__main__':
+    # MaxPooling의 경우, 현재 Pytorch 버전이 결정론적이지 않은 문제가 있어 재현성 떨어질 수 있음
+    # Pytorch에서 이럴 경우 Runtime Error 발생하기 때문에 `warn_only=True` 추가
+    torch.use_deterministic_algorithms(True, warn_only=True)
     # 시드 고정 (재현성)
     pl.seed_everything(SEED, workers=True)
 
