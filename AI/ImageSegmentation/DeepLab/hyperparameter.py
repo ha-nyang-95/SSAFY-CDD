@@ -13,6 +13,7 @@ HYPERPARAMETERS = {
     "loss_function": "BCELoss", # Or "BCELoss", "DiceLoss", "DiceBCEWithLogitsLoss"
     "image_size": 512,
     "num_workers": 4,
+    "num_classes": 1,
     
     # scheduler 설정
     "scheduler": "ReduceLROnPlateau", # Or None, "CosineAnnealingLR"

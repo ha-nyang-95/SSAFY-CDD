@@ -1,19 +1,23 @@
 import torch.nn as nn
 from torchvision.models import vgg16
+from lightning_module.model import BaseSegmentationModule
 
-class SegNet(nn.Module):
-    def __init__(self, num_classes=2):
-        super(SegNet, self).__init__()
+class SegNetLightning(BaseSegmentationModule):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-        vgg = vgg16(pretrained=True)
+        vgg = vgg16(weights='DEFAULT')
+
         features = list(vgg.features.children())
 
+        # 인코더
         self.enc1 = nn.Sequential(*features[0:5])
         self.enc2 = nn.Sequential(*features[5:10])
         self.enc3 = nn.Sequential(*features[10:17])
         self.enc4 = nn.Sequential(*features[17:24])
         self.enc5 = nn.Sequential(*features[24:31])
 
+        # 디코더
         self.dec5 = nn.Sequential(
             nn.ConvTranspose2d(512, 512, kernel_size=2, stride=2),
             nn.Conv2d(512, 512, kernel_size=3, padding=1),
@@ -39,8 +43,7 @@ class SegNet(nn.Module):
             nn.ReLU(inplace=True),
         )
         self.dec1 = nn.Sequential(
-            nn.ConvTranspose2d(64, num_classes, kernel_size=2, stride=2),
-            nn.Sigmoid()
+            nn.ConvTranspose2d(64, self.hparams.num_classes, kernel_size=2, stride=2),
         )
 
     def forward(self, x):
@@ -57,9 +60,3 @@ class SegNet(nn.Module):
         dec1 = self.dec1(dec2)
 
         return dec1
-
-def get_segmentation_model(model_name, num_classes):
-    if model_name.lower() == 'segnet':
-        return SegNet(num_classes=num_classes)
-    else:
-        raise ValueError(f"Model {model_name} not supported in this file.")
