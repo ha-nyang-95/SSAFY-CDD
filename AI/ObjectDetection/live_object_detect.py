@@ -1,3 +1,5 @@
+# live 영상을 객체 인식하는 코드
+
 # pip install ultralytics
 # pip install opencv-python
 
