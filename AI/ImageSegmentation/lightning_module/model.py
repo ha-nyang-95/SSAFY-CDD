@@ -103,7 +103,6 @@ class BaseSegmentationModule(pl.LightningModule):
                 mode=self.hparams.scheduler_mode,
                 factor=self.hparams.scheduler_factor,
                 patience=self.hparams.scheduler_patience,
-
             )
             return {
                 "optimizer": optimizer,
