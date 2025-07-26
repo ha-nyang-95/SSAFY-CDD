@@ -57,20 +57,11 @@ class CrackDataset(Dataset):
         if self.mask_transform:
             mask = self.mask_transform(mask)
         
-        mask = (np.array(mask) > 0).astype(np.float32)
-        mask = torch.from_numpy(mask).unsqueeze(0)
+        # BCEWithLogitsLoss requires target to be float
+        mask = (mask > 0).float()
 
         return image, mask
 
-
-def binarize_mask_transform(x):
-    return (x > 0.5).float()
-
-def to_long_squeeze_mask_transform(x):
-    """
-    Long 타입으로 변환하고, 채널 차원 [1, H, W] -> [H, W] 제거
-    """
-    return x.long().squeeze(0)
 
 def get_dataloaders(train_img_dir, train_mask_dir, val_img_dir, val_mask_dir, img_size=512,
                     batch_size=4, num_workers=4):
@@ -83,8 +74,6 @@ def get_dataloaders(train_img_dir, train_mask_dir, val_img_dir, val_mask_dir, im
     mask_transform = transforms.Compose([
         transforms.Resize((img_size, img_size)),
         transforms.ToTensor(),
-        binarize_mask_transform,
-        to_long_squeeze_mask_transform
     ])
 
     train_dataset = CrackDataset(
@@ -101,7 +90,7 @@ def get_dataloaders(train_img_dir, train_mask_dir, val_img_dir, val_mask_dir, im
         mask_transform=mask_transform                               
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, persistent_workers=True)
 
     return train_loader, val_loader
