@@ -2,13 +2,12 @@
 TODO: K-fold datalaoder 구현
 """
 
-import torch
 import os
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from PIL import Image
 from pathlib import Path
-import numpy as np
+
 
 class CrackDataset(Dataset):
     def __init__(self, image_dir, mask_dir, img_transform=None, mask_transform=None):
@@ -63,34 +62,33 @@ class CrackDataset(Dataset):
         return image, mask
 
 
-def get_dataloaders(train_img_dir, train_mask_dir, val_img_dir, val_mask_dir, img_size=512,
-                    batch_size=4, num_workers=4):
+def get_dataloaders(**hp):
     img_transform = transforms.Compose([
-        transforms.Resize((img_size, img_size)),
+        transforms.Resize((hp["image_size"], hp["image_size"])),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     mask_transform = transforms.Compose([
-        transforms.Resize((img_size, img_size)),
+        transforms.Resize((hp["image_size"], hp["image_size"])),
         transforms.ToTensor(),
     ])
 
     train_dataset = CrackDataset(
-        train_img_dir,
-        train_mask_dir, 
+        hp["train_img_dir"],
+        hp["train_mask_dir"],
         img_transform=img_transform, 
         mask_transform=mask_transform
     )
     
     val_dataset = CrackDataset(
-        val_img_dir,
-        val_mask_dir,
+        hp["valid_img_dir"],
+        hp["valid_mask_dir"],
         img_transform=img_transform, 
         mask_transform=mask_transform                               
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, persistent_workers=True)
+    train_loader = DataLoader(train_dataset, batch_size=hp["batch_size"], shuffle=True, num_workers=hp["num_workers"], persistent_workers=True)
+    val_loader = DataLoader(val_dataset, batch_size=hp["batch_size"], shuffle=False, num_workers=hp["num_workers"], persistent_workers=True)
 
     return train_loader, val_loader
