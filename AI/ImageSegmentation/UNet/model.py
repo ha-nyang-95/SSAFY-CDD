@@ -1,5 +1,9 @@
 import torch
 import torch.nn as nn
+import torch.optim as optim
+from torchvision.models import vgg16, VGG16_Weights
+import pytorch_lightning as pl
+import torch.nn.functional as F
 from lightning_module.model import BaseSegmentationModule
 
 
@@ -19,69 +23,98 @@ class DoubleConv(nn.Module):
         return self.double_conv(x)
 
 
-class Down(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super().__init__()
-        self.maxpool_conv = nn.Sequential(
-            nn.MaxPool2d(2),
-            DoubleConv(in_channels, out_channels)
-        )
-
-    def forward(self, x):
-        return self.maxpool_conv(x)
-
-
 class Up(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, bilinear=True):
         super().__init__()
-        self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
-        self.conv = DoubleConv(in_channels, out_channels)
+        
+        # 업샘플링 방식 선택: Bilinear Interpolation 또는 Transposed Convolution
+        if bilinear:
+            self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+            self.conv = DoubleConv(in_channels, out_channels)
+        else:
+            self.up = nn.ConvTranspose2d(in_channels // 2, in_channels // 2, kernel_size=2, stride=2)
+            self.conv = DoubleConv(in_channels, out_channels)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
         diff_y = x2.size()[2] - x1.size()[2]
         diff_x = x2.size()[3] - x1.size()[3]
 
-        x1 = torch.nn.functional.pad(x1, [diff_x // 2, diff_x - diff_x // 2,
-                                          diff_y // 2, diff_y - diff_y // 2])
+        if diff_x > 0 or diff_y > 0:
+            x1 = F.pad(x1, [diff_x // 2, diff_x - diff_x // 2,
+                            diff_y // 2, diff_y - diff_y // 2])
         
         x = torch.cat([x2, x1], dim=1)
+    
         return self.conv(x)
 
 
 class UNetLightning(BaseSegmentationModule):
-    def __init__(self, **kwargs):
+    def __init__(self, num_classes: int = 1, learning_rate: float = 1e-4, lr_factor: float = 0.1, bilinear: bool = True, **kwargs):
         super().__init__(**kwargs)
+        
+        self.vgg = vgg16(weights=VGG16_Weights.IMAGENET1K_V1).features
+        
+        self.e1_block = self.vgg[:4]
+        self.p1 = self.vgg[4]
 
-        # 인코더
-        self.inc = DoubleConv(self.hparams.n_channels, 64)
-        self.down1 = Down(64, 128)
-        self.down2 = Down(128, 256)
-        self.down3 = Down(256, 512)
-        self.down4 = Down(512, 1024)
+        self.e2_block = self.vgg[5:9]
+        self.p2 = self.vgg[9]
 
-        # 디코더
-        self.up1 = Up(1024, 512)
-        self.up2 = Up(512, 256)
-        self.up3 = Up(256, 128)
-        self.up4 = Up(128, 64)
+        self.e3_block = self.vgg[10:16]
+        self.p3 = self.vgg[16]
 
-        # 최종 출력 레이어
-        self.outc = nn.Conv2d(64, self.hparams.num_classes, kernel_size=1)
+        self.e4_block = self.vgg[17:23]
+        self.p4 = self.vgg[23]
+
+        self.bottleneck_block = self.vgg[24:30]
+
+        self.up4 = Up(512 + 512, 512, bilinear)
+        self.up3 = Up(512 + 256, 256, bilinear)
+        self.up2 = Up(256 + 128, 128, bilinear)
+        self.up1 = Up(128 + 64, 64, bilinear)
+
+        self.conv_out = nn.Conv2d(64, self.hparams.num_classes, kernel_size=1)
+
 
     def forward(self, x):
-        x1 = self.inc(x)
-        x2 = self.down1(x1)
-        x3 = self.down2(x2)
-        x4 = self.down3(x3)
-        x5 = self.down4(x4)
+        e1 = self.e1_block(x) # Output: 64 channels
+        p1 = self.p1(e1)      # MaxPool
 
-        x = self.up1(x5, x4)
-        x = self.up2(x, x3)
-        x = self.up3(x, x2)
-        x = self.up4(x, x1)
+        e2 = self.e2_block(p1) # Output: 128 channels
+        p2 = self.p2(e2)
 
-        # 모델은 로짓(logits)을 반환해야 합니다.
-        logits = self.outc(x)
-        
-        return logits
+        e3 = self.e3_block(p2) # Output: 256 channels
+        p3 = self.p3(e3)
+
+        e4 = self.e4_block(p3) # Output: 512 channels
+        p4 = self.p4(e4)
+
+        b = self.bottleneck_block(p4) # Output: 512 channels
+
+        x = self.up4(b, e4)
+        x = self.up3(x, e3)
+        x = self.up2(x, e2)
+        x = self.up1(x, e1)
+
+        out = self.conv_out(x)
+        return out
+    
+    def configure_optimizers(self):
+        """
+        U-Net에서 encoder, decoder에 다른 학습률(learning_rate)을 적용하기 위해 오버라이딩
+        """
+        encoder_params = []
+        decoder_params = []
+
+        for name, param in self.named_parameters():
+            if "vgg" in name:
+                encoder_params.append(param)
+            else:
+                decoder_params.append(param)
+
+        optimizer = optim.Adam([
+            {'params': encoder_params, 'lr': self.hparams.learning_rate * self.hparams.lr_factor},
+            {'params': decoder_params, 'lr': self.hparams.learning_rate}
+        ])
+        return optimizer

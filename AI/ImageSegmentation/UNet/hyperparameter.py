@@ -16,6 +16,7 @@ HYPERPARAMETERS = {
     "num_workers": 4,
     "num_classes": 1,
     "n_channels": 3,
+    "bilinear": True,
     
     # scheduler 설정
     "scheduler": "ReduceLROnPlateau", # Or None, "CosineAnnealingLR"
