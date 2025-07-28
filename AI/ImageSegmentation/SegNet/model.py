@@ -139,14 +139,11 @@ class SegNetLightning(BaseSegmentationModule):
             elif "dec" in name or "unpool" in name: # 디코더의 Conv 및 BatchNorm 레이어
                 decoder_parameters.append(param)
 
-        base_lr = self.hparams.learning_rate
-        encoder_lr_factor = self.hparams.lr_factor
-
         optimizer_groups = [
             # 인코더 파라미터: 낮은 학습률
-            {'params': encoder_parameters, 'lr': base_lr * encoder_lr_factor, 'name': 'encoder_params'},
+            {'params': encoder_parameters, 'lr': self.hparams.learning_rate * self.hparams.lr_factor, 'name': 'encoder_params'},
             # 디코더 파라미터: 기본 학습률
-            {'params': decoder_parameters, 'lr': base_lr, 'name': 'decoder_params'}
+            {'params': decoder_parameters, 'lr': self.hparams.learning_rate, 'name': 'decoder_params'}
         ]
 
         # 옵티마이저 선택 (base_model의 hparams.optimizer 사용)
