@@ -8,3 +8,4 @@ Pillow
 numpy
 pytorch_lightning
 optuna
+optuna-integration
