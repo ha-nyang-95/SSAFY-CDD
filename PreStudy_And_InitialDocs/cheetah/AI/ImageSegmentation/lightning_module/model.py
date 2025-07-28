@@ -111,6 +111,33 @@ class BaseSegmentationModule(pl.LightningModule):
                     "monitor": "val_loss",
                 }
             }
+        elif self.hparams.scheduler == "OneCycleLR":
+            steps = self.hparams.get("steps_per_epoch", None)
+            if steps is None and self.trainer is not None:
+                # trainer가 정의되어 있으면 자동 계산
+                steps = self.trainer.estimated_stepping_batches // self.hparams.num_epochs
+                self.hparams.steps_per_epoch = steps
+
+            scheduler = optim.lr_scheduler.OneCycleLR(
+                optimizer,
+                max_lr=self.hparams.max_lr,
+                steps_per_epoch=self.hparams.steps_per_epoch,
+                epochs=self.hparams.num_epochs,
+                pct_start=self.hparams.pct_start,
+                anneal_strategy=self.hparams.anneal_strategy,
+                div_factor=self.hparams.div_factor,
+                final_div_factor=self.hparams.final_div_factor,
+            )
+
+            return {
+                "optimizer": optimizer,
+                "lr_scheduler": {
+                    "scheduler": scheduler,
+                    "interval": "step",     # OneCycleLR은 step 단위로 갱신
+                    "monitor": "val_loss",  # 꼭 필요하진 않지만 일관성 유지
+                }
+            }
+
         else:
             raise ValueError(f"Scheduler {self.hparams.scheduler} not supported.")
 

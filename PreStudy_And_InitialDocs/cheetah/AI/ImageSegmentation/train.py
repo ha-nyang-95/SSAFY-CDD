@@ -9,6 +9,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import MLFlowLogger
 from lightning_module.factory import get_segmentation_model
 from run_optuna import run_optuna
+from pathlib import Path
 
 
 SEED = 102
@@ -46,8 +47,8 @@ def training(args):
     )
 
     # MLflow Setup
-    mlflow_run_dir = f"{model_dir_name}/mlruns"
-    mlflow_run_dir.mkdir(mlflow_run_dir, exist_ok=True)
+    mlflow_run_dir = Path(model_dir_name) / "mlruns"
+    mlflow_run_dir.mkdir(parents=True, exist_ok=True)
     experiment_name = f"{model_dir_name}_Training"
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
 

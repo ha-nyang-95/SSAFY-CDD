@@ -6,7 +6,7 @@ HYPERPARAMETERS = {
     "valid_mask_dir": "dataset/Dataset_v0/valid/masks",
 
     # 학습 설정
-    "num_epochs": 1,
+    "num_epochs": 50,
     "batch_size": 16,
     "learning_rate": 1e-3,
     "optimizer": "AdamW", # AdamW 사용할 때 무조건 wegiht_decay 설정
