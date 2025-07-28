@@ -14,7 +14,7 @@ public class SwaggerConfig {
   @Bean
   public OpenAPI openAPI(){
 
-    final String securitySchemeName = "Authorization";
+    final String securitySchemeName = "AccessToken";
     return new OpenAPI()
         .info(new Info()
             .title("CrackTrack API")

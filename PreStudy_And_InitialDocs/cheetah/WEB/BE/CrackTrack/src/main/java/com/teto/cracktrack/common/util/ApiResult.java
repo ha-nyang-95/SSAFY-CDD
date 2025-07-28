@@ -1,5 +1,8 @@
 package com.teto.cracktrack.common.util;
 
+import lombok.Getter;
+
+@Getter
 public class ApiResult<T> {
 
   private boolean success;
