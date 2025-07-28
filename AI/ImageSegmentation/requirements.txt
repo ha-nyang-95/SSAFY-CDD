@@ -1,0 +1,10 @@
+torch
+torchvision
+tqdm
+mlflow
+pandas
+matplotlib
+Pillow
+numpy
+pytorch_lightning
+optuna
