@@ -32,6 +32,7 @@
             padding: 10px;
             border-radius: 5px;
             font-weight: bold;
+            transition: background-color 0.3s;
         }
         
         .status.connecting {
@@ -135,7 +136,10 @@
 
     <script>
         // 1. 시그널링 서버에 연결합니다.
-        const signalingServer = new WebSocket('ws://localhost:8080');
+        // 'localhost' 대신 server.js를 실행하는 PC의 IP 주소를 입력해야
+        // 다른 PC나 모바일 기기에서도 접속할 수 있습니다.
+        // 예: 'ws://192.168.0.10:8080'
+        const signalingServer = new WebSocket('ws://shyo2.com:8080');
         
         // 상태 표시 요소들
         const statusElement = document.getElementById('status');
@@ -145,8 +149,17 @@
         const muteBtn = document.getElementById('muteBtn');
 
         // 2. WebRTC PeerConnection 객체를 생성합니다.
+        // STUN 서버는 자신의 공인 IP를 찾는 데 도움을 주고,
+        // TURN 서버는 방화벽 등으로 직접 연결이 불가능할 때 데이터를 중계해줍니다.
         const peerConnection = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                {
+                    urls: 'turn:numb.viagenie.ca?transport=tcp',
+                    username: 'webrtc@live.com',
+                    credential: 'muazkh'
+                }
+            ]
         });
 
         // 연결 상태 모니터링
@@ -157,9 +170,9 @@
             if (state === 'connected') {
                 statusElement.className = 'status connected';
                 statusElement.textContent = '✅ 드론 연결됨 - 실시간 스트리밍 중';
-            } else if (state === 'disconnected' || state === 'failed') {
+            } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
                 statusElement.className = 'status error';
-                statusElement.textContent = '❌ 연결 끊김';
+                statusElement.textContent = '❌ 연결 끊김 (' + state + ')';
             }
         };
 
@@ -225,7 +238,10 @@
                         break;
                     // 8. 드론이 보낸 네트워크 후보 정보를 PeerConnection에 추가합니다.
                     case 'candidate':
-                        await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        // 간혹 null candidate가 올 수 있으므로 예외 처리
+                        if (data.candidate) { 
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        }
                         break;
                 }
             } catch (error) {
@@ -258,25 +274,17 @@
             const video = document.getElementById('droneVideo');
             
             if (video.paused) {
-                video.play().then(() => {
-                    console.log('✅ 비디오 재생 시작');
-                    playBtn.textContent = '⏸️ 일시정지';
-                }).catch((error) => {
+                video.play().catch((error) => {
                     console.warn('⚠️ 자동 재생 실패, 사용자 상호작용 필요:', error);
-                    // 음소거 후 재시도
-                    video.muted = true;
-                    return video.play();
-                }).then(() => {
-                    console.log('✅ 음소거 상태로 재생 시작');
-                    muteBtn.textContent = '🔊 음소거 해제';
-                }).catch((error) => {
-                    console.error('❌ 비디오 재생 실패:', error);
-                    statusElement.className = 'status error';
-                    statusElement.textContent = '❌ 비디오 재생 실패 - 수동으로 재생 버튼을 클릭하세요';
+                    // 자동 재생 정책으로 인해 실패 시, 음소거 후 재시도
+                    if (error.name === "NotAllowedError") {
+                        video.muted = true;
+                        muteBtn.textContent = '🔊 음소거 해제';
+                        video.play().catch(err => console.error("음소거 후 재생도 실패:", err));
+                    }
                 });
             } else {
                 video.pause();
-                playBtn.textContent = '▶️ 재생';
             }
         }
         
