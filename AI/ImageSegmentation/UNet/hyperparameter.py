@@ -15,6 +15,7 @@ HYPERPARAMETERS = {
     "image_size": 512,
     "num_workers": 4,
     "num_classes": 1,
+    "n_channels": 3,
     
     # scheduler 설정
     "scheduler": "ReduceLROnPlateau", # Or None, "CosineAnnealingLR"
