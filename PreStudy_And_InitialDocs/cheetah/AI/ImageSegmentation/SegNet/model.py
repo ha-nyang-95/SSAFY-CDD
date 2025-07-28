@@ -1,5 +1,6 @@
 import torch.nn as nn
 from torchvision.models import vgg16
+import torch.optim as optim
 from lightning_module.model import BaseSegmentationModule
 
 class SegNetLightning(BaseSegmentationModule):
@@ -28,7 +29,6 @@ class SegNetLightning(BaseSegmentationModule):
 
         # 디코더
         self.unpool5 = nn.MaxUnpool2d(kernel_size=2, stride=2)
-        nn.MaxPool2d(kernel_size=2, stride=2, return_indices=True)
         self.dec5 = nn.Sequential(
             nn.Conv2d(512, 512, kernel_size=3, padding=1),
             nn.BatchNorm2d(512),
@@ -120,3 +120,68 @@ class SegNetLightning(BaseSegmentationModule):
         dec1 = self.dec1(dec1)
 
         return dec1
+    
+    # Overriding
+    def configure_optimizers(self):
+        """
+        SegNet에서 encoder, decoder에 다른 학습률(learning_rate)을 적용하기 위해 오버라이딩
+        """
+        # 모델의 모든 파라미터 가져오기
+        model_parameters = list(self.named_parameters())
+
+        # 인코더와 디코더 파라미터 분리
+        encoder_parameters = []
+        decoder_parameters = []
+
+        for name, param in model_parameters:
+            if "enc" in name: # 인코더의 Conv 레이어
+                encoder_parameters.append(param)
+            elif "dec" in name or "unpool" in name: # 디코더의 Conv 및 BatchNorm 레이어
+                decoder_parameters.append(param)
+
+        base_lr = self.hparams.learning_rate
+        encoder_lr_factor = self.hparams.lr_factor
+
+        optimizer_groups = [
+            # 인코더 파라미터: 낮은 학습률
+            {'params': encoder_parameters, 'lr': base_lr * encoder_lr_factor, 'name': 'encoder_params'},
+            # 디코더 파라미터: 기본 학습률
+            {'params': decoder_parameters, 'lr': base_lr, 'name': 'decoder_params'}
+        ]
+
+        # 옵티마이저 선택 (base_model의 hparams.optimizer 사용)
+        if self.hparams.optimizer == "Adam":
+            optimizer = optim.Adam(optimizer_groups)
+        elif self.hparams.optimizer == "SGD":
+            optimizer = optim.SGD(optimizer_groups)
+        elif self.hparams.optimizer == "AdamW":
+            optimizer = optim.AdamW(optimizer_groups, weight_decay=self.hparams.weight_decay)
+        else:
+            raise ValueError(f"Optimizer {self.hparams.optimizer} not supported.")
+
+        if self.hparams.scheduler is None:
+            return optimizer
+
+        if self.hparams.scheduler == "CosineAnnealingLR":
+            scheduler = optim.lr_scheduler.CosineAnnealingLR(
+                optimizer,
+                T_max=self.hparams.T_max,
+                eta_min=self.hparams.eta_min
+            )
+            return [optimizer], [scheduler]
+        elif self.hparams.scheduler == "ReduceLROnPlateau":
+            scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer,
+                mode=self.hparams.scheduler_mode,
+                factor=self.hparams.scheduler_factor,
+                patience=self.hparams.scheduler_patience,
+            )
+            return {
+                "optimizer": optimizer,
+                "lr_scheduler": {
+                    "scheduler": scheduler,
+                    "monitor": "val_loss",
+                }
+            }
+        else:
+            raise ValueError(f"Scheduler {self.hparams.scheduler} not supported.")

@@ -8,13 +8,14 @@ HYPERPARAMETERS = {
     # 학습 설정
     "num_epochs": 1,
     "batch_size": 16,
-    "learning_rate": 0.0001,
+    "learning_rate": 1e-3,
     "optimizer": "AdamW", # AdamW 사용할 때 무조건 wegiht_decay 설정
     "weight_decay": 1e-2,
     "loss_function": "BCEWithLogitsLoss", # Or "BCELoss", "DiceLoss", "DiceBCEWithLogitsLoss"
     "image_size": 512,
     "num_workers": 4,
     "num_classes": 1,
+    "lr_factor": 1e-2, # encoder의 학습률을 decoder와 다르게 하기 위함
     
     # scheduler 설정
     "scheduler": "ReduceLROnPlateau", # Or None, "CosineAnnealingLR"
