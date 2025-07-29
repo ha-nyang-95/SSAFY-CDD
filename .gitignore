@@ -3,6 +3,9 @@
 ### ai 기본 모델 ###
 yolov8n.pt
 
+### dataset 제외 ###
+dataset
+
 ### Flask ###
 instance/*
 !instance/.gitignore
