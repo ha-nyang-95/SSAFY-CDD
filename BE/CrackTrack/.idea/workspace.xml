@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b778dc4a-369e-420b-bbb4-9ebbbeaed6aa" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/dto/LoginRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/dto/LoginRequestDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/dto/SignUpRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/dto/SignUpRequestDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/service/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/auth/service/impl/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/user/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../PreStudy_And_InitialDocs/cheetah/WEB/BE/CrackTrack/src/main/java/com/teto/cracktrack/domain/user/controller/UserController.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Record" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="보안 분석" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="30UE3kPQIODLlEHMMG0L5Ao5xaZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.CrackTrack 빌드.executor": "Run",
+    "Gradle.소스 다운로드.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.CrackTrackApplication.executor": "Run",
+    "git-widget-placeholder": "backend",
+    "last_opened_file_path": "C:/Users/SSAFY/Desktop/2학기/S13P11B102/BE/CrackTrack",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "문제",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="CrackTrackApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <envs>
+        <env name="JWT_SECRET" value="e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1" />
+      </envs>
+      <module name="CrackTrack.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.teto.cracktrack.CrackTrackApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="b778dc4a-369e-420b-bbb4-9ebbbeaed6aa" name="변경" comment="" />
+      <created>1753673559972</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1753673559972</updated>
+      <workItem from="1753673561121" duration="21170000" />
+      <workItem from="1753724588547" duration="2540000" />
+      <workItem from="1753754225186" duration="13737000" />
+      <workItem from="1753770358343" duration="378000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

@@ -30,31 +30,19 @@ public class UserController {
   @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.(마이페이지)")
   @GetMapping("/mypage")
   public ApiResult<UserResponseDto> myPage(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-    log.info("[Controller] 마이페이지 조회 시도, userId={}, email={}",
-        userPrincipal.getUserId(), userPrincipal.getEmail());
-
     UserResponseDto userPage = userService.findByUserId(userPrincipal.getUserId());
-
-    log.info("[Controller] 마이페이지 조회 성공 userId={}", userPrincipal.getUserId());
     return ApiResult.success(userPage);
   }
 
   @Operation(summary = "현재 사용자 정보", description = "현재 로그인한 사용자의 기본 정보를 반환합니다.(상태바)")
   @GetMapping("/me")
-  public ApiResult<UserPrincipal> getCurrentUser(
-      @AuthenticationPrincipal UserPrincipal userPrincipal) {
-    log.info("[Controller] 현재 사용자 정보 조회, userId={}, email={}",
-        userPrincipal.getUserId(), userPrincipal.getEmail());
-
+  public ApiResult<UserPrincipal> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
     return ApiResult.success(userPrincipal);
   }
 
   @Operation(summary = "권한 확인", description = "현재 사용자의 권한 정보를 확인합니다.")
   @GetMapping("/role")
   public ApiResult<String> getUserRole(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-    log.info("[Controller] 사용자 권한 조회, userId={}, role={}",
-        userPrincipal.getUserId(), userPrincipal.getRole());
-
     return ApiResult.success(userPrincipal.getRole());
   }
 

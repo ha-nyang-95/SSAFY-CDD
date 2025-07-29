@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -30,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
   private final RefreshTokenRepository refreshTokenRepository;
   private final PasswordEncoder passwordEncoder;
 
+  @Transactional
   @Override
   public UserResponseDto signUp(SignUpRequestDto signUpRequestDto) {
     log.info("[AuthService] 회원가입 시도, email={}", signUpRequestDto.email());
@@ -53,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
     return UserResponseDto.of(savedUser);
   }
 
+  @Transactional
   @Override
   public TokenResponseDto login(LoginRequestDto loginRequest) {
     log.info("[AuthService] 로그인 시도: {}", loginRequest.email());
