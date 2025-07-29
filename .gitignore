@@ -1,5 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode,python,flask,react,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,visualstudiocode,python,flask,react,java
+### ai 기본 모델 ###
+yolov8n.pt
 
 ### Flask ###
 instance/*
