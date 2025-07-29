@@ -434,8 +434,5 @@ sketch
 # End of https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode,python,flask,react,java
 
 GEMINI.md
-mlruns/
-checkpoint/
 *.ipynb
-&.pt
 dataset/
