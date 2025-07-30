@@ -15,3 +15,16 @@ def get_segmentation_model(model_name: str, **kwargs):
         return FCN8sLightning(**kwargs)
     else:
         raise ValueError(f"Model {model_name} not supported.")
+    
+
+def get_segmentation_model_class(model_name: str):
+    model_map = {
+        'deeplab': DeepLabV3Lightning,
+        'segnet': SegNetLightning,
+        'unet': UNetLightning,
+        'fcn': FCN8sLightning,
+    }
+    name = model_name.lower()
+    if name not in model_map:
+        raise ValueError(f"지원하지 않는 모델명: {model_name}")
+    return model_map[name]
