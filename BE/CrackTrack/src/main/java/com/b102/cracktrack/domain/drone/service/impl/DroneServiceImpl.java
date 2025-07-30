@@ -55,4 +55,10 @@ public class DroneServiceImpl implements DroneService {
     log.info("[Service] 드론조회 성공, droneId={}, userId={}", d.getDroneId(), userId);
     return DroneResponseDto.of(d);
   }
+
+  @Transactional(readOnly = true)
+  @Override
+  public boolean checkDroneExist(Long userId) {
+    return droneRepository.existsByUser_UserId(userId);
+  }
 }
