@@ -436,3 +436,6 @@ sketch
 GEMINI.md
 *.ipynb
 dataset/
+.trash
+mlruns/
+checkpoint/
