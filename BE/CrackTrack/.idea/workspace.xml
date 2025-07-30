@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fc035072-f8d8-4593-9a1f-c058c0942194" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/auth/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/auth/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/drone/controller/DroneController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/drone/controller/DroneController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/drone/service/DroneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/drone/service/DroneService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/drone/service/impl/DroneServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/drone/service/impl/DroneServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/user/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/b102/cracktrack/domain/user/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +74,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.CrackTrackApplication.executor": "Run",
-    "git-widget-placeholder": "backend",
+    "git-widget-placeholder": "feature/drone",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/USER/Desktop/S13P11B102/BE/CrackTrack",
     "node.js.detected.package.eslint": "true",
@@ -138,7 +133,7 @@
       <workItem from="1753814310278" duration="1035000" />
       <workItem from="1753815365606" duration="2437000" />
       <workItem from="1753822503111" duration="4900000" />
-      <workItem from="1753915411319" duration="1401000" />
+      <workItem from="1753915411319" duration="1820000" />
     </task>
     <servers />
   </component>
