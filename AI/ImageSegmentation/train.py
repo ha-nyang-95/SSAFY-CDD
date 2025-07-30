@@ -8,6 +8,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import MLFlowLogger
 from lightning_module.factory import get_segmentation_model
+from lightning_module.kfold_trainer import run_k_fold_training
 from run_optuna import run_optuna
 from pathlib import Path
 
@@ -86,12 +87,17 @@ def main():
                         help=f"Name of the model to train. Available: {list(MODEL_NAME_MAP.values())}")
     parser.add_argument("-o", "--optuna", action="store_true",
                         help="Run hyperparameter optimization using Optuna.")
+    parser.add_argument("-k", "--kfold", action="store_true", help="Use K-Fold Cross Validation")
+
 
     args = parser.parse_args()
     try:
         if args.optuna:
             print(f"--- Model: {args.model_name}, Optuna 하이퍼파라미터 최적화 시작 ---")
             run_optuna(args)
+        elif args.kfold:
+            print(f"--- Model: {MODEL_NAME_MAP[args.model_name]}, K-Fold 학습 시작 ---")
+            run_k_fold_training(model_name=args.model_name, num_folds=10)
         else:
             print(f"--- Model: {MODEL_NAME_MAP[args.model_name]}, 학습 시작 ---")
             training(args)
