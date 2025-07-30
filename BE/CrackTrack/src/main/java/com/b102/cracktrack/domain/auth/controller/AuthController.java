@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "인증", description = "인증 관련 API")
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
@@ -29,7 +29,7 @@ public class AuthController {
   private final AuthService authService;
 
   @Operation(summary = "회원 가입", description = "새로운 사용자를 등록합니다.")
-  @PostMapping("v1/signUp")
+  @PostMapping("/signUp")
   public ResponseEntity<ApiResult<UserResponseDto>> signUp(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
 
     UserResponseDto signUpUser = authService.signUp(signUpRequestDto);
@@ -39,7 +39,7 @@ public class AuthController {
   }
 
   @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하고 토큰을 쿠키에 저장합니다.")
-  @PostMapping("v1/login")
+  @PostMapping("/login")
   public ResponseEntity<ApiResult<TokenResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequest) {
 
     TokenResponseDto tokenResponse = authService.login(loginRequest);
@@ -51,7 +51,7 @@ public class AuthController {
   }
 
   @Operation(summary = "토큰 재발급", description = "리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.")
-  @PostMapping("v1/refresh")
+  @PostMapping("/refresh")
   public ResponseEntity<ApiResult<TokenResponseDto>> refresh(HttpServletRequest request) {
 
     String refreshToken = CookieUtil.getCookieValue(request, "refreshToken");
@@ -69,7 +69,7 @@ public class AuthController {
   }
 
   @Operation(summary = "로그아웃", description = "로그아웃하고 쿠키를 삭제합니다.")
-  @PostMapping("v1/logout")
+  @PostMapping("/logout")
   public ResponseEntity<ApiResult<Void>> logout(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     HttpHeaders headers = CookieUtil.cleanCookies();

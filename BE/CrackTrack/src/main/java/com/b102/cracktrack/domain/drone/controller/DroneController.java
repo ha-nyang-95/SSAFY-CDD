@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/drone")
+@RequestMapping("/api/drone")
 @Tag(name = "드론", description = "드론 등록 API")
 public class DroneController {
 
   private final DroneService droneService;
 
   @Operation(summary = "드론 등록",description = "로그인 한 유저의 드론과 1:1 등록합니다.")
-  @PostMapping("v1/register")
+  @PostMapping("/register")
   public ResponseEntity<ApiResult<DroneResponseDto>> register(
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @RequestBody DroneCreateRequestDto droneCreateRequestDto
@@ -37,7 +37,7 @@ public class DroneController {
   }
 
   @Operation(summary = "드론 조회",description = "본인에게 등록된 드론을 조회합니다.")
-  @GetMapping("v1/me")
+  @GetMapping("/me")
   public ResponseEntity<ApiResult<DroneResponseDto>> me(
       @AuthenticationPrincipal UserPrincipal userPrincipal
   ) {
@@ -47,5 +47,13 @@ public class DroneController {
         .body(ApiResult.success(responseDto));
   }
 
+  @Operation(summary = "드론 등록여부", description = "유저에게 드론이 등록되었는지 확인")
+  @GetMapping("/exist")
+  public ResponseEntity<ApiResult<Boolean>> checkDroneExist(
+      @AuthenticationPrincipal UserPrincipal userPrincipal
+  ){
+    return ResponseEntity.ok()
+        .body(ApiResult.success(droneService.checkDroneExist(userPrincipal.getUserId())));
+  }
 
 }
