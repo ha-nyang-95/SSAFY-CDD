@@ -39,7 +39,7 @@ def training(args):
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=checkpoint_dir,
-        filename=f"{model_dir_name}_best_model",
+        filename=f"{model_dir_name}_1_best_model",
         monitor="val_iou",
         mode="max",        # IoU가 높은 가중치만 저장
         save_top_k=1,      # 가장 좋은 모델 1개만 저장
@@ -50,7 +50,7 @@ def training(args):
     # MLflow Setup
     mlflow_run_dir = Path(model_dir_name) / "mlruns"
     mlflow_run_dir.mkdir(parents=True, exist_ok=True)
-    experiment_name = f"{model_dir_name}_Training"
+    experiment_name = f"{model_dir_name}_Training_1"
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
 
     # MLflow 로거 초기화
@@ -62,17 +62,28 @@ def training(args):
     
     mlflow_logger.log_hyperparams(model.hparams)
 
+    # 이어서 학습하는 코드 추가
+    # 가중치만 로드
+    ckpt_path = os.path.join(checkpoint_dir, f"{model_dir_name}_best_model.ckpt")
+    if os.path.exists(ckpt_path):
+        print(f"[🔁] Fine-tuning from weights only: {ckpt_path}")
+        state_dict = torch.load(ckpt_path)["state_dict"]
+        model.load_state_dict(state_dict)
+    else:
+        print("[🆕] No checkpoint found. Starting from scratch.")
+    
     trainer = pl.Trainer(
         max_epochs=hp["num_epochs"],
         accelerator='gpu' if torch.cuda.is_available() else 'cpu',
         devices=1,
         logger=mlflow_logger,
         callbacks=[checkpoint_callback, lr_monitor],
+        precision='16-mixed', # AMP
         # deterministic=True if SEED is not None else False, # 재현성
         deterministic=False, # MaxPooling 레이어가 비결정적이라 False로 설정.
         enable_progress_bar=True,
     )
-
+    
     trainer.fit(model, train_loader, val_loader)
 
     print(f"Best model saved at: {checkpoint_callback.best_model_path}")
