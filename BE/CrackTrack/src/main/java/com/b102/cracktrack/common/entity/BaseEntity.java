@@ -6,7 +6,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
+import lombok.Getter;
 
+@Getter
 @MappedSuperclass
 public abstract class BaseEntity {
 
