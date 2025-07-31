@@ -4,5 +4,5 @@ HYPERPARAMETERS = {
     "min_lr": 1e-5,
     "max_lr": 1e-2,
     "optimizers": ["Adam", "AdamW"],
-    "batch_sizes": [4, 8, 16, 32],
+    "batch_sizes": 16
     }

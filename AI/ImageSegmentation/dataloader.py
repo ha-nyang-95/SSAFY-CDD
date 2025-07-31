@@ -88,7 +88,7 @@ def get_dataloaders(**hp):
         mask_transform=mask_transform                               
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=hp["batch_size"], shuffle=True, num_workers=hp["num_workers"], persistent_workers=True)
-    val_loader = DataLoader(val_dataset, batch_size=hp["batch_size"], shuffle=False, num_workers=hp["num_workers"], persistent_workers=True)
+    train_loader = DataLoader(train_dataset, batch_size=hp["batch_size"], shuffle=True, num_workers=hp["num_workers"], pin_memory=True, persistent_workers=True)
+    val_loader = DataLoader(val_dataset, batch_size=hp["batch_size"], shuffle=False, num_workers=hp["num_workers"], pin_memory=True, persistent_workers=True)
 
     return train_loader, val_loader
