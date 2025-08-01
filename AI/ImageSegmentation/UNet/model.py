@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision.models import vgg16, VGG16_Weights
-import pytorch_lightning as pl
 import torch.nn.functional as F
 from lightning_module.model import BaseSegmentationModule
 
