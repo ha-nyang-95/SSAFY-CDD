@@ -5,12 +5,14 @@ import com.b102.cracktrack.domain.drone.dto.DroneResponseDto;
 import com.b102.cracktrack.domain.drone.entity.Drone;
 import com.b102.cracktrack.domain.drone.repository.DroneRepository;
 import com.b102.cracktrack.domain.drone.service.DroneService;
+import com.b102.cracktrack.domain.ivs.processor.IvsChannelProcessor;
 import com.b102.cracktrack.domain.user.entity.User;
 import com.b102.cracktrack.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.services.ivs.model.Channel;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class DroneServiceImpl implements DroneService {
 
   private final DroneRepository droneRepository;
   private final UserRepository userRepository;
+  private final IvsChannelProcessor ivsChannelProcessor;
 
   @Transactional
   @Override
@@ -36,12 +39,26 @@ public class DroneServiceImpl implements DroneService {
           return new IllegalArgumentException("잘못된 유저입니다.");
         });
 
+    String channelName = "Drone-"+droneCreateRequestDto.serialNumber();
+    Channel createChannel = ivsChannelProcessor.createChannel(channelName);
+
     // 3. 드론 생성 및 저장
-    Drone d = DroneCreateRequestDto.from(droneCreateRequestDto, u);
+    Drone d = DroneCreateRequestDto.from(droneCreateRequestDto, createChannel.arn(),u);
     droneRepository.save(d);
 
     log.info("[Service] 드론 등록 성공, droneId={}", d.getDroneId());
     return DroneResponseDto.of(d);
+  }
+
+  @Override
+  public DroneResponseDto update(Long DroneId, DroneCreateRequestDto droneCreateRequestDto,
+      Long userId) {
+    return null;
+  }
+
+  @Override
+  public DroneResponseDto delete(Long DroneId, Long userId) {
+    return null;
   }
 
   @Transactional(readOnly = true)

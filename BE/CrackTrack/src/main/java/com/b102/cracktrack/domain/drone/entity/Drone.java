@@ -28,9 +28,11 @@ public class Drone extends BaseEntity {
   @Column(nullable = false)
   private String serialNumber;
 
+  @Column(nullable = false)
+  private String channelArn;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
-
 
 }

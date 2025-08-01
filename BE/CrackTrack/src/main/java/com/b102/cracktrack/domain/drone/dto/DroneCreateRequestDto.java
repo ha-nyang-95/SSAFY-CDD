@@ -8,11 +8,12 @@ public record DroneCreateRequestDto(
     String name,
     String serialNumber
 ) {
-  public static Drone from(DroneCreateRequestDto droneCreateRequestDto, User User) {
+  public static Drone from(DroneCreateRequestDto droneCreateRequestDto,String channelArn, User User) {
     return Drone.builder()
         .name(droneCreateRequestDto.name())
         .serialNumber(droneCreateRequestDto.serialNumber())
         .user(User)
+        .channelArn(channelArn)
         .build();
   }
 
