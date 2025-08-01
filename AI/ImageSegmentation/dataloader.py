@@ -25,11 +25,9 @@ class CrackDataset(Dataset):
         image_dir_path = Path(self.image_dir)
         mask_dir_path = Path(self.mask_dir)
 
-        for img_file_name in image_dir_path.iterdir():
-            self.images.append(img_file_name.name)
-
-        for mask_file_name in mask_dir_path.iterdir():
-            self.masks.append(mask_file_name.name)
+        # image - mask 정확하게 매핑 되도록 정렬
+        self.images = sorted([p.name for p in image_dir_path.iterdir()])
+        self.masks = sorted([p.name for p in mask_dir_path.iterdir()])
 
         assert len(self.images) == len(self.masks), \
             f"Dataset error: num of Images != num of Masks"

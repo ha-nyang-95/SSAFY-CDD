@@ -1,7 +1,6 @@
 from lightning_module.model import BaseSegmentationModule  # BaseSegmentationModule 있는 위치에 맞게 경로 수정
 from torchvision.models import vgg16, VGG16_Weights
 import torch.nn as nn
-import torch
 
 class FCN8sLightning(BaseSegmentationModule):
     def __init__(self, num_classes=1, **kwargs):

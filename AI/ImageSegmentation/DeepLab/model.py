@@ -1,9 +1,5 @@
-import torch
 import torch.nn as nn
-import torch.optim as optim
-import pytorch_lightning as pl
 from torchvision.models.segmentation import deeplabv3_resnet101, DeepLabV3_ResNet101_Weights
-from torchmetrics import Accuracy, JaccardIndex, F1Score # 지표 임포트
 from lightning_module.model import BaseSegmentationModule
 
 class DeepLabV3Lightning(BaseSegmentationModule):
