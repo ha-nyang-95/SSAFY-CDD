@@ -108,7 +108,7 @@ class BaseSegmentationModule(pl.LightningModule):
                 "optimizer": optimizer,
                 "lr_scheduler": {
                     "scheduler": scheduler,
-                    "monitor": "val_loss",
+                    "monitor": "val_iou",
                 }
             }
         elif self.hparams.scheduler == "OneCycleLR":
@@ -134,7 +134,7 @@ class BaseSegmentationModule(pl.LightningModule):
                 "lr_scheduler": {
                     "scheduler": scheduler,
                     "interval": "step",     # OneCycleLR은 step 단위로 갱신
-                    "monitor": "val_loss",  # 꼭 필요하진 않지만 일관성 유지
+                    "monitor": "val_iou",  # 꼭 필요하진 않지만 일관성 유지
                 }
             }
 
