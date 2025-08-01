@@ -444,3 +444,5 @@ dataset/
 .trash
 mlruns/
 checkpoint/
+runs/
+*.pt
