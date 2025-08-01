@@ -1,13 +1,15 @@
 HYPERPARAMETERS = {
     # 데이터셋 경로
-    "train_img_dir": "dataset/Dataset_v0/train/images",
-    "train_mask_dir": "dataset/Dataset_v0/train/masks",
-    "valid_img_dir": "dataset/Dataset_v0/valid/images",
-    "valid_mask_dir": "dataset/Dataset_v0/valid/masks",
+    "train_img_dir": "dataset/augmented_combined_data/images", # dataset v1
+    "train_mask_dir": "dataset/augmented_combined_data/masks", # dataset v1
+    # "train_img_dir": "dataset/augmented_data_cut_swap/images", # dataset v2
+    # "train_mask_dir": "dataset/augmented_data_cut_swap/masks", # dataset v2
+    "valid_img_dir": "dataset/validation/images",
+    "valid_mask_dir": "dataset/validation/masks",
 
     # 학습 설정
     "num_epochs": 50,
-    "batch_size": 8,
+    "batch_size": 16,
     "learning_rate": 1e-4,
     "optimizer": "AdamW", # AdamW 사용할 때 무조건 wegiht_decay 설정
     "weight_decay": 1e-2,

@@ -11,8 +11,8 @@ from pathlib import Path
 
 class CrackDataset(Dataset):
     def __init__(self, image_dir, mask_dir, img_transform=None, mask_transform=None):
-        self.image_dir = image_dir # Dataset_v0/train/images
-        self.mask_dir = mask_dir   # Dataset_v0/train/masks
+        self.image_dir = image_dir
+        self.mask_dir = mask_dir
         self.img_transform = img_transform
         self.mask_transform = mask_transform
         self.images = []
@@ -25,15 +25,11 @@ class CrackDataset(Dataset):
         image_dir_path = Path(self.image_dir)
         mask_dir_path = Path(self.mask_dir)
 
-        for sub_dir in image_dir_path.iterdir():
-            if sub_dir.is_dir():
-                for file_name in sub_dir.iterdir():
-                    self.images.append(Path(sub_dir.name) / file_name.name)
+        for img_file_name in image_dir_path.iterdir():
+            self.images.append(img_file_name.name)
 
-        for sub_dir in mask_dir_path.iterdir():
-            if sub_dir.is_dir():
-                for file_name in sub_dir.iterdir():
-                    self.masks.append(Path(sub_dir.name) / file_name.name)
+        for mask_file_name in mask_dir_path.iterdir():
+            self.masks.append(mask_file_name.name)
 
         assert len(self.images) == len(self.masks), \
             f"Dataset error: num of Images != num of Masks"
@@ -64,13 +60,11 @@ class CrackDataset(Dataset):
 
 def get_dataloaders(**hp):
     img_transform = transforms.Compose([
-        transforms.Resize((hp["image_size"], hp["image_size"])),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     mask_transform = transforms.Compose([
-        transforms.Resize((hp["image_size"], hp["image_size"])),
         transforms.ToTensor(),
     ])
 
