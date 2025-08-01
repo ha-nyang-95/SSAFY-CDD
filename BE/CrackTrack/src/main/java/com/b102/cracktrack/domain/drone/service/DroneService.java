@@ -8,6 +8,10 @@ public interface DroneService {
 
   DroneResponseDto register(DroneCreateRequestDto droneCreateRequestDto, Long userId);
 
+  DroneResponseDto update(Long DroneId, DroneCreateRequestDto droneCreateRequestDto, Long userId);
+
+  DroneResponseDto delete(Long DroneId, Long userId);
+
   DroneResponseDto getMyDron(Long userId);
 
   boolean checkDroneExist(Long userId);
