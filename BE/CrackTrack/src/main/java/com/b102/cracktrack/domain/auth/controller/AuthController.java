@@ -76,6 +76,6 @@ public class AuthController {
 
     return ResponseEntity.ok()
         .headers(headers)
-        .body(ApiResult.success(null));
+        .body(ApiResult.success(204,"토큰 삭제 완료",null));
   }
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
 
-  List<Video> findAllByUserUserIdOrderByActivatedAtAsc(Long userId);
+  List<Video> findAllByLocationLocationIdOrderByActivatedAtAsc(Long userId);
 
-  List<Video> findAllByUserUserIdOrderByActivatedAtDesc(Long userId);
+  List<Video> findAllByLocationLocationIdOrderByActivatedAtDesc(Long userId);
 }

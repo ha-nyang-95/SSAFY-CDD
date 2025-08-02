@@ -1,7 +1,6 @@
-package com.b102.cracktrack.domain.video.entity;
+package com.b102.cracktrack.domain.location.entity;
 
-import com.b102.cracktrack.common.entity.BaseEntity;
-import com.b102.cracktrack.domain.location.entity.Location;
+import com.b102.cracktrack.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,30 +17,28 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "videos")
+@Table(name = "locations")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Video extends BaseEntity {
+public class Location {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long videoId;
+  private Long locationId;
+
+  @Column
+  private Double latitude;
+
+  @Column
+  private Double longitude;
 
   @Column(nullable = false)
-  private Long droneId;
-
-
-  @Column(nullable = false)
-  private Long userId;
-
-  @Column(nullable = false)
-  private String s3key;
-
+  private String name;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "location_id")
-  private Location location;
+  @JoinColumn(name = "user_id")
+  private User user;
 
 }
