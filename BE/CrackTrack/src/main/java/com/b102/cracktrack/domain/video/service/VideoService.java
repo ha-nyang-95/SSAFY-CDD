@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface VideoService {
 
-  VideoResponsetDto uploadVideo(MultipartFile file, Long userId);
+  VideoResponsetDto uploadVideo(MultipartFile file, Long locationId, Long userId);
 
   void deleteVideo(Long VideoId, Long userId);
 

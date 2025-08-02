@@ -7,14 +7,17 @@ public record VideoResponsetDto(
     Long VideoId,
     String s3key,
     String presignedUrl,
-    String uploadedAt
+    String uploadedAt,
+    String location
 ) {
+
   public static VideoResponsetDto from(Video video, String url) {
     return new VideoResponsetDto(
         video.getVideoId(),
         video.getS3key(),
         url,
-        video.getActivatedAt().toString()
+        video.getActivatedAt().toString(),
+        video.getLocation().getName()
     );
   }
 
