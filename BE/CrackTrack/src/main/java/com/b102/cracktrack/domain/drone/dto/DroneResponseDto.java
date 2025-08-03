@@ -5,7 +5,7 @@ import com.b102.cracktrack.domain.drone.entity.Drone;
 
 public record DroneResponseDto(
     Long droneId,
-    String userName,
+    String name,
     String serialNumber,
     String IvsArn
 ) {
