@@ -5,12 +5,15 @@ import com.b102.cracktrack.domain.video.entity.Video;
 public record VideoSummaryResponseDto(
     Long VideoId,
     String uploadedAt,
-    String presignedUrl
+    String presignedUrl,
+    String location
 ) {
   public static VideoSummaryResponseDto from(Video d,String presignedUrl) {
     return new VideoSummaryResponseDto(
         d.getVideoId(),
         d.getActivatedAt().toString(),
-        presignedUrl);
+        presignedUrl,
+        d.getLocation().getName()
+    );
   }
 }

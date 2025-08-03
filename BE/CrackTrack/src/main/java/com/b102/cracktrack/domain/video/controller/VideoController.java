@@ -28,11 +28,12 @@ public class VideoController {
   private final VideoService videoService;
 
   @Operation(summary = "영상 등록", description = "영상을 s3에 저장 아직 완료되지 않음 추후 구현 예정")
-  @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/upload/{locationId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ApiResult<VideoResponsetDto>> uplaodVideo(
       @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @PathVariable Long locationId,
       @RequestPart("file") MultipartFile file) {
-    VideoResponsetDto responseDto = videoService.uploadVideo(file,
+    VideoResponsetDto responseDto = videoService.uploadVideo(file, locationId,
         userPrincipal.getUserId());
     return ResponseEntity.ok(ApiResult.success(responseDto));
   }
@@ -42,7 +43,7 @@ public class VideoController {
   public ResponseEntity<ApiResult<Void>> deleteVideo(
       @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long videoId) {
     videoService.deleteVideo(videoId, userPrincipal.getUserId());
-    return ResponseEntity.ok(ApiResult.success(null));
+    return ResponseEntity.ok(ApiResult.success(204, "영상 삭제 완료", null));
   }
 
   @Operation(summary = "영상 조회", description = "id에 맞추어 필요한 영상을 호출")
