@@ -5,7 +5,7 @@ import com.b102.cracktrack.domain.drone.dto.DroneResponseDto;
 import com.b102.cracktrack.domain.drone.entity.Drone;
 import com.b102.cracktrack.domain.drone.repository.DroneRepository;
 import com.b102.cracktrack.domain.drone.service.DroneService;
-import com.b102.cracktrack.domain.ivs.processor.IvsChannelProcessor;
+import com.b102.cracktrack.common.aws.IvsChannelProcessor;
 import com.b102.cracktrack.domain.user.entity.User;
 import com.b102.cracktrack.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

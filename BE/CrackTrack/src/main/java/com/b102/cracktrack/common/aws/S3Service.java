@@ -1,4 +1,4 @@
-package com.b102.cracktrack.common.s3;
+package com.b102.cracktrack.common.aws;
 
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
