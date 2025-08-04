@@ -14,7 +14,13 @@ public record TokenResponseDto(
     String name,
 
     @Schema(description = "권한")
-    String role
+    String role,
+
+    @Schema(description = "액세스 토큰")
+    String accessToken,
+
+    @Schema(description = "리프레시 토큰")
+    String refreshToken
 ) {
 
 }
