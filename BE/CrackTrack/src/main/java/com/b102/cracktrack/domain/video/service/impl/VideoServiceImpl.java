@@ -1,6 +1,6 @@
 package com.b102.cracktrack.domain.video.service.impl;
 
-import com.b102.cracktrack.common.s3.S3Service;
+import com.b102.cracktrack.common.aws.S3Service;
 import com.b102.cracktrack.domain.drone.entity.Drone;
 import com.b102.cracktrack.domain.drone.repository.DroneRepository;
 import com.b102.cracktrack.domain.drone.service.DroneService;

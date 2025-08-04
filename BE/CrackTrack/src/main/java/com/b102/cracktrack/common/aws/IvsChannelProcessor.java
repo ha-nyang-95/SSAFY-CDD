@@ -1,4 +1,4 @@
-package com.b102.cracktrack.domain.ivs.processor;
+package com.b102.cracktrack.common.aws;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
