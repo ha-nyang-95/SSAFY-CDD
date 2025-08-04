@@ -4,20 +4,20 @@ package com.b102.cracktrack.domain.video.dto;
 import com.b102.cracktrack.domain.video.entity.Video;
 
 public record VideoResponsetDto(
-    Long VideoId,
-    String s3key,
-    String presignedUrl,
-    String uploadedAt,
-    String location
+    Long videoId,
+    Long userId,
+    Long locationId,
+    String s3Url,
+    String activatedAt
 ) {
 
-  public static VideoResponsetDto from(Video video, String url) {
+  public static VideoResponsetDto from(Video video) {
     return new VideoResponsetDto(
         video.getVideoId(),
-        video.getS3key(),
-        url,
-        video.getActivatedAt().toString(),
-        video.getLocation().getName()
+        video.getUser().getUserId(),
+        video.getLocationId(),
+        video.getS3Url(),
+        video.getActivatedAt().toString()
     );
   }
 

@@ -4,16 +4,12 @@ import com.b102.cracktrack.domain.location.entity.Location;
 
 public record LocationResponseDto(
     Long LocationId,
-    String name,
-    Double latitude,
-    Double longitude
+    String name
 ) {
 
-  public static LocationResponseDto of(Location location) {
+  public static LocationResponseDto from(Location location) {
     return new LocationResponseDto(
         location.getLocationId(),
-        location.getName(),
-        location.getLatitude(),
-        location.getLongitude());
+        location.getName());
   }
 }

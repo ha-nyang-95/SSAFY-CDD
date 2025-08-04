@@ -25,11 +25,17 @@ public class Drone extends BaseEntity {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 50)
   private String serialNumber;
 
-  @Column(nullable = false)
-  private String channelArn;
+  @Column(nullable = false, length = 100)
+  private String streamKey;
+
+  @Column(nullable = false, length = 100)
+  private String ivsEndpoint;
+
+  @Column(nullable = false, length = 100)
+  private String trackingKey;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")

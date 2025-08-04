@@ -8,15 +8,11 @@ import jakarta.validation.constraints.Size;
 public record LocationRequestDto(
     @NotBlank(message = "장소명은 필수입니다.")
     @Size(min = 2, message = "장소명은 2자 이상 입력해야 합니다.")
-    String name,
-    Double latitude,
-    Double longitude
+    String name
 ) {
 
-  public static Location from(LocationRequestDto dto, User user) {
+  public static Location of(LocationRequestDto dto, User user) {
     return Location.builder()
-        .latitude(dto.latitude)
-        .longitude(dto.longitude)
         .name(dto.name())
         .user(user)
         .build();

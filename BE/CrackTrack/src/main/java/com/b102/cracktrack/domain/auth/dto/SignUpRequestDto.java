@@ -32,7 +32,7 @@ public record SignUpRequestDto(
     )
     String name
 ) {
-    public static User from(SignUpRequestDto signUpRequestDto) {
+    public static User of(SignUpRequestDto signUpRequestDto) {
         User u = User.builder()
             .email(signUpRequestDto.email)
             .password(signUpRequestDto.password)

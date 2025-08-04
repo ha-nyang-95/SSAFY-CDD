@@ -36,12 +36,15 @@ public class User extends BaseEntity {
   @Column(nullable = false, length = 20)
   private String name;
 
+  @Column(length = 100)
+  private String watchUrl;
+
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private Role role;
 
   public enum Role {
-    GUEST, GENERAL, ADMIN
+    GENERAL, ADMIN
   }
 
   // 수정 메서드

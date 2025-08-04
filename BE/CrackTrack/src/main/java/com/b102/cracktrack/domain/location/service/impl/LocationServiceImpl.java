@@ -28,7 +28,7 @@ public class LocationServiceImpl implements LocationService {
     List<Location> locations = locationRepository.findByUserUserId(userId);
     List<LocationResponseDto> locationResponseDtos = new ArrayList<>();
     for (Location location : locations) {
-      locationResponseDtos.add(LocationResponseDto.of(location));
+      locationResponseDtos.add(LocationResponseDto.from(location));
     }
     return locationResponseDtos;
   }
@@ -43,13 +43,11 @@ public class LocationServiceImpl implements LocationService {
         });
     Location l = Location.builder()
         .name(locationRequestDto.name())
-        .latitude(locationRequestDto.latitude())
-        .longitude(locationRequestDto.longitude())
         .user(u)
         .build();
     locationRepository.save(l);
     log.info("[Service] 지역 등록 성공");
-    return LocationResponseDto.of(l);
+    return LocationResponseDto.from(l);
   }
 
   @Transactional

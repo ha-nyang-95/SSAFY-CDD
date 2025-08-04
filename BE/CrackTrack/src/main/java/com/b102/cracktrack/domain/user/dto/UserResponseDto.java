@@ -9,7 +9,7 @@ public record UserResponseDto(
     String name,
     String role
 ) {
-    public static UserResponseDto of(User user) {
+    public static UserResponseDto from(User user) {
         return new UserResponseDto(
             user.getUserId(),
             user.getEmail(),
