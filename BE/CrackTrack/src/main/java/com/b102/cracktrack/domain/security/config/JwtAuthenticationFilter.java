@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,8 +21,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
+@Component
+@Order(1)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
@@ -72,12 +74,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return null;
   }
 
-  // 프론트 단에서 재발급 엔드포인트로 접근하는 것으로 해결
-//   private String getRefreshTokenFromRequest(HttpServletRequest request) {
-//    String refreshToken = CookieUtil.getCookieValue(request, "refreshToken");
-//    if(StringUtils.hasText(refreshToken) && refreshToken.startsWith(refreshToken)) {
-//      return refreshToken;
-//    }
-//     return null;
-//   }
 }
