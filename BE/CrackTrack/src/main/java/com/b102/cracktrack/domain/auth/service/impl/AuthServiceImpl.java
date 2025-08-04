@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
       throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
     }
     
-    User user = SignUpRequestDto.from(signUpRequestDto);
+    User user = SignUpRequestDto.of(signUpRequestDto);
     
     // 비밀번호 암호화
     user.changePassword(passwordEncoder.encode(user.getPassword()));
@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     User savedUser = userRepository.save(user);
     log.info("[AuthService] 회원가입 완료, userId={}, email={}", savedUser.getUserId(), savedUser.getEmail());
     
-    return UserResponseDto.of(savedUser);
+    return UserResponseDto.from(savedUser);
   }
 
   @Transactional
@@ -94,9 +94,7 @@ public class AuthServiceImpl implements AuthService {
           user.getUserId(),
           user.getEmail(),
           user.getName(),
-          user.getRole().name(),
-          accessToken,
-          refreshToken
+          user.getRole().name()
       );
       
     } catch (AuthenticationException e) {
@@ -138,9 +136,7 @@ public class AuthServiceImpl implements AuthService {
         user.getUserId(),
         user.getEmail(),
         user.getName(),
-        user.getRole().name(),
-        newAccessToken,
-        newRefreshToken
+        user.getRole().name()
     );
   }
 } 

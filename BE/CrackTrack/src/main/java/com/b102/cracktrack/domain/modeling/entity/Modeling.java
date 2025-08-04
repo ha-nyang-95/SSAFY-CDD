@@ -1,6 +1,7 @@
-package com.b102.cracktrack.domain.location.entity;
+package com.b102.cracktrack.domain.modeling.entity;
 
-import com.b102.cracktrack.domain.user.entity.User;
+import com.b102.cracktrack.common.entity.BaseEntity;
+import com.b102.cracktrack.domain.video.entity.Video;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,7 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,22 +18,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "locations")
+@Table(name = "modelings")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Location {
+public class Modeling extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long modelingId;
+
+  @Column(nullable = false)
   private Long locationId;
 
   @Column(nullable = false)
-  private String name;
+  private String trackingKey;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
-  private User user;
+  @Column(nullable = false)
+  private String s3Url;
 
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "video_id")
+  private Video video;
 }

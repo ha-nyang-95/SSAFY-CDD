@@ -6,16 +6,14 @@ import com.b102.cracktrack.domain.drone.entity.Drone;
 public record DroneResponseDto(
     Long droneId,
     String name,
-    String serialNumber,
-    String IvsArn
+    String serialNumber
 ) {
-  public static DroneResponseDto of(Drone drone) {
+
+  public static DroneResponseDto from(Drone drone) {
     return new DroneResponseDto(
         drone.getDroneId(),
         drone.getName(),
-        drone.getSerialNumber(),
-        drone.getChannelArn()
+        drone.getSerialNumber()
     );
   }
-
 }

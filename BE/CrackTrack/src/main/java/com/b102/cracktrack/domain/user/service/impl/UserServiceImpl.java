@@ -23,6 +23,6 @@ public class UserServiceImpl implements UserService {
           return new IllegalArgumentException("유저를 찾을 수 없습니다.");
         });
     log.info("[Service]유저 조회 성공, userId={}",userId);
-    return UserResponseDto.of(user);
+    return UserResponseDto.from(user);
   }
 }

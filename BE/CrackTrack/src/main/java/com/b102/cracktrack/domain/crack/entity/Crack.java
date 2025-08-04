@@ -1,6 +1,7 @@
 package com.b102.cracktrack.domain.crack.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
+import com.b102.cracktrack.domain.user.entity.User;
 import com.b102.cracktrack.domain.video.entity.Video;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,13 +34,26 @@ public class Crack extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long crackId;
 
+  @Column
+  private Long modelingId;
+
   @Column(nullable = false)
-  private Long locationId;
-  /**
-   * 현재는 촬영 영상에 매핑되어있고 이후 3D 모델링 구현이 되는 시점에는 매핑관계 수정
-   */
+  private String trackingKey;
+
+  @Column(nullable = false)
+  private boolean isCrackDetected;
+
+  @Column
+  private String s3Url;
+
+  @Column(nullable = false)
+  private double lidarMax;
+
+  @Column(nullable = false)
+  private double lidarMin;
+
   @ManyToOne
-  @JoinColumn(name = "video_id")
-  private Video video;
+  @JoinColumn(name = "user_id")
+  private User user;
 
 }

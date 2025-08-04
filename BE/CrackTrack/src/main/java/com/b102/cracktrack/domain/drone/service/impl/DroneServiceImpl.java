@@ -43,11 +43,11 @@ public class DroneServiceImpl implements DroneService {
     Channel createChannel = ivsChannelProcessor.createChannel(channelName);
 
     // 3. 드론 생성 및 저장
-    Drone d = DroneCreateRequestDto.from(droneCreateRequestDto, createChannel.arn(),u);
+    Drone d = DroneCreateRequestDto.of(droneCreateRequestDto, createChannel.arn(),u);
     droneRepository.save(d);
 
     log.info("[Service] 드론 등록 성공, droneId={}", d.getDroneId());
-    return DroneResponseDto.of(d);
+    return DroneResponseDto.from(d);
   }
 
   @Override
@@ -70,7 +70,7 @@ public class DroneServiceImpl implements DroneService {
           return new IllegalArgumentException("등록된 드론이 없습니다.");
         });
     log.info("[Service] 드론조회 성공, droneId={}, userId={}", d.getDroneId(), userId);
-    return DroneResponseDto.of(d);
+    return DroneResponseDto.from(d);
   }
 
   @Transactional(readOnly = true)

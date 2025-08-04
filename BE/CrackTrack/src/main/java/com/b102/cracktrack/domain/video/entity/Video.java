@@ -2,6 +2,7 @@ package com.b102.cracktrack.domain.video.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
 import com.b102.cracktrack.domain.location.entity.Location;
+import com.b102.cracktrack.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,18 +31,17 @@ public class Video extends BaseEntity {
   private Long videoId;
 
   @Column(nullable = false)
+  private Long locationId;
+
+  @Column(nullable = false)
   private Long droneId;
 
-
   @Column(nullable = false)
-  private Long userId;
-
-  @Column(nullable = false)
-  private String s3key;
+  private String s3Url;
 
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "location_id")
-  private Location location;
+  @JoinColumn(name = "user_id")
+  private User user;
 
 }
