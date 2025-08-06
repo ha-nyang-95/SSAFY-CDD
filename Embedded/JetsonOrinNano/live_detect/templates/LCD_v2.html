@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, height=600, initial-scale=1.0">
+    <title>CDD: Crack Detection Drone</title>
+    <style>
+        /* --- 구글 폰트 불러오기 --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
+
+        /* --- 스타일 가이드 기반 CSS 변수 --- */
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-secondary: 'Source Sans Pro', sans-serif;
+
+            --color-primary: #0A3D62; /* 진한 파란색 */
+            --color-secondary: #A4B0BE; /* 슬레이트 회색 */
+            --color-accent: #0984E3; /* 밝은 파란색 */
+            
+            --color-neutral-white: #FFFFFF;
+            --color-neutral-light-gray: #F1F2F6;
+            --color-neutral-gray: #CED6E0;
+            --color-neutral-dark-gray: #747D8C;
+            --color-neutral-near-black: #2F3640;
+
+            --color-status-success: #2ECC71; /* 성공 (초록색) */
+            --color-status-warning: #F39C12; /* 경고 (주황색) */
+            --color-status-danger: #E74C3C;  /* 위험 (빨간색) */
+        }
+
+        /* --- 기본 스타일 --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-secondary);
+            background-color: var(--color-neutral-light-gray);
+            color: var(--color-neutral-near-black);
+            width: 1024px;
+            height: 600px;
+            margin: auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- 메인 레이아웃 --- */
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* --- 헤더 섹션 --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 15px;
+        }
+
+        .header-left .title {
+            font-family: var(--font-primary);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .header-left .status {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-neutral-dark-gray);
+            margin-top: 8px;
+            transition: color 0.3s ease;
+        }
+        
+        /* --- 상태별 텍스트 색상 --- */
+        .status.detecting { color: var(--color-status-warning); }
+        .status.precision-detecting { color: var(--color-accent); }
+        .status.precision-complete { color: var(--color-status-success); }
+
+
+        /* --- 메인 콘텐츠 (비디오 피드) --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* --- 푸터 섹션 (컨트롤) --- */
+        .footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- UI 요소 --- */
+        .button {
+            font-family: var(--font-primary);
+            font-size: 16px;
+            font-weight: 700;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+
+        /* --- Power 버튼 상태별 색상 --- */
+        .button-power.on {
+            background-color: var(--color-status-success);
+            color: var(--color-neutral-white);
+        }
+        .button-power.off {
+            background-color: var(--color-status-danger);
+            color: var(--color-neutral-white);
+        }
+        .button-power:hover {
+            opacity: 0.9;
+        }
+
+        .button-precision {
+            background-color: var(--color-accent);
+            color: var(--color-neutral-white);
+        }
+        .button-precision:hover {
+            background-color: #0871c2; /* 더 어두운 강조색 */
+        }
+        .button-precision:disabled {
+            background-color: var(--color-secondary);
+            cursor: not-allowed;
+        }
+
+        /* --- 모달 --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--color-neutral-white);
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--color-secondary);
+            cursor: pointer;
+        }
+        .modal-close:hover {
+            color: var(--color-neutral-dark-gray);
+        }
+
+        .modal-title {
+            font-family: var(--font-primary);
+            font-size: 22px;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+
+        .modal-body .result-item {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        .modal-body .result-item span {
+            font-weight: 600;
+            color: var(--color-neutral-near-black);
+            margin-left: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 헤더: 제목, 상태, Power 버튼 -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="title">CDD: Crack Detection Drone</h1>
+                <p id="status-display" class="status">균열 탐지 대기중</p>
+            </div>
+            <div class="header-right">
+                <button id="power-button" class="button button-power">Power</button>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠: 비디오 피드 플레이스홀더 -->
+        <main class="main-content">
+            <!-- 이 영역은 실시간 비디오 피드를 위한 공간입니다 -->
+             <img src="/video_feed" style="width: 100%; height: 100%; object-fit: contain; background-color: #000;">
+        </main>
+
+        <!-- 푸터: 동작 버튼 -->
+        <footer class="footer">
+            <button id="precision-button" class="button button-precision">정밀 탐지</button>
+        </footer>
+    </div>
+
+    <!-- 결과 모달 -->
+    <div id="result-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span id="modal-close-button" class="modal-close">&times;</span>
+            <h2 class="modal-title">정밀 탐지 결과</h2>
+            <div class="modal-body">
+                <div class="result-item">균열여부:<span>탐지됨</span></div>
+                <div class="result-item">최대 깊이:<span>5.2mm</span></div>
+                <div class="result-item">최소 깊이:<span>0.8mm</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM 요소 참조 ---
+            const statusDisplay = document.getElementById('status-display');
+            const powerButton = document.getElementById('power-button');
+            const precisionButton = document.getElementById('precision-button');
+            const resultModal = document.getElementById('result-modal');
+            const modalCloseButton = document.getElementById('modal-close-button');
+
+            // --- 시스템 상태 변수 ---
+            let systemStatus = 'IDLE'; // IDLE, DETECTING, PRECISION_DETECTING, PRECISION_COMPLETE
+
+            // --- 상태 텍스트 정의 ---
+            const STATUS_MAP = {
+                IDLE: '균열 탐지 대기중',
+                DETECTING: '균열 탐지 진행중',
+                PRECISION_DETECTING: '정밀 탐지 진행중',
+                PRECISION_COMPLETE: '정밀 탐지 완료'
+            };
+
+            // --- 상태 업데이트 함수 ---
+            function updateSystemState(newState) {
+                systemStatus = newState;
+                statusDisplay.textContent = STATUS_MAP[systemStatus];
+
+                // 상태에 따라 statusDisplay의 CSS 클래스를 동적으로 변경
+                statusDisplay.className = 'status'; // 기본 클래스로 초기화
+                if (systemStatus === 'DETECTING') {
+                    statusDisplay.classList.add('detecting');
+                } else if (systemStatus === 'PRECISION_DETECTING') {
+                    statusDisplay.classList.add('precision-detecting');
+                } else if (systemStatus === 'PRECISION_COMPLETE') {
+                    statusDisplay.classList.add('precision-complete');
+                }
+
+                // 상태에 따라 Power 버튼의 CSS 클래스를 동적으로 변경
+                if (systemStatus === 'IDLE') {
+                    powerButton.classList.remove('on');
+                    powerButton.classList.add('off');
+                } else {
+                    powerButton.classList.remove('off');
+                    powerButton.classList.add('on');
+                }
+
+                // '균열 탐지 진행중' 상태일 때만 정밀 탐지 버튼 활성화
+                precisionButton.disabled = (systemStatus !== 'DETECTING');
+
+                // '정밀 탐지 완료' 상태가 되면 모달 표시 로직 처리
+                if (systemStatus === 'PRECISION_COMPLETE') {
+                    // 1초 후 모달 표시
+                    setTimeout(() => {
+                        resultModal.classList.remove('hidden');
+                    }, 1000);
+                }
+            }
+
+            // --- Power 버튼 이벤트 리스너 ---
+            powerButton.addEventListener('click', () => {
+                if (systemStatus === 'IDLE') {
+                    updateSystemState('DETECTING');
+                } else {
+                    updateSystemState('IDLE');
+                }
+            });
+
+            // --- 정밀 탐지 버튼 이벤트 리스너 ---
+            precisionButton.addEventListener('click', () => {
+                if (systemStatus === 'DETECTING') {
+                    updateSystemState('PRECISION_DETECTING');
+
+                    // 3초간의 정밀 탐지 시뮬레이션
+                    setTimeout(() => {
+                        updateSystemState('PRECISION_COMPLETE');
+                    }, 3000);
+
+                    /*
+                    // 백엔드 연동을 위한 예시:
+                    // 아래 함수는 WebSocket 이벤트나 API 응답으로 호출될 수 있습니다.
+                    // 백엔드가 탐지를 수행한 후 이 함수를 호출합니다.
+                    // 예시: handlePrecisionDetectionResult(true);
+
+                    function handlePrecisionDetectionResult(isComplete) {
+                      if (isComplete) {
+                        updateSystemState('PRECISION_COMPLETE');
+                      } else {
+                        // 필요한 경우 실패 처리
+                        updateSystemState('DETECTING'); 
+                      }
+                    }
+                    */
+                }
+            });
+
+            // --- 모달 닫기 버튼 이벤트 리스너 ---
+            modalCloseButton.addEventListener('click', () => {
+                resultModal.classList.add('hidden');
+                // 시스템 전원은 여전히 켜져 있으므로 '균열 탐지 진행중' 상태로 복귀
+                updateSystemState('DETECTING');
+            });
+
+            // --- 초기 상태 설정 ---
+            updateSystemState('IDLE');
+        });
+    </script>
+
+</body>
+</html>
