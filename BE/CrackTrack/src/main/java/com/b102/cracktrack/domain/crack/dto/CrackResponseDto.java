@@ -4,10 +4,7 @@ import com.b102.cracktrack.domain.crack.entity.Crack;
 
 public record CrackResponseDto(
     Long crackId,
-    boolean isCrackDetected,
-    Double lidarMax,
-    Double lidarMin,
-    String s3Url,
+    Long modelingId,
     String status,
     String activatedAt,
     String deactivatedAt,
@@ -17,10 +14,7 @@ public record CrackResponseDto(
   public static CrackResponseDto from(Crack crack) {
     return new CrackResponseDto(
         crack.getCrackId(),
-        crack.isCrackDetected(),
-        crack.getLidarMax(),
-        crack.getLidarMin(),
-        crack.getS3Url(),
+        1L,
         crack.getStatus().name(),
         crack.getActivatedAt().toString(),
         crack.getDeactivatedAt().toString(),

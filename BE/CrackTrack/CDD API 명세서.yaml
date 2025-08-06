@@ -239,47 +239,35 @@ components:
     # task 관련 스키마
     TaskFirstResponseDto:
       type: object
+      description: 작업 생성 직후 반환되는 정보
       properties:
         taskId:
           type: integer
           format: int64
           example: 1
-        locationId:
-          type: integer
-          format: int64
-          example: 12
         userId:
           type: integer
           format: int64
           example: 1
-        s3Uuid:
+        location:
           type: string
-          example: "/1/48832123-1234-4567-8901-234567890123/task-001"
-        status:
+          example: "서울시 강남구"
+        s3Name:
           type: string
-          enum: [ ACTIVE, INACTIVE, DELETED ]
-          example: ACTIVE
-        activatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00"
+          example: "1/c8a8f7e4-9e3b-4a2e-8e2a-8e8e8e8e8e8e"
 
     TaskResponseDto:
       type: object
+      description: 작업 목록 조회 시 반환되는 정보
       properties:
         taskId:
           type: integer
           format: int64
           example: 1
-        locationId:
-          type: integer
-          format: int64
-          example: 1
-        status:
+        location:
           type: string
-          enum: [ ACTIVE, INACTIVE, DELETED ]
-          example: ACTIVE
-        activatedAt:
+          example: "서울시 강남구"
+        createdAt:
           type: string
           format: date-time
           example: "2024-01-15T10:30:00"
@@ -290,7 +278,7 @@ components:
         tasks:
           type: array
           items:
-            $ref: "#/components/schemas/TaskListResponseDto"
+            $ref: "#/components/schemas/TaskResponseDto"
 
     # Video 관련 스키마
     VideoResponseDto:

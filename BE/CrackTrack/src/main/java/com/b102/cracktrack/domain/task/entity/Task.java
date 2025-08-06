@@ -16,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DialectOverride.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "tasks")
@@ -23,6 +25,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
+@SQLRestriction("deleted_at IS NULL")
 public class Task extends BaseEntity {
 
   @Id
