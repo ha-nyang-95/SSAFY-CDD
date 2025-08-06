@@ -84,14 +84,18 @@ public class DetectionServiceImpl implements DetectionService {
   @Override
   public DetectionResponseDto findById(Long detectionId, Long userId) {
     log.info("Detection 상세 조회 시작 - detectionId: {}, userId: {}", detectionId, userId);
-    Detection d = detectionRepository.findById(detectionId).orElseThrow(
+    
+    // 디텍션 조회
+    Detection detection = detectionRepository.findById(detectionId).orElseThrow(
         () -> new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.DETECTION_NOT_FOUND));
 
-    if (!d.getTask().getUser().getUserId().equals(userId)) {
+    // 권한 확인 (본인이 생성한 디텍션인지 확인 - task를 통해)
+    if (!detection.getTask().getUser().getUserId().equals(userId)) {
       log.warn("Detection 상세 조회 실패: 유저권한 없음, userId: {}, detectionId: {}", userId, detectionId);
-      throw new ApiException(HttpStatus.UNAUTHORIZED.value(), ErrorMessage.UNAUTHORIZED);
+      throw new ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.ACCESS_DENIED);
     }
+    
     log.info("Detection 상세 조회 성공: detectionId: {}, userId: {}", detectionId, userId);
-    return DetectionResponseDto.from(d);
+    return DetectionResponseDto.from(detection);
   }
 }
