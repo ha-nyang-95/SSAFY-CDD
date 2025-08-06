@@ -2,7 +2,6 @@ package com.b102.cracktrack.domain.crack.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
 import com.b102.cracktrack.domain.user.entity.User;
-import com.b102.cracktrack.domain.video.entity.Video;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
