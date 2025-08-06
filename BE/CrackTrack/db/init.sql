@@ -1,0 +1,101 @@
+CREATE TABLE `refresh_tokens` (
+`token_id` BIGINT NOT NULL AUTO_INCREMENT,
+`user_id` BIGINT NOT NULL,
+`refresh_token` VARCHAR(512) NOT NULL,
+`expires_at` TIMESTAMP NOT NULL,
+PRIMARY KEY (`token_id`)
+);
+
+CREATE TABLE `locations` (
+`location_id` BIGINT NOT NULL AUTO_INCREMENT,
+`user_id` BIGINT NOT NULL,
+`name` VARCHAR(20) NOT NULL,
+PRIMARY KEY (`location_id`)
+);
+
+CREATE TABLE `cracks` (
+`crack_id` BIGINT NOT NULL AUTO_INCREMENT,
+`task_id` BIGINT NOT NULL,
+`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
+`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+`deactived_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL COMMENT '잘못된 검출은 삭제처리',
+PRIMARY KEY (`crack_id`)
+);
+
+CREATE TABLE `tasks` (
+`task_id` BIGINT NOT NULL AUTO_INCREMENT,
+`location_id` BIGINT NOT NULL,
+`user_id` BIGINT NOT NULL,
+`s3_uuid` VARCHAR(30) NOT NULL,
+`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
+`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+`deleted_at` TIMESTAMP NULL,
+`deactived_at` TIMESTAMP NULL,
+PRIMARY KEY (`task_id`)
+);
+
+CREATE TABLE `videos` (
+`video_id` BIGINT NOT NULL AUTO_INCREMENT,
+`task_id` BIGINT NOT NULL,
+`s3_url` VARCHAR(255) NOT NULL,
+`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
+`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`video_id`)
+);
+
+CREATE TABLE `detections` (
+`detect_id` BIGINT NOT NULL AUTO_INCREMENT,
+`task_id` BIGINT NOT NULL,
+`user_id` BIGINT NOT NULL,
+`s3_url` VARCHAR(255) NOT NULL,
+`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
+`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`detect_id`)
+);
+
+CREATE TABLE `images` (
+`resource_image_id` BIGINT NOT NULL AUTO_INCREMENT,
+`crack_id` BIGINT NOT NULL,
+`s3_url` VARCHAR(255) NOT NULL,
+PRIMARY KEY (`resource_image_id`)
+);
+
+CREATE TABLE `lidars` (
+`lidar_id` BIGINT NOT NULL AUTO_INCREMENT,
+`crack_id` BIGINT NOT NULL,
+`s3_url` VARCHAR(255) NULL,
+PRIMARY KEY (`lidar_id`)
+);
+
+CREATE TABLE `modelings` (
+`modeling_id` BIGINT NOT NULL AUTO_INCREMENT,
+`task_id` BIGINT NOT NULL,
+`s3_url` VARCHAR(255) NOT NULL,
+`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
+`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`modeling_id`)
+);
+
+CREATE TABLE `segments` (
+`segment_id` BIGINT NOT NULL AUTO_INCREMENT,
+`crack_id` BIGINT NOT NULL,
+`s3_url` VARCHAR(255) NOT NULL,
+PRIMARY KEY (`segment_id`)
+);
+
+CREATE TABLE `users` (
+`user_id` BIGINT NOT NULL AUTO_INCREMENT,
+`email` VARCHAR(30) NOT NULL,
+`password` TEXT NOT NULL COMMENT 'Bcrypt 해시 처리',
+`name` VARCHAR(20) NOT NULL,
+`role` ENUM('GENERAL', 'ADMIN') NOT NULL DEFAULT 'GENERAL',
+`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
+`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+`deactived_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`user_id`)
+);

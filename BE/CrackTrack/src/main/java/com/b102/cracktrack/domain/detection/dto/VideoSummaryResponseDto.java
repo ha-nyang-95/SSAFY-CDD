@@ -1,6 +1,6 @@
-package com.b102.cracktrack.domain.video.dto;
+package com.b102.cracktrack.domain.detection.dto;
 
-import com.b102.cracktrack.domain.video.entity.Video;
+import com.b102.cracktrack.domain.detection.entity.Video;
 
 public record VideoSummaryResponseDto(
     Long VideoId,

@@ -1,4 +1,4 @@
-package com.b102.cracktrack.domain.video.entity;
+package com.b102.cracktrack.domain.detection.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
 import com.b102.cracktrack.domain.location.entity.Location;
