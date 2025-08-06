@@ -43,7 +43,7 @@ public abstract class BaseEntity {
     this.deactivatedAt = LocalDateTime.now();
   }
 
-  public void setDeleted(){
+  public void softDelete(){
     this.status = Status.DELETED;
     this.deactivatedAt = LocalDateTime.now();
   }

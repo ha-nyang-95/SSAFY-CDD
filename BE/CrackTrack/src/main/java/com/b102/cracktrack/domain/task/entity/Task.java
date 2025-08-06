@@ -1,7 +1,6 @@
-package com.b102.cracktrack.domain.detection.entity;
+package com.b102.cracktrack.domain.task.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
-import com.b102.cracktrack.domain.location.entity.Location;
 import com.b102.cracktrack.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,28 +16,27 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DialectOverride.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "videos")
+@Table(name = "tasks")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Video extends BaseEntity {
+@SQLRestriction("deleted_at IS NULL")
+public class Task extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long videoId;
+  private Long taskId;
 
   @Column(nullable = false)
   private Long locationId;
 
   @Column(nullable = false)
-  private Long droneId;
-
-  @Column(nullable = false)
-  private String s3Url;
-
+  private String s3Name;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
