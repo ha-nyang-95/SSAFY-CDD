@@ -1237,18 +1237,18 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
-  /api/lambda/task/drone/{uuid/userId}:
+  /api/lambda/task/drone/{uuid}:
     put:
       tags: [Task]
       summary: 드론 작업 종료
       parameters:
         - in: path
-          name: taskId
+          name: UUID
           required: true
           schema:
             type: integer
             format: int64
-          description: 유저ID
+          description: 작업의 고유값
       security: [] # 인증 제외
       responses:
         "200":
@@ -1257,28 +1257,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiResultVoid"
-
-  /api/lambda/task/ai/{uuid/userId}:
-    put:
-      tags: [Task]
-      summary: ai 작업 종료
-      parameters:
-        - in: path
-          name: taskId
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: 유저ID
-      security: [] # 인증 제외
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVoid"
-
 
   /api/task/{taskId}:
     delete:
