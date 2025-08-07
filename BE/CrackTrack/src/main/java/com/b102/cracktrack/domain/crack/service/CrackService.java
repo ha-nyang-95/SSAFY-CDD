@@ -7,11 +7,11 @@ public interface CrackService {
 
   void createCrack(String trackingKey, String url);
 
-  void deleteCrack(Long CrackId);
+  void deleteCrack(Long crackId, Long userId);
 
-  CrackResponseDto checkCrack(Long CrackId);
+  CrackResponseDto checkCrack(Long crackId, Long userId);
 
-  List<CrackResponseDto> findCracksByTaskId(Long taskId);
+  List<CrackResponseDto> findCracksByTaskId(Long taskId, Long userId);
 
-  CrackResponseDto findCrackById(Long crackId);
+  CrackResponseDto findCrackById(Long crackId, Long userId);
 }

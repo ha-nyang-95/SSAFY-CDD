@@ -2,6 +2,7 @@ package com.b102.cracktrack.domain.lidar.repository;
 
 import com.b102.cracktrack.domain.lidar.entity.Lidar;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,5 +15,5 @@ public interface LidarRepository extends JpaRepository<Lidar, Long> {
   )
   List<Lidar> findAllByTaskId(Long taskId);
 
-  Lidar findByCrackCrackId(Long crackId);
+  Optional<Lidar> findByCrackCrackId(Long crackId);
 }

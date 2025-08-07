@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CrackRepository extends JpaRepository<Crack, Long> {
 
+  List<Crack> findByTaskTaskId(Long taskId);
 }

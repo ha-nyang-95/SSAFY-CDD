@@ -2,6 +2,7 @@ package com.b102.cracktrack.domain.image.repository;
 
 import com.b102.cracktrack.domain.image.entity.Image;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,5 +15,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
   )
   List<Image> findAllByTaskId(Long taskId);
 
-  Image findByCrackCrackId(Long crackId);
+  Optional<Image> findByCrackCrackId(Long crackId);
 }
