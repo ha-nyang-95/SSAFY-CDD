@@ -29,7 +29,7 @@ public class Segment {
   @Column(name = "segment_id")
   private Long segmentId;
 
-  @Column(nullable = false)
+  @Column(name = "s3_url", nullable = false)
   private String s3Url;
 
   @OneToOne

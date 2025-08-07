@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
           () -> {
             RefreshToken newRefreshToken = RefreshToken.builder()
                 .userId(user.getUserId())
-                .token(refreshToken)
+                .refreshToken(refreshToken)
                 .build();
             refreshTokenRepository.save(newRefreshToken);
           }
@@ -125,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
     RefreshToken storedToken = refreshTokenRepository.findByUserId(user.getUserId())
         .orElseThrow(() -> new RuntimeException("리프레시 토큰을 찾을 수 없습니다."));
 
-    if (!storedToken.getToken().equals(refreshToken)) {
+    if (!storedToken.getRefreshToken().equals(refreshToken)) {
       throw new RuntimeException("일치하지 않는 리프레시 토큰입니다.");
     }
 

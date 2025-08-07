@@ -36,7 +36,7 @@ CREATE TABLE `tasks` (
 `task_id` BIGINT NOT NULL AUTO_INCREMENT,
 `location_id` BIGINT NOT NULL,
 `user_id` BIGINT NOT NULL,
-`s3_name` VARCHAR(30) NOT NULL,
+`s3_name` VARCHAR(100) NOT NULL,
 `status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
 `activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
 `deactivated_at` TIMESTAMP NULL,
@@ -51,9 +51,6 @@ CREATE TABLE `videos` (
 `video_id` BIGINT NOT NULL AUTO_INCREMENT,
 `task_id` BIGINT NOT NULL,
 `s3_url` VARCHAR(255) NOT NULL,
-`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
-`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
-`deleted_at` TIMESTAMP NULL,
 PRIMARY KEY (`video_id`),
 FOREIGN KEY (`task_id`) REFERENCES `tasks`(`task_id`)
 );
@@ -63,9 +60,6 @@ CREATE TABLE `detections` (
 `detect_id` BIGINT NOT NULL AUTO_INCREMENT,
 `task_id` BIGINT NOT NULL,
 `s3_url` VARCHAR(255) NOT NULL,
-`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
-`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
-`deleted_at` TIMESTAMP NULL,
 PRIMARY KEY (`detect_id`),
 FOREIGN KEY (`task_id`) REFERENCES `tasks`(`task_id`)
 );
@@ -75,9 +69,6 @@ CREATE TABLE `modelings` (
 `modeling_id` BIGINT NOT NULL AUTO_INCREMENT,
 `task_id` BIGINT NOT NULL,
 `s3_url` VARCHAR(255) NOT NULL,
-`status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
-`activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
-`deleted_at` TIMESTAMP NULL,
 PRIMARY KEY (`modeling_id`),
 FOREIGN KEY (`task_id`) REFERENCES `tasks`(`task_id`)
 );
@@ -86,6 +77,7 @@ FOREIGN KEY (`task_id`) REFERENCES `tasks`(`task_id`)
 CREATE TABLE `cracks` (
 `crack_id` BIGINT NOT NULL AUTO_INCREMENT,
 `task_id` BIGINT NOT NULL,
+`crack_id_string` VARCHAR(20) NOT NULL COMMENT 'crackId0, crackId1 등의 문자열',
 `status` ENUM('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
 `activated_at` TIMESTAMP NOT NULL DEFAULT NOW(),
 `deactivated_at` TIMESTAMP NULL,

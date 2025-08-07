@@ -2,11 +2,16 @@ package com.b102.cracktrack.domain.lambda.service.impl;
 
 import com.b102.cracktrack.common.exception.ApiException;
 import com.b102.cracktrack.domain.detection.service.DetectionService;
+import com.b102.cracktrack.domain.image.service.ImageService;
 import com.b102.cracktrack.domain.lambda.dto.LambdaEventRequestDto;
 import com.b102.cracktrack.domain.lambda.service.LambdaEventService;
 import com.b102.cracktrack.common.util.FileTypeParser;
+import com.b102.cracktrack.domain.lidar.service.LidarService;
+import com.b102.cracktrack.domain.modeling.service.ModelingService;
+import com.b102.cracktrack.domain.segment.service.SegmentService;
 import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.task.repository.TaskRepository;
+import com.b102.cracktrack.domain.video.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +28,11 @@ public class LambdaEventServiceImpl implements LambdaEventService {
 
   private final DetectionService detectionService;
   private final TaskRepository taskRepository;
+  private final VideoService videoService;
+  private final ModelingService modelingService;
+  private final ImageService imageService;
+  private final LidarService lidarService;
+  private final SegmentService segmentService;
 
   @Override
   public void processEvent(LambdaEventRequestDto requestDto) {
@@ -30,10 +40,11 @@ public class LambdaEventServiceImpl implements LambdaEventService {
         requestDto.getUuid(), requestDto.getFiles().size());
 
     try {
-      // UUID로 Task 조회
-      Task task = taskRepository.findByS3Name(requestDto.getUuid())
+      // UUID로 Task 조회 (전체 경로 사용)
+      String fullPath = requestDto.getUuid();
+      Task task = taskRepository.findByS3Name(fullPath)
           .orElseThrow(() -> {
-            log.error("Task를 찾을 수 없음 - uuid: {}", requestDto.getUuid());
+            log.error("Task를 찾을 수 없음 - uuid: {}", fullPath);
             return new ApiException(HttpStatus.NOT_FOUND.value(), "해당 작업을 찾을 수 없습니다.");
           });
 
@@ -100,8 +111,7 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     
     for (String fileName : videoFiles) {
       log.info("비디오 파일 처리 중: {}", fileName);
-      // TODO: VideoService 구현 후 활성화
-      // videoService.createVideo(task.getTaskId(), fileName);
+      videoService.createVideo(task.getTaskId(), fileName);
     }
     
     log.info("비디오 파일 처리 완료");
@@ -112,8 +122,7 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     
     for (String fileName : detectionFiles) {
       log.info("디텍션 파일 처리 중: {}", fileName);
-      // TODO: DetectionService에 디텍션 생성 메서드 구현 필요
-      // detectionService.createDetection(task.getTaskId(), fileName);
+      detectionService.createDetection(task.getTaskId(), fileName);
     }
     
     log.info("디텍션 파일 처리 완료");
@@ -124,8 +133,7 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     
     for (String fileName : modelingFiles) {
       log.info("모델링 파일 처리 중: {}", fileName);
-      // TODO: ModelingService 구현 후 활성화
-      // modelingService.createModeling(task.getTaskId(), fileName);
+      modelingService.createModeling(task.getTaskId(), fileName);
     }
     
     log.info("모델링 파일 처리 완료");
@@ -135,10 +143,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     log.info("세그먼트 파일 처리 시작 - taskId: {}, 파일 개수: {}", task.getTaskId(), segmentFiles.size());
     
     for (String fileName : segmentFiles) {
-      String trackingKey = FileTypeParser.extractTrackingKey(fileName);
-      log.info("세그먼트 파일 처리 중: {}, trackingKey: {}", fileName, trackingKey);
-      // TODO: SegmentService 구현 후 활성화
-      // segmentService.createSegment(task.getTaskId(), fileName, trackingKey);
+      String crackId = FileTypeParser.extractCrackId(fileName);
+      log.info("세그먼트 파일 처리 중: {}, crackId: {}", fileName, crackId);
+      segmentService.createSegment(task.getTaskId(), fileName, crackId);
     }
     
     log.info("세그먼트 파일 처리 완료");
@@ -148,10 +155,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     log.info("이미지 파일 처리 시작 - taskId: {}, 파일 개수: {}", task.getTaskId(), imageFiles.size());
     
     for (String fileName : imageFiles) {
-      String trackingKey = FileTypeParser.extractTrackingKey(fileName);
-      log.info("이미지 파일 처리 중: {}, trackingKey: {}", fileName, trackingKey);
-      // TODO: ImageService 구현 후 활성화
-      // imageService.createImage(task.getTaskId(), fileName, trackingKey);
+      String crackId = FileTypeParser.extractCrackId(fileName);
+      log.info("이미지 파일 처리 중: {}, crackId: {}", fileName, crackId);
+      imageService.createImage(task.getTaskId(), fileName, crackId);
     }
     
     log.info("이미지 파일 처리 완료");
@@ -161,10 +167,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     log.info("라이더 파일 처리 시작 - taskId: {}, 파일 개수: {}", task.getTaskId(), lidarFiles.size());
     
     for (String fileName : lidarFiles) {
-      String trackingKey = FileTypeParser.extractTrackingKey(fileName);
-      log.info("라이더 파일 처리 중: {}, trackingKey: {}", fileName, trackingKey);
-      // TODO: LidarService 구현 후 활성화
-      // lidarService.createLidar(task.getTaskId(), fileName, trackingKey);
+      String crackId = FileTypeParser.extractCrackId(fileName);
+      log.info("라이더 파일 처리 중: {}, crackId: {}", fileName, crackId);
+      lidarService.createLidar(task.getTaskId(), fileName, crackId);
     }
     
     log.info("라이더 파일 처리 완료");
