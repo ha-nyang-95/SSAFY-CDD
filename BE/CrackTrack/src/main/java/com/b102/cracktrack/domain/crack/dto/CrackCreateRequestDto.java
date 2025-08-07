@@ -9,12 +9,4 @@ public record CrackCreateRequestDto(
     boolean isCrackDetected
 ) {
 
-  public static Crack of(CrackCreateRequestDto createRequestDto) {
-    return Crack.builder()
-        .trackingKey(createRequestDto.trackingKey)
-        .lidarMax(createRequestDto.lidarMax)
-        .lidarMin(createRequestDto.lidarMin)
-        .build();
-  }
-
 }

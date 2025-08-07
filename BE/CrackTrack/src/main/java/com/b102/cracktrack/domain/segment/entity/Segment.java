@@ -26,6 +26,7 @@ public class Segment {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "segment_id")
   private Long segmentId;
 
   @Column(nullable = false)

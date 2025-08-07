@@ -26,6 +26,7 @@ public class Modeling extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "modeling_id")
   private Long modelingId;
 
   @Column(nullable = false)

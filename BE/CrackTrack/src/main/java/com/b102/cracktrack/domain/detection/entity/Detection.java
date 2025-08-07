@@ -26,6 +26,7 @@ public class Detection extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "detect_id")
   private Long detectionId;
 
   @Column(nullable = false)

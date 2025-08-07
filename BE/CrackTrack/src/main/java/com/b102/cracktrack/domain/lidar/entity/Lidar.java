@@ -32,6 +32,6 @@ public class Lidar {
   private String s3Url;
 
   @OneToOne
-  @JoinColumn(name = "lidar_id")
+  @JoinColumn(name = "crack_id")
   private Crack crack;
 }

@@ -32,6 +32,7 @@ public class Crack extends BaseEntity {
    */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "crack_id")
   private Long crackId;
 
   @ManyToOne
