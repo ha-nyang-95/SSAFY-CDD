@@ -12,6 +12,11 @@ const StyledActionSidebar = styled.aside`
   align-items: center;
   gap: 20px; /* Specific value from mockup */
   flex-shrink: 0;
+  
+  /* 모바일에서는 숨김 */
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 interface ActionSidebarProps {

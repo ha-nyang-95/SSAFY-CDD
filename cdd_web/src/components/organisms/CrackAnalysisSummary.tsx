@@ -23,7 +23,9 @@ const ListContainer = styled.ul`
   padding: 0;
   margin: 0;
   flex-grow: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacings.small};
 `;
 
 const InfoContainer = styled.div`

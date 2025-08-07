@@ -15,6 +15,12 @@ const StyledContentView = styled.div<StyledContentViewProps>`
   /* props로 받은 값으로 정렬을 동적으로 설정합니다. 값이 없으면 기본값으로 동작합니다. */
   justify-content: ${(props) => props.justifyContent || 'flex-start'};
   align-items: ${(props) => props.alignItems || 'stretch'};
+  
+  /* 모바일에서는 세로 레이아웃으로 변경 */
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: ${(props) => props.theme.spacings.medium};
+  }
 `;
 
 // 컴포넌트가 받을 props 타입을 확장합니다.

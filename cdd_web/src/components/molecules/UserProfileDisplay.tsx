@@ -27,9 +27,6 @@ const UserProfileDisplay: React.FC<UserProfileDisplayProps> = ({
 }) => {
   return (
     <UserProfileContainer>
-      <Text variant="span" fontSize="1.2rem" fontWeight="normal">
-        {isLoggedIn ? `환영합니다, ${username}님` : '환영합니다'}
-      </Text>
       <Button $variant="header" onClick={isLoggedIn ? onLogout : onLoginClick}>
         {isLoggedIn ? '로그아웃' : '로그인'}
       </Button>

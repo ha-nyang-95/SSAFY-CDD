@@ -11,15 +11,18 @@ import ContentView from '../layouts/ContentView';
 // Organism Components
 import AppHeader from '../components/organisms/AppHeader';
 import ActionSidebar from '../components/organisms/ActionSidebar';
+import MobileBottomNavigation from '../components/organisms/MobileBottomNavigation';
 import LiveFeedContainer from '../components/organisms/LiveFeedContainer';
 import ContentCard from '../components/organisms/ContentCard';
 import CrackAnalysisSummary from '../components/organisms/CrackAnalysisSummary';
+import CrackAnalysisModal from '../components/organisms/CrackAnalysisModal';
 import StructureManagementList from '../components/organisms/StructureManagementList';
 import DetailModal from '../components/organisms/DetailModal';
 import CreateStructureModal from '../components/organisms/CreateStructureModal';
 
 // Atom Components (for placeholder content)
 import Text from '../components/atoms/Text';
+import Button from '../components/atoms/Button';
 
 // API Services
 import {
@@ -35,6 +38,9 @@ import {
 
 import { useAuth } from '../contexts/AuthContext';
 
+// 3D 모델 이미지 import
+import threeDModelImage from '../assets/images/3D model.jpg';
+
 // PageHeader가 그리드의 첫 번째 행 중앙에 위치하도록 수정합니다.
 const PageHeader = styled.div`
   display: grid;
@@ -47,6 +53,12 @@ const PageTitle = styled(Text).attrs({ variant: 'h1' })`
   font-size: 3rem; // 48px
   font-weight: 700;
   color: ${({ theme }) => theme.colors.textPrimary};
+  
+  /* 모바일에서 더 작은 크기 */
+  @media (max-width: 768px) {
+    font-size: 2rem; // 32px
+    text-align: center;
+  }
 `;
 
 // '콘텐츠 박스' 역할을 할 컨테이너.
@@ -60,22 +72,43 @@ const LeftColumn = styled.section`
   flex: 7;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
 `;
 
 const RightColumn = styled.section`
   flex: 3;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  
+  /* 모바일에서 높이 제한 */
+  @media (max-width: 768px) {
+    max-height: 60vh; /* 화면 높이의 60%로 제한 */
+    margin-bottom: ${(props) => props.theme.spacings.large};
+  }
 `;
 
 const Viewer3DContainer = styled(ContentCard)`
   justify-content: center;
   align-items: center;
-  background-color: ${(props) => props.theme.colors.border}; /* Use border color for background */
-  border: 2px dashed ${(props) => props.theme.colors.border};
-  color: ${(props) => props.theme.colors.textSecondary};
-  font-weight: 500;
-  font-size: 1.2rem;
+  padding: 0;
+  overflow: hidden;
+  
+  /* 모바일에서 높이 제한 */
+  @media (max-width: 768px) {
+    min-height: 250px;
+    max-height: 35vh; /* 화면 높이의 35%로 제한 */
+    margin-bottom: ${(props) => props.theme.spacings.medium};
+  }
+`;
+
+const ThreeDModelImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 1:1 비율 유지하면서 전체 이미지 표시 */
+  background-color: ${(props) => props.theme.colors.darkSurface};
 `;
 
 const VIEW_TITLES = {
@@ -83,6 +116,52 @@ const VIEW_TITLES = {
   threeDModel: '3D 모델 시각화',
   structureManagement: '구조물 관리',
 };
+
+const CrackAnalysisButton = styled(Button)`
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  background-color: ${(props) => props.theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: ${(props) => props.theme.radii.medium};
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: none; /* 기본적으로 숨김 */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${(props) => props.theme.spacings.small};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: ${(props) => props.theme.colors.accent};
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  /* 모바일에서만 표시 */
+  @media (max-width: 768px) {
+    display: flex;
+    min-height: 80px;
+    font-size: 1rem;
+  }
+`;
+
+const DesktopCrackAnalysis = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  /* 모바일에서는 숨김 */
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 const DashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -92,6 +171,7 @@ const DashboardPage: React.FC = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedCrackId, setSelectedCrackId] = useState<string | null>(null);
   const [isCreateStructureModalOpen, setIsCreateStructureModalOpen] = useState(false);
+  const [isCrackAnalysisModalOpen, setIsCrackAnalysisModalOpen] = useState(false);
 
   const { isLoggedIn, currentUser } = useAuth();
 
@@ -182,16 +262,35 @@ const DashboardPage: React.FC = () => {
               <ContentView style={{ alignItems: 'stretch' }}>
                 <LeftColumn>
                   <Viewer3DContainer title="3D 모델 시각화 영역">
-                    3D 모델 시각화 영역
+                    <ThreeDModelImage 
+                      src={threeDModelImage} 
+                      alt="3D 모델"
+                    />
                   </Viewer3DContainer>
                 </LeftColumn>
                 <RightColumn>
-                  <ContentCard title="균열 분석 요약">
-                    <CrackAnalysisSummary
-                      crackData={cracksData as any}
-                      onCrackItemClick={handleCrackItemClick}
-                    />
-                  </ContentCard>
+                  {/* 웹에서는 직접 콘텐츠 박스로 표시 */}
+                  <DesktopCrackAnalysis>
+                    <ContentCard title="균열 분석 요약">
+                      <CrackAnalysisSummary
+                        crackData={cracksData as any}
+                        onCrackItemClick={handleCrackItemClick}
+                      />
+                    </ContentCard>
+                  </DesktopCrackAnalysis>
+                  
+                  {/* 모바일에서는 버튼으로 모달 표시 */}
+                  <CrackAnalysisButton 
+                    onClick={() => setIsCrackAnalysisModalOpen(true)}
+                    title="균열 분석 요약 보기"
+                  >
+                    <Text variant="span" fontSize="1.1rem" fontWeight="600">
+                      균열 분석 요약
+                    </Text>
+                    <Text variant="span" fontSize="0.9rem" opacity="0.9">
+                      {cracksData.length}개 균열 발견
+                    </Text>
+                  </CrackAnalysisButton>
                 </RightColumn>
               </ContentView>
             )}
@@ -222,6 +321,22 @@ const DashboardPage: React.FC = () => {
         onClose={() => setIsCreateStructureModalOpen(false)}
         onSubmit={handleCreateStructureSubmit}
         onGenerateLink={handleGenerateLink}
+      />
+
+      <CrackAnalysisModal
+        isOpen={isCrackAnalysisModalOpen}
+        onClose={() => setIsCrackAnalysisModalOpen(false)}
+        crackData={cracksData as any}
+        onCrackItemClick={(crackId) => {
+          handleCrackItemClick(crackId);
+          setIsCrackAnalysisModalOpen(false);
+        }}
+      />
+      
+      {/* 모바일 하단 네비게이션 */}
+      <MobileBottomNavigation 
+        activeView={activeView} 
+        onNavClick={setActiveView} 
       />
     </AppContainer>
   );

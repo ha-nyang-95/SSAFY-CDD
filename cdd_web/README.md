@@ -96,9 +96,11 @@ npm install -D eslint prettier husky typescript @types/react @types/node @types/
     *   `- [x] ContentCard: `title`, `children`
     *   `- [x] LiveFeedContainer: `status` (live/offline), `message`
     *   `- [x] CrackAnalysisSummary: `crackData` (array of crack objects), `onCrackItemClick`
+    *   `- [x] CrackAnalysisModal: `isOpen`, `onClose`, `crackData`, `onCrackItemClick`
     *   `- [x] StructureManagementList: `structures` (array of structure objects), `onCreateStructureClick`
     *   `- [x] DetailModal: `isOpen`, `onClose`, `crackDetailData`
     *   `- [x] CreateStructureModal: `isOpen`, `onClose`, `onSubmit`, `onGenerateLink`
+    *   `- [x] MobileBottomNavigation: `activeView`, `onNavClick`
 
 #### **1.3. 글로벌 레이아웃 (Global Layouts)**
 
@@ -212,9 +214,11 @@ src/
 *   `- [x] ContentCard 컴포넌트 개발 (props: `title`, `children`)`
 *   `- [x] LiveFeedContainer 컴포넌트 개발 (props: `status`, `message`)`
 *   `- [x] CrackAnalysisSummary 컴포넌트 개발 (props: `crackData`, `onCrackItemClick`)`
+*   `- [x] CrackAnalysisModal 컴포넌트 개발 (props: `isOpen`, `onClose`, `crackData`, `onCrackItemClick`)`
 *   `- [x] StructureManagementList 컴포넌트 개발 (props: `structures`, `onCreateStructureClick`)`
 *   `- [x] DetailModal 컴포넌트 개발 (props: `isOpen`, `onClose`, `crackDetailData`)`
 *   `- [x] CreateStructureModal 컴포넌트 개발 (props: `isOpen`, `onClose`, `onSubmit`, `onGenerateLink`)`
+*   `- [x] MobileBottomNavigation 컴포넌트 개발 (props: `activeView`, `onNavClick`)`
 
 ---
 
@@ -322,16 +326,15 @@ src/
 
 ```
 src/
-├── App.css
 ├── App.tsx
-├── index.css
 ├── main.tsx
 ├── vite-env.d.ts
 ├── assets/
 │   ├── react.svg
-│   ├── fonts/
-│   ├── icons/
 │   └── images/
+│       ├── 3D model.jpg
+│       ├── Checky.png
+│       └── Live.gif
 ├── components/
 │   ├── atoms/
 │   │   ├── Badge.stories.tsx
@@ -367,6 +370,7 @@ src/
 │       ├── AuthForm.tsx
 │       ├── ContentCard.stories.tsx
 │       ├── ContentCard.tsx
+│       ├── CrackAnalysisModal.tsx
 │       ├── CrackAnalysisSummary.stories.tsx
 │       ├── CrackAnalysisSummary.tsx
 │       ├── CreateStructureModal.stories.tsx
@@ -375,6 +379,7 @@ src/
 │       ├── DetailModal.tsx
 │       ├── LiveFeedContainer.stories.tsx
 │       ├── LiveFeedContainer.tsx
+│       ├── MobileBottomNavigation.tsx
 │       ├── StructureManagementList.stories.tsx
 │       └── StructureManagementList.tsx
 ├── contexts/
@@ -382,20 +387,10 @@ src/
 │   └── AuthContext.tsx
 ├── features/
 │   ├── auth/
-│   │   ├── AuthIntegration.test.tsx
-│   │   ├── api/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   └── types/
-│   ├── common/
+│   │   └── AuthIntegration.test.tsx
 │   └── dashboard/
 │       ├── DashboardNavigation.test.tsx
-│       ├── ModalIntegration.test.tsx
-│       ├── api/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   └── types/
-├── hooks/
+│       └── ModalIntegration.test.tsx
 ├── layouts/
 │   ├── AppContainer.tsx
 │   ├── AuthLayout.tsx
@@ -408,10 +403,8 @@ src/
 │   └── SignUpPage.tsx
 ├── services/
 │   └── api.ts
-├── styles/
-│   ├── global.ts
-│   ├── mixins.ts
-│   └── theme.ts
-├── types/
-└── utils/
+└── styles/
+    ├── global.ts
+    ├── mixins.ts
+    └── theme.ts
 ```

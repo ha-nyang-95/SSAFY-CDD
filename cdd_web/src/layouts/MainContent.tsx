@@ -8,6 +8,11 @@ const StyledMainContent = styled.main`
   padding: ${(props) => props.theme.spacings.large};
   gap: ${(props) => props.theme.spacings.large};
   overflow: auto;
+  
+  /* 모바일에서는 하단 네비게이션 공간 확보 */
+  @media (max-width: 768px) {
+    padding-bottom: calc(${(props) => props.theme.spacings.large} + 70px);
+  }
 `;
 
 interface MainContentProps {
