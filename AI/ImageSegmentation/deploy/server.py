@@ -91,7 +91,7 @@ def run_inference_task(request: InferenceRequest):
         return
 
     image_key = f"{request.file_name}image.jpeg"
-    result_key = f"{request.file_name}result.png"
+    result_key = f"{request.file_name}segment.png"
     logging.info(f"Starting inference for {image_key}")
 
     try:
