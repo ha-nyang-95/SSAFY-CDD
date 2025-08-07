@@ -6,15 +6,17 @@
 
 프로젝트에 필요한 모든 라이브러리를 설치하는 단일 명령어입니다.
 ```bash
-npm install react react-dom next styled-components axios @tanstack/react-query && \
-npm install -D \
-  @storybook/react-webpack5@^8.6.14 \
-  @storybook/addon-essentials@^8.6.14 \
-  @storybook/addon-interactions@^8.6.14 \
-  @storybook/addon-links@^8.6.14 \
-  @storybook/blocks@^8.6.14 \
-  eslint prettier husky typescript \
-  @types/react @types/node @types/styled-components
+npm install react react-dom next styled-components axios @tanstack/react-query
+npm install -D eslint prettier husky typescript @types/react @types/node @types/styled-components
+
+# npm install -D \
+#   @storybook/react-webpack5@^8.6.14 \
+#   @storybook/addon-essentials@^8.6.14 \
+#   @storybook/addon-interactions@^8.6.14 \
+#   @storybook/addon-links@^8.6.14 \
+#   @storybook/blocks@^8.6.14 \
+#   eslint prettier husky typescript \
+#   @types/react @types/node @types/styled-components
 ```
 
 ### 📋 프로젝트 개발 계획

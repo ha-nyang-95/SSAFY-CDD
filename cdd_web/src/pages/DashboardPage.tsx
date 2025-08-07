@@ -35,20 +35,11 @@ import {
 
 import { useAuth } from '../contexts/AuthContext';
 
-// 새로운 그리드 레이아웃을 위한 컨테이너를 정의합니다.
-const ContentGridContainer = styled.div`
-  display: grid;
-  /* 제목(1.5), 상단 여백(0.5), 콘텐츠(5.5), 하단 여백(0.5) 비율로 설정 (총 8) */
-  grid-template-rows: 1.5fr 0.5fr 5.5fr 0.5fr;
-  height: 100%;
-  width: 100%;
-`;
-
 // PageHeader가 그리드의 첫 번째 행 중앙에 위치하도록 수정합니다.
 const PageHeader = styled.div`
-  grid-row: 1 / 2; /* 첫 번째 행을 차지 */
   display: grid;
-  place-items: center; /* 내부 아이템을 수직/수평 중앙 정렬 */
+  justify-items: center; /* 중앙 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
   flex-shrink: 0;
 `;
 
@@ -58,13 +49,11 @@ const PageTitle = styled(Text).attrs({ variant: 'h1' })`
   color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
-// 실제 콘텐츠가 그리드의 3번째부터 8번째 행을 차지하도록 컨테이너를 정의합니다.
-const ContentBody = styled.div`
-  grid-row: 3 / 4; /* 3번째 행을 차지 */
-  display: flex;
-  justify-content: center; /* 기본적으로 자식요소를 수평 중앙 정렬 */
-  align-items: center; /* 기본적으로 자식요소를 수직 중앙 정렬 */
-  min-height: 0;
+// '콘텐츠 박스' 역할을 할 컨테이너.
+const PageContent = styled.div`
+  flex-grow: 1; /* MainContent의 남은 공간을 모두 차지 */
+  display: flex; /* 내부 컨텐츠(ContentView)를 채우기 위함 */
+  min-height: 0; /* flex 자식 요소의 크기가 부모를 넘어서는 것을 방지 */
 `;
 
 const LeftColumn = styled.section`
@@ -174,46 +163,48 @@ const DashboardPage: React.FC = () => {
       <AppHeader />
       <MainWrapper>
         <ActionSidebar activeView={activeView} onNavClick={setActiveView} />
+        {/* --- JSX 구조를 새로운 2단 박스 구조로 변경 --- */}
         <MainContent>
-          <ContentGridContainer>
-            <PageHeader>
-              <PageTitle>{VIEW_TITLES[activeView]}</PageTitle>
-            </PageHeader>
+          {/* 첫 번째 박스: 제목 */}
+          <PageHeader>
+            <PageTitle>{VIEW_TITLES[activeView]}</PageTitle>
+          </PageHeader>
+          
+          {/* 두 번째 박스: 메인 콘텐츠 */}
+          <PageContent>
+            {activeView === 'realTime' && (
+              <ContentView justifyContent="center" alignItems="center">
+                <LiveFeedContainer />
+              </ContentView>
+            )}
             
-            <ContentBody>
-              {activeView === 'realTime' && (
-                <ContentView>
-                  <LiveFeedContainer />
-                </ContentView>
-              )}
-              
-              {activeView === 'threeDModel' && (
-                <ContentView style={{ width: '100%', alignItems: 'stretch' }}>
-                  <LeftColumn>
-                    <Viewer3DContainer title="3D 모델 시각화 영역">
-                      3D 모델 시각화 영역
-                    </Viewer3DContainer>
-                  </LeftColumn>
-                  <RightColumn>
-                    <ContentCard title="균열 분석 요약">
-                      <CrackAnalysisSummary
-                        crackData={cracksData as any} // Cast to any due to mock data structure
-                        onCrackItemClick={handleCrackItemClick}
-                      />
-                    </ContentCard>
-                  </RightColumn>
-                </ContentView>
-              )}
-              {activeView === 'structureManagement' && (
-                <ContentView style={{ width: '100%', alignItems: 'stretch' }}>
-                  <StructureManagementList
-                    structures={structuresData}
-                    onCreateStructureClick={() => setIsCreateStructureModalOpen(true)}
-                  />
-                </ContentView>
-              )}
-            </ContentBody>
-          </ContentGridContainer>
+            {activeView === 'threeDModel' && (
+              <ContentView style={{ alignItems: 'stretch' }}>
+                <LeftColumn>
+                  <Viewer3DContainer title="3D 모델 시각화 영역">
+                    3D 모델 시각화 영역
+                  </Viewer3DContainer>
+                </LeftColumn>
+                <RightColumn>
+                  <ContentCard title="균열 분석 요약">
+                    <CrackAnalysisSummary
+                      crackData={cracksData as any}
+                      onCrackItemClick={handleCrackItemClick}
+                    />
+                  </ContentCard>
+                </RightColumn>
+              </ContentView>
+            )}
+
+            {activeView === 'structureManagement' && (
+              <ContentView style={{ alignItems: 'stretch' }}>
+                <StructureManagementList
+                  structures={structuresData}
+                  onCreateStructureClick={() => setIsCreateStructureModalOpen(true)}
+                />
+              </ContentView>
+            )}
+          </PageContent>
         </MainContent>
       </MainWrapper>
 

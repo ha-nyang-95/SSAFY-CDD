@@ -119,7 +119,8 @@ const StyledButton = styled.button<StyledButtonProps>`
       background-color: transparent;
       border: 1px solid ${(props) => props.theme.colors.border};
       color: ${(props) => props.theme.colors.textSecondary};
-      padding: 8px 16px;
+      padding: 12px 24px;
+      font-size: ${(props) => props.theme.fontSizes.medium};
       border-radius: ${(props) => props.theme.radii.small};
       font-weight: 500;
 

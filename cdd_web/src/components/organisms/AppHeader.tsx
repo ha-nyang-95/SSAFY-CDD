@@ -27,7 +27,7 @@ const BrandContainer = styled.div`
 `;
 
 const LogoImage = styled.img`
-  height: 48px; // 로고 이미지의 높이
+  height: 72px; // 로고 이미지의 높이
 `;
 
 interface AppHeaderProps {
@@ -64,7 +64,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     <StyledAppHeader>
       <BrandContainer>
         <LogoImage src={logoImage} alt="CDD Logo" />
-        <Text variant="h2" fontSize="1.75rem" color={({ theme }) => theme.colors.primary}>
+        <Text variant="h2" fontSize="2.0rem" color={({ theme }) => theme.colors.primary}>
           CDD: Crack Detection Drone
         </Text>
       </BrandContainer>

@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import Text from '../atoms/Text';
 
 const StyledLiveFeedContainer = styled.div`
-  width: 1024px;
-  height: 600px;
+  width: 80%;
+  max-width: 1024px;
+  aspect-ratio: 16 / 9;
   background-color: ${(props) => props.theme.colors.darkSurface};
   border-radius: ${(props) => props.theme.radii.medium};
   display: flex;

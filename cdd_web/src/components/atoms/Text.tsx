@@ -12,27 +12,27 @@ const StyledText = styled.p<StyledTextProps>`
   margin: 0;
   padding: 0;
   color: ${(props) => props.$color || 'inherit'}; 
-  font-size: ${(props) => props.theme.fontSizes.medium}; /* Use theme medium as default */
+  font-size: ${(props) => props.$fontSize || props.theme.fontSizes.medium}; /* Use custom fontSize or theme default */
   font-weight: ${(props) => props.$fontWeight || 'normal'};
 
   ${(props) =>
     props.as === 'h1' &&
     css`
-      font-size: ${(props) => props.theme.fontSizes.xLarge};
+      font-size: ${(props) => props.$fontSize || props.theme.fontSizes.xLarge};
       font-weight: 700;
     `}
 
   ${(props) =>
     props.as === 'h2' &&
     css`
-      font-size: ${(props) => props.theme.fontSizes.large};
+      font-size: ${(props) => props.$fontSize || props.theme.fontSizes.large};
       font-weight: 700;
     `}
 
   ${(props) =>
     props.as === 'h3' &&
     css`
-      font-size: 1.1rem; /* Specific size from mockup */
+      font-size: ${(props) => props.$fontSize || '1.1rem'}; /* Use custom fontSize or mockup size */
       font-weight: 700;
     `}
 
