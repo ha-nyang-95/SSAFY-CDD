@@ -90,7 +90,7 @@
         <h1 class="login-title">CDD: Drone System Login</h1>
         <p class="login-subtitle">S3 인증 URL을 입력하여 시스템을 활성화하세요.</p>
         <form class="login-form" method="post">
-            <input type="url" name="auth_url" placeholder="http://s3/userID/taskID/ 형식" required>
+            <input type="url" name="auth_url" placeholder="http://s3/userID/taskID 형식" required>
             <button type="submit" class="button">인증 및 시작</button>
             {% if error %}
                 <p class="error-message">{{ error }}</p>
