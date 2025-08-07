@@ -42,4 +42,7 @@ public class Crack extends BaseEntity {
   @JoinColumn(name = "task_id")
   private Task task;
 
+  @Column(name = "crack_id_string", nullable = false)
+  private String crackIdString; // crackId0, crackId1 등의 문자열
+
 }

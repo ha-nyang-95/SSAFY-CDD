@@ -1,6 +1,5 @@
 package com.b102.cracktrack.domain.modeling.entity;
 
-import com.b102.cracktrack.common.entity.BaseEntity;
 import com.b102.cracktrack.domain.task.entity.Task;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,14 +21,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Modeling extends BaseEntity {
+public class Modeling {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "modeling_id")
   private Long modelingId;
 
-  @Column(nullable = false)
+  @Column(name = "s3_url", nullable = false)
   private String s3Url;
 
   @OneToOne

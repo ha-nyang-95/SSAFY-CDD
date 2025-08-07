@@ -26,9 +26,10 @@ public class Lidar {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "lidar_id")
   private Long lidarId;
 
-  @Column(nullable = false)
+  @Column(name = "s3_url", nullable = false)
   private String s3Url;
 
   @OneToOne

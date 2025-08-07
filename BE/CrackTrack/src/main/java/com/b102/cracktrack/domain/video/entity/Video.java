@@ -28,7 +28,7 @@ public class Video {
   @Column(name = "video_id")
   private Long videoId;
 
-  @Column(nullable = false)
+  @Column(name = "s3_url", nullable = false)
   private String s3Url;
 
   @OneToOne

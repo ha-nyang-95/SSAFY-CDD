@@ -36,7 +36,7 @@ public class Task extends BaseEntity {
   @Column(nullable = false)
   private Long locationId;
 
-  @Column(nullable = false)
+  @Column(name = "s3_name", nullable = false)
   private String s3Name;
 
   @ManyToOne(fetch = FetchType.LAZY)

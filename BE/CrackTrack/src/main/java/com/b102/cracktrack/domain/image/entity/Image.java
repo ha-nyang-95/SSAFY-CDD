@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "cracks")
+@Table(name = "images")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -25,9 +25,10 @@ public class Image {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "image_id")
   private Long imageId;
 
-  @Column(nullable = false)
+  @Column(name = "s3_url", nullable = false)
   private String s3Url;
 
   @OneToOne

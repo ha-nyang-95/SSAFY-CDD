@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -97,5 +98,26 @@ public class DetectionServiceImpl implements DetectionService {
     
     log.info("Detection 상세 조회 성공: detectionId: {}, userId: {}", detectionId, userId);
     return DetectionResponseDto.from(detection);
+  }
+
+  @Override
+  @Transactional
+  public void createDetection(Long taskId, String fileName) {
+    log.info("디텍션 생성 시작 - taskId: {}, fileName: {}", taskId, fileName);
+    
+    Task task = taskRepository.findById(taskId)
+        .orElseThrow(() -> new RuntimeException("Task를 찾을 수 없습니다: " + taskId));
+    
+    // S3 URL 생성 (실제 구현에서는 S3 경로로 변경)
+    String s3Url = "s3://cracktrack/" + fileName;
+    
+    Detection detection = Detection.builder()
+        .task(task)
+        .s3Url(s3Url)
+        .build();
+    
+    detectionRepository.save(detection);
+    
+    log.info("디텍션 생성 완료 - detectionId: {}", detection.getDetectionId());
   }
 }
