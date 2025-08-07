@@ -1,0 +1,6 @@
+ultralytics
+opencv-python
+mlflow
+torch
+torchvision
+PyYAML
