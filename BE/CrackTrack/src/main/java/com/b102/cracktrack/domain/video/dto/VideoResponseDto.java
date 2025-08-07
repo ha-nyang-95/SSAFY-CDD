@@ -4,8 +4,7 @@ import java.time.LocalDateTime;
 
 public record VideoResponseDto(
     Long videoId,
-    String s3Url,
-    LocalDateTime activatedAt
+    String s3Url
 ) {
 
 }

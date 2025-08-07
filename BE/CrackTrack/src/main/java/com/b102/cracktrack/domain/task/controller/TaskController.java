@@ -7,6 +7,8 @@ import com.b102.cracktrack.domain.task.dto.TaskFirstResponseDto;
 import com.b102.cracktrack.domain.task.dto.TaskResponseDto;
 import com.b102.cracktrack.domain.task.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "작업")
 @RestController
-@RequestMapping("/api`")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class TaskController {
 

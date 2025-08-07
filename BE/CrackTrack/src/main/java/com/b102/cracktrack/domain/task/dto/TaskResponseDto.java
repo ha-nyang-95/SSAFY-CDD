@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public record TaskResponseDto(
     Long taskId,
-    String location,
+    String locationName,
     LocalDateTime createdAt
 ) {
   public static TaskResponseDto from(Task task, String location) {
