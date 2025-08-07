@@ -26,7 +26,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final CustomAccessDeniedHandler accessDeniedHandler;
   private final JwtAuthenticationEntryPoint authenticationEntryPoint;
@@ -80,7 +79,6 @@ public class SecurityConfig {
             .authenticationEntryPoint(authenticationEntryPoint)  // 401 Unauthorized 처리
             .accessDeniedHandler(accessDeniedHandler)            // 403 Forbidden 처리
         )
-        .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

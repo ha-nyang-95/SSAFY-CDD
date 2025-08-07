@@ -1,7 +1,7 @@
-package com.b102.cracktrack.domain.modeling.entity;
+package com.b102.cracktrack.domain.lidar.entity;
 
-import com.b102.cracktrack.common.entity.BaseEntity;
-import com.b102.cracktrack.domain.task.entity.Task;
+
+import com.b102.cracktrack.domain.crack.entity.Crack;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,23 +17,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "modelings")
+@Table(name = "lidars")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Modeling extends BaseEntity {
+public class Lidar {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "modeling_id")
-  private Long modelingId;
+  private Long lidarId;
 
   @Column(nullable = false)
   private String s3Url;
 
   @OneToOne
-  @JoinColumn(name = "task_id")
-  private Task task;
-
+  @JoinColumn(name = "crack_id")
+  private Crack crack;
 }

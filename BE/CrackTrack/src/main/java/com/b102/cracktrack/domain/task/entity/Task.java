@@ -30,6 +30,7 @@ public class Task extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "task_id")
   private Long taskId;
 
   @Column(nullable = false)

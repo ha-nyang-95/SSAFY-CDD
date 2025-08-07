@@ -1,6 +1,7 @@
 package com.b102.cracktrack.domain.crack.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
+import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,28 +32,11 @@ public class Crack extends BaseEntity {
    */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "crack_id")
   private Long crackId;
 
-  @Column
-  private Long modelingId;
-
-  @Column(nullable = false)
-  private String trackingKey;
-
-  @Column(nullable = false)
-  private boolean isCrackDetected;
-
-  @Column
-  private String s3Url;
-
-  @Column(nullable = false)
-  private double lidarMax;
-
-  @Column(nullable = false)
-  private double lidarMin;
-
   @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
+  @JoinColumn(name = "task_id")
+  private Task task;
 
 }
