@@ -14,11 +14,11 @@ PRIMARY KEY (`user_id`)
 
 -- 리프레시 토큰 테이블
 CREATE TABLE `refresh_tokens` (
-`token_id` BIGINT NOT NULL AUTO_INCREMENT,
+`refresh_token_id` BIGINT NOT NULL AUTO_INCREMENT,
 `user_id` BIGINT NOT NULL,
 `refresh_token` VARCHAR(512) NOT NULL,
 `expires_at` TIMESTAMP NOT NULL DEFAULT (NOW() + INTERVAL 7 DAY),
-PRIMARY KEY (`token_id`),
+PRIMARY KEY (`refresh_token_id`),
 FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
 );
 
