@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "지역", description = "유저마다 각자의 리스트로 등록(이전 결과물 추적을 위해 추가)")
+@Tag(name = "지역", description = "유저마다 각자의 리스트로 관리")
 @RestController
 @RequestMapping("/api/location")
 @RequiredArgsConstructor

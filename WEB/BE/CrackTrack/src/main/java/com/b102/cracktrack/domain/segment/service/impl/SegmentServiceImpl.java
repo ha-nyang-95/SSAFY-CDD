@@ -23,8 +23,8 @@ public class SegmentServiceImpl implements SegmentService {
 
   @Override
   @Transactional
-  public void createSegment(Long taskId, String fileName, String crackId) {
-    log.info("세그먼트 데이터 생성 시작 - taskId: {}, fileName: {}, crackId: {}", taskId, fileName, crackId);
+  public void createSegment(Long taskId, String s3Url, String crackId) {
+    log.info("세그먼트 데이터 생성 시작 - taskId: {}, s3Url: {}, crackId: {}", taskId, s3Url, crackId);
     
     // crackId를 통해 Crack 엔티티 찾기 (없으면 생성)
     Crack crack = crackRepository.findByTaskTaskIdAndCrackIdString(taskId, crackId)
@@ -33,12 +33,9 @@ public class SegmentServiceImpl implements SegmentService {
           return createNewCrack(taskId, crackId);
         });
     
-    // S3 URL 생성 (실제 구현에서는 S3 경로로 변경)
-    String s3Url = "s3://cracktrack/" + fileName;
-    
     Segment segment = Segment.builder()
         .crack(crack)
-        .s3Url(s3Url)
+        .s3Url(s3Url)  // 실제 S3 URL 사용
         .build();
     
     segmentRepository.save(segment);

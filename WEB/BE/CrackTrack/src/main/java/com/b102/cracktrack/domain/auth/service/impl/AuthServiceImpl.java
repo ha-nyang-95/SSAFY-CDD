@@ -7,6 +7,8 @@ import com.b102.cracktrack.domain.auth.entity.RefreshToken;
 import com.b102.cracktrack.domain.auth.jwt.JwtTokenProvider;
 import com.b102.cracktrack.domain.auth.repository.RefreshTokenRepository;
 import com.b102.cracktrack.domain.auth.service.AuthService;
+import com.b102.cracktrack.domain.location.entity.Location;
+import com.b102.cracktrack.domain.location.repository.LocationRepository;
 import com.b102.cracktrack.domain.user.dto.UserResponseDto;
 import com.b102.cracktrack.domain.user.entity.User;
 import com.b102.cracktrack.domain.user.repository.UserRepository;
@@ -14,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService {
 
   private final UserRepository userRepository;
+  private final LocationRepository locationRepository;
   private final JwtTokenProvider jwtTokenProvider;
   private final AuthenticationManager authenticationManager;
   private final RefreshTokenRepository refreshTokenRepository;
@@ -36,13 +38,16 @@ public class AuthServiceImpl implements AuthService {
   public UserResponseDto signUp(SignUpRequestDto signUpRequestDto) {
     log.info("[AuthService] 회원가입 시도, email={}", signUpRequestDto.email());
 
-    // 이메일 중복 체크
-    if (userRepository.existsByEmail(signUpRequestDto.email())) {
+    // 이메일 정규화 및 중복 체크
+    String normalizedEmail = signUpRequestDto.email().trim();
+    if (userRepository.existsByEmail(normalizedEmail)) {
       log.warn("[AuthService] 이미 존재하는 이메일: {}", signUpRequestDto.email());
       throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
     }
 
     User user = SignUpRequestDto.of(signUpRequestDto);
+    // 이메일 정규화 저장
+    user.changeEmail(normalizedEmail);
 
     // 비밀번호 암호화
     user.changePassword(passwordEncoder.encode(user.getPassword()));
@@ -51,6 +56,14 @@ public class AuthServiceImpl implements AuthService {
     User savedUser = userRepository.save(user);
     log.info("[AuthService] 회원가입 완료, userId={}, email={}", savedUser.getUserId(),
         savedUser.getEmail());
+
+    // 신규 유저에게 기본 'none' location 자동 생성
+    Location defaultLocation = Location.builder()
+        .user(savedUser)
+        .name("none")
+        .build();
+    locationRepository.save(defaultLocation);
+    log.info("[AuthService] 기본 location 생성 완료, userId={}, locationName=none", savedUser.getUserId());
 
     return UserResponseDto.from(savedUser);
   }
@@ -62,12 +75,14 @@ public class AuthServiceImpl implements AuthService {
 
     try {
       // Spring Security 인증
-      Authentication authentication = authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
+      String normalizedEmail = loginRequest.email().trim();
+      // 인증 시도 (인증 실패 시 예외 발생)
+      authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(normalizedEmail, loginRequest.password())
       );
 
       // 사용자 정보 조회
-      User user = userRepository.findByEmail(loginRequest.email())
+      User user = userRepository.findByEmail(normalizedEmail)
           .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
       // JWT 토큰 생성
@@ -154,10 +169,27 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public void logout(Long userId) {
     log.info("[AuthService] 로그아웃 시도: userId={}", userId);
-
-    // 리프레시 토큰 삭제
-    refreshTokenRepository.deleteByUserId(userId);
     
-    log.info("[AuthService] 로그아웃 완료: userId={}", userId);
+    // DB에서 해당 사용자의 refresh token 삭제
+    refreshTokenRepository.findByUserId(userId).ifPresentOrElse(
+        refreshToken -> {
+          refreshTokenRepository.delete(refreshToken);
+          log.info("[AuthService] 로그아웃 완료 - Refresh Token 삭제됨: userId={}", userId);
+        },
+        () -> {
+          log.warn("[AuthService] 로그아웃 시도했지만 Refresh Token이 존재하지 않음: userId={}", userId);
+        }
+    );
+  }
+
+  @Override
+  public boolean isEmailAvailable(String email) {
+    log.info("[AuthService] 이메일 사용 가능 여부 확인: email={}", email);
+    
+    // 이메일이 이미 존재하면 false (사용 불가), 존재하지 않으면 true (사용 가능)
+    boolean isAvailable = !userRepository.existsByEmail(email);
+    
+    log.info("[AuthService] 이메일 사용 가능 여부 결과: email={}, available={}", email, isAvailable);
+    return isAvailable;
   }
 } 

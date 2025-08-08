@@ -1,5 +1,7 @@
 package com.b102.cracktrack.domain.location.service.impl;
 
+import com.b102.cracktrack.common.exception.ApiException;
+import com.b102.cracktrack.common.exception.ErrorMessage;
 import com.b102.cracktrack.domain.location.dto.LocationRequestDto;
 import com.b102.cracktrack.domain.location.dto.LocationResponseDto;
 import com.b102.cracktrack.domain.location.entity.Location;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,15 +41,15 @@ public class LocationServiceImpl implements LocationService {
   public LocationResponseDto registerLocation(LocationRequestDto locationRequestDto, Long userId) {
     User u = userRepository.findById(userId).
         orElseThrow(() -> {
-          log.error("[Service] 잘못된 유저id={}", userId);
-          return new IllegalArgumentException("유저 조회 실패");
+          log.error("[LocationService] 잘못된 유저id={}", userId);
+          return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.USER_NOT_FOUND);
         });
     Location l = Location.builder()
         .name(locationRequestDto.name())
         .user(u)
         .build();
     locationRepository.save(l);
-    log.info("[Service] 지역 등록 성공");
+    log.info("[LocationService] 지역 등록 성공, locationId={}, locationName={}", l.getLocationId(), l.getName());
     return LocationResponseDto.from(l);
   }
 
@@ -54,11 +57,23 @@ public class LocationServiceImpl implements LocationService {
   @Override
   public void deleteLocation(Long locationId, Long userId) {
     Location l = locationRepository.findById(locationId)
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장소입니다."));
+        .orElseThrow(() -> {
+          log.error("[LocationService] 존재하지 않는 장소 삭제 시도, locationId={}", locationId);
+          return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.LOCATION_NOT_FOUND);
+        });
+        
     if (!l.getUser().getUserId().equals(userId)) {
-      throw new IllegalAccessError("본인의 장소만 삭제할 수 있습니다.");
+      log.error("[LocationService] 권한 없는 장소 삭제 시도, locationId={}, userId={}", locationId, userId);
+      throw new ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.FORBIDDEN);
     }
+    
+    // 기본 'none' location 삭제 방지
+    if ("none".equals(l.getName())) {
+      log.warn("[LocationService] 기본 'none' location 삭제 시도 차단, locationId={}, userId={}", locationId, userId);
+      throw new ApiException(HttpStatus.BAD_REQUEST.value(), ErrorMessage.DEFAULT_LOCATION_DELETE_FORBIDDEN);
+    }
+    
     locationRepository.deleteById(locationId);
-    log.info("[Service] 지역 삭제 성공");
+    log.info("[LocationService] 지역 삭제 성공, locationId={}, locationName={}", locationId, l.getName());
   }
 }

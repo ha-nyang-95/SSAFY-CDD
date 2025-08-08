@@ -8,16 +8,20 @@ servers:
   - url: http://localhost:8080
 
 security:
-  - bearerAuth: [] # 모든 API 기본 인증 적용 (예외는 아래에서 개별 해제)
-  - accessTokenCookie: [] # 쿠키 기반 인증 적용
-  - refreshTokenCookie: [] # 쿠키 기반 인증 적용
+  - bearerAuth: []
+  - accessTokenCookie: []
+  - refreshTokenCookie: []
 
 components:
   securitySchemes:
-    accessTokenCookie: # 실제 쿠키 이름과 맞추면 됨
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    accessTokenCookie:
       type: apiKey
       in: cookie
-      name: accessToken # ⇒  Set-Cookie: accessToken=...
+      name: accessToken
     refreshTokenCookie:
       type: apiKey
       in: cookie
@@ -37,30 +41,6 @@ components:
       in: path
       required: true
       description: 작업 ID
-      schema:
-        type: integer
-        format: int64
-    VideoId:
-      name: videoId
-      in: path
-      required: true
-      description: 영상 ID
-      schema:
-        type: integer
-        format: int64
-    DetectId:
-      name: detectId
-      in: path
-      required: true
-      description: 디텍팅 ID
-      schema:
-        type: integer
-        format: int64
-    ModelId:
-      name: modelId
-      in: path
-      required: true
-      description: 3D 모델링 ID
       schema:
         type: integer
         format: int64
@@ -89,7 +69,7 @@ components:
           example: 200
         data:
           nullable: true
-    # error 관련 스키마
+
     ApiError:
       type: object
       properties:
@@ -107,10 +87,6 @@ components:
           example: null
 
     # User 관련 스키마
-    UserRole:
-      type: string
-      enum: [GENERAL, ADMIN]
-
     UserResponseDto:
       type: object
       properties:
@@ -121,7 +97,24 @@ components:
         email:
           type: string
           example: test@example.com
-        name:
+        username:
+          type: string
+          example: 홍길동
+        role:
+          type: string
+          example: GENERAL
+
+    UserPrincipal:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 1
+        email:
+          type: string
+          example: test@example.com
+        username:
           type: string
           example: 홍길동
         role:
@@ -146,46 +139,6 @@ components:
           maxLength: 10
           example: 홍길동
 
-    UserUpdateRequestDto:
-      type: object
-      properties:
-        name:
-          type: string
-          example: ssafy
-
-    UserUpdateResponseDto:
-      type: object
-      properties:
-        userId:
-          type: integer
-          format: int64
-        name:
-          type: string
-          example: ssafy
-
-    PasswordChangeRequestDto:
-      type: object
-      properties:
-        currentPassword:
-          type: string
-          minLength: 8
-          example: oldPassword123!
-        newPassword:
-          type: string
-          minLength: 8
-          example: newPassword123!
-
-    AuthUserInfoDto:
-      description: |
-        로그인·재발급 성공 시 바디로 내려주는 최소 사용자 정보.
-        JWT 토큰은 Set-Cookie 헤더로 전달한다.
-      type: object
-      properties:
-        userId: { type: integer, format: int64 }
-        email: { type: string, format: email }
-        name: { type: string }
-        role: { $ref: "#/components/schemas/UserRole" }
-
     LoginRequestDto:
       type: object
       properties:
@@ -195,9 +148,38 @@ components:
           example: user@example.com
         password:
           type: string
-          minLength: 8
-          maxLength: 20
           example: Password123!
+
+    TokenResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        userInfo:
+          $ref: "#/components/schemas/UserResponseDto"
+
+    UserUpdateRequestDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: ssafy
+
+    PasswordChangeRequestDto:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          minLength: 8
+          example: oldPassword123!
+        newPassword:
+          type: string
+          minLength: 8
+          example: newPassword123!
 
     # Location 관련 스키마
     LocationRequestDto:
@@ -218,28 +200,9 @@ components:
           type: string
           example: "서울시 강남구"
 
-    LocationSummaryDto:
-      type: object
-      properties:
-        locationId:
-          type: integer
-          format: int64
-        name:
-          type: string
-          example: "서울시 강남구"
-
-    LocationListResponseDto:
-      type: object
-      properties:
-        locations:
-          type: array
-          items:
-            $ref: "#/components/schemas/LocationSummaryDto"
-
-    # task 관련 스키마
+    # Task 관련 스키마
     TaskFirstResponseDto:
       type: object
-      description: 작업 생성 직후 반환되는 정보
       properties:
         taskId:
           type: integer
@@ -258,7 +221,6 @@ components:
 
     TaskResponseDto:
       type: object
-      description: 작업 목록 조회 시 반환되는 정보
       properties:
         taskId:
           type: integer
@@ -274,7 +236,6 @@ components:
 
     TaskDetailResponseDto:
       type: object
-      description: 작업 상세 조회 시 반환되는 정보
       properties:
         taskId:
           type: integer
@@ -297,194 +258,16 @@ components:
           items:
             $ref: "#/components/schemas/CrackResponseDto"
 
-    TaskListResponseDto:
-      type: object
-      properties:
-        tasks:
-          type: array
-          items:
-            $ref: "#/components/schemas/TaskResponseDto"
-
-    # Video 관련 스키마
-    VideoResponseDto:
-      type: object
-      properties:
-        videoId:
-          type: integer
-          format: int64
-        s3Url:
-          type: string
-          example: "https://s3.amazonaws.com/..."
-        activatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00"
-
-    VideoListResponseDto:
-      type: object
-      properties:
-        videos:
-          type: array
-          items:
-            $ref: "#/components/schemas/VideoResponseDto"
-
-    # Detecting 관련 스키마
-    DetectingResponseDto:
-      type: object
-      properties:
-        detectId:
-          type: integer
-          format: int64
-        taskId:
-          type: integer
-          format: int64
-        s3Url:
-          type: string
-          example: "https://s3.amazonaws.com/..."
-        activatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00"
-
-    DetectingSummaryResponseDto:
-      type: object
-      properties:
-        detectId:
-          type: integer
-          format: int64
-        s3Url:
-          type: string
-          example: "https://s3.amazonaws.com/..."
-        activatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00"
-
-    DetectingListResponseDto:
-      type: object
-      properties:
-        detectings:
-          type: array
-          items:
-            $ref: "#/components/schemas/DetectingSummaryResponseDto"
-    # Segment 관련 스키마
-    SegmentResponseDto:
-      type: object
-      properties:
-        segmentId:
-          type: integer
-          format: int64
-        crackId:
-          type: integer
-          format: int64
-        s3Url:
-          type: string
-          example: "https://s3.amazonaws.com/segment-001.jpg"
-        activatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00"
-
-    SegmentSummaryResponseDto:
-      type: object
-      properties:
-        segmentId:
-          type: integer
-          format: int64
-        activatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00"
-        s3Url:
-          type: string
-          description: S3 저장 경로
-          example: "https://s3.amazonaws.com/lidar-001.pcd"
-
-    SegmentListResponseDto:
-      type: object
-      properties:
-        segments:
-          type: array
-          items:
-            $ref: "#/components/schemas/SegmentSummaryResponseDto"
-
-    # lidar 관련 스키마
-    LidarResponseDto:
-      type: object
-      properties:
-        lidarId:
-          type: integer
-          format: int64
-          description: 라이더ID
-        crackId:
-          type: integer
-          format: int64
-          description: 균열ID
-        s3Url:
-          type: string
-          description: S3 저장 경로(라이더 파일 URL)
-          example: "https://s3.amazonaws.com/lidar-001.pcd"
-        status:
-          type: string
-          enum: [ ACTIVE, INACTIVE, DELETED ]
-          example: ACTIVE
-        activatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00"
-
-    LidarSummaryResponseDto:
-      type: object
-      properties:
-        lidarId:
-          type: integer
-          format: int64
-          description: 라이더ID
-        crackId:
-          type: integer
-          format: int64
-          description: 균열ID
-        s3Url:
-          type: string
-          description: S3 저장 경로(라이더 파일 URL)
-          example: "https://s3.amazonaws.com/lidar-001.pcd"
-        status:
-          type: string
-          enum: [ ACTIVE, INACTIVE, DELETED ]
-          example: ACTIVE
-
-
     # Crack 관련 스키마
-    CrackUpdateRequestDto:
-      type: object
-      required:
-        - trackingKey
-        - s3Url
-      properties:
-        trackingKey:
-          type: string
-          description: "균열 이벤트를 식별하는 고유 키 (드론이 파일명 또는 메타데이터로 전달)"
-          example: "u01-d01-v01-c001"
-        s3Url:
-          type: string
-          description: "S3에 저장된 이미지의 전체 URL"
-          example: "https://your-bucket.s3.ap-northeast-2.amazonaws.com/user01/drone01/crack-003.jpg"
-
     CrackResponseDto:
       type: object
       properties:
         crackId:
           type: integer
           format: int64
-        modelingId:
-          type: integer
-          format: int64
-        isCrackDetected:
-          type: boolean
-          example: true
         status:
           type: string
-          enum: [ ACTIVE, INACTIVE, DELETED ]
+          enum: [ACTIVE, INACTIVE, DELETED]
         activatedAt:
           type: string
           format: date-time
@@ -492,448 +275,202 @@ components:
           type: string
           format: date-time
           nullable: true
-        deletedAt:
-          type: string
-          format: date-time
-          nullable: true
 
-    CrackDetailResponseDto:
+    # Lambda 관련 스키마
+    LambdaEventRequestDto:
       type: object
       properties:
-        Crack:
-          type: object
-          $ref: "#/components/schemas/CrackResponseDto"
-        Segment:
-          type: object
-          $ref: "#/components/schemas/SegmentResponseDto"
-        Lidar:
-          type: object
-          $ref: "#/components/schemas/LidarResponseDto"
-
-    CrackListResponseDto:
-      type: object
-      properties:
-        cracks:
+        uuid:
+          type: string
+          example: "u1/2025-08-08/4f3685fe-cdd6-43c2-a5c3-7e6c9ddea4f9"
+        files:
           type: array
           items:
-            $ref: "#/components/schemas/CrackResponseDto"
-
-    # Mypage 관련 스키마
-    MypageResponseDto:
-      type: object
-      properties:
-        email:
+            type: string
+          example: ["raw_video001.mp4", "detected_video001.mp4", "crackId001/image.jpg"]
+        metadata:
           type: string
-          example: user@example.com
-        name:
-          type: string
-          example: 홍길동
-        role:
-          type: string
-          example: GENERAL
-        tasks:
-          type: array
-          items:
-            $ref: "#/components/schemas/TaskListResponseDto"
-        locations:
-          type: array
-          items:
-            $ref: "#/components/schemas/LocationResponseDto"
-        videos:
-          type: array
-          items:
-            $ref: "#/components/schemas/VideoListResponseDto"
-        detectings:
-          type: array
-          items:
-            $ref: "#/components/schemas/DetectingListResponseDto"
-        modelings:
-          type: array
-          items:
-            $ref: "#/components/schemas/ModelingSummaryResponseDto"
-        cracks:
-          type: array
-          items:
-            $ref: "#/components/schemas/CrackListResponseDto"
-
-
-
-
-    # 3D 모델링 관련 스키마
-    ModelingRequestDto:
-      type: object
-      properties:
-        trackingKey:
-          type: string
-          example: "u01-d01-v01-c0000"
-        s3Url:
-          type: string
-          example: "https://your-bucket.s3.ap-northeast-2.amazonaws.com/user01/drone01/modeling-001.glb"
-
-    ModelingResponseDto:
-      type: object
-      properties:
-        modelId:
-          type: integer
-          format: int64
-        videoId:
-          type: integer
-          format: int64
-        s3Url:
-          type: string
-          example: "https://your-bucket.s3.ap-northeast-2.amazonaws.com/user01/drone01/modeling-001.glb"
-        activatedAt:
-          type: string
-          format: date-time
-
-    ModelingSummaryResponseDto:
-      type: object
-      properties:
-        modelId:
-          type: integer
-          format: int64
-        s3Url:
-          type: string
-          example: "https://your-bucket.s3.ap-northeast-2.amazonaws.com/user01/drone01/modeling-001.glb"
-        activatedAt:
-          type: string
-          format: date-time
-
-    ModelingListResponseDto:
-      type: object
-      properties:
-        modelings:
-          type: array
-          items:
-            $ref: "#/components/schemas/ModelingSummaryResponseDto"
-
-    # 3D 모델링 상세 조회 스키마
-    ModelingDetailResponseDto:
-      type: object
-      properties:
-        modelId:
-          type: integer
-          format: int64
-        videoId:
-          type: integer
-          format: int64
-        s3Url:
-          type: string
-          example: "https://your-bucket.s3.ap-northeast-2.amazonaws.com/user01/drone01/modeling-001.glb"
-        cracks:
-          type: array
-          items:
-            $ref: "#/components/schemas/CrackListResponseDto"
-        # video:
-        #   $ref: "#/components/schemas/VideoResponseDto"
-        activatedAt:
-          type: string
-          format: date-time
-
-    # ApiResult 래퍼 스키마들
-    ApiResultUserResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/UserResponseDto"
-
-    ApiResultUserRole:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/UserRole"
-
-    ApiResultAuthUserInfoDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data: { $ref: "#/components/schemas/AuthUserInfoDto" }
-
-    ApiResultLocationResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/LocationResponseDto"
-
-    ApiResultLocationListResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/LocationListResponseDto"
-
-    ApiResultVideoListResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/VideoListResponseDto"
-
-    ApiResultCrackResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/CrackResponseDto"
-
-    ApiResultCrackListResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/CrackListResponseDto"
-
-    ApiResultMypageResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/MypageResponseDto"
-
-    ApiResultVideoResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/VideoResponseDto"
-
-    ApiResultDetectingResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/DetectingResponseDto"
-
-    ApiResultDetectingListResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/DetectingListResponseDto"
-
-    ApiResultSegmentResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/SegmentResponseDto"
-
-    ApiResultSegmentListResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/SegmentListResponseDto"
-
-    ApiResultVoid:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              type: object
-              nullable: true
-
-    ApiResultBoolean:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              type: boolean
-
-    ApiResultUserUpdateResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/UserUpdateResponseDto"
-
-    ApiResultTaskFirstResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/TaskFirstResponseDto"
-
-    ApiResultTaskListResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/TaskListResponseDto"
-
-    ApiResultTaskDetailResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/TaskDetailResponseDto"
-
-    ApiResult3DModelingResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/ModelingResponseDto"
-
-    ApiResult3DModelingSummaryResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/ModelingSummaryResponseDto"
-
-    ApiResult3DModelingListResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/ModelingListResponseDto"
-
-    ApiResult3DModelingDetailResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/ModelingDetailResponseDto"
-
-
-
-    ApiResultCrackDetailResponseDto:
-      allOf:
-        - $ref: "#/components/schemas/ApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/CrackDetailResponseDto"
+          example: '{"additional": "metadata"}'
 
   responses:
     BadRequest:
-      description: 잘못된 요청(입력값 오류 등)
+      description: 잘못된 요청
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ApiError"
-          example:
-            success: false
-            message: "요청 파라미터가 올바르지 않습니다."
-            code: 400
-            data: null
     Unauthorized:
-      description: 인증 실패(로그인 필요 등)
+      description: 인증 실패
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ApiError"
-          example:
-            success: false
-            message: "인증이 필요합니다."
-            code: 401
-            data: null
     Forbidden:
       description: 권한 없음
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ApiError"
-          example:
-            success: false
-            message: "권한이 없습니다."
-            code: 403
-            data: null
     NotFound:
       description: 리소스 없음
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ApiError"
-          example:
-            success: false
-            message: "해당 리소스를 찾을 수 없습니다."
-            code: 404
-            data: null
     InternalError:
       description: 서버 에러
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ApiError"
-          example:
-            success: false
-            message: "알 수 없는 서버 오류가 발생했습니다."
-            code: 500
-            data: null
-
 
 tags:
-  - name: User
-    description: 유저 관련 API
   - name: Auth
     description: 인증 관련 API
+  - name: User
+    description: 유저 관련 API
   - name: Location
     description: 지역 관련 API
   - name: Task
     description: 작업 관련 API
-  - name: Video
-    description: 영상 관련 API
-  - name: Detecting
-    description: 디텍팅 관련 API
-  - name: 3DModeling
-    description: 3D 모델링 관련 API
   - name: Crack
     description: 균열 관련 API
-  - name: Segment
-    description: 세그먼트 관련 API
-  - name: Lidar
-    description: 라이더 관련 API
+  - name: Lambda
+    description: AWS Lambda 이벤트 처리 API
+
 paths:
-  # User APIs
-  /api/user/role:
-    get:
-      tags: [User]
-      summary: 권한 확인
+  # Auth APIs
+  /api/auth/signUp:
+    post:
+      tags: [Auth]
+      summary: 회원 가입
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequestDto"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultUserRole"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: 로그인
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequestDto"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TokenResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: 토큰 재발급
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TokenResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: 로그아웃
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/auth/check-email:
+    get:
+      tags: [Auth]
+      summary: 이메일 사용 가능 여부 확인
+      security: []
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+          example: test@example.com
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: boolean
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  # User APIs
   /api/user/mypage:
     get:
       tags: [User]
@@ -944,20 +481,64 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultMypageResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserResponseDto"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/user/me:
+    get:
+      tags: [User]
+      summary: 현재 사용자 정보
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserPrincipal"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/user/role:
+    get:
+      tags: [User]
+      summary: 권한 확인
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: string
+                        example: "GENERAL"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "500":
           $ref: "#/components/responses/InternalError"
 
   /api/user/update:
     put:
       tags: [User]
-      summary: 내 정보 수정
+      summary: 사용자 정보 수정
       requestBody:
         required: true
         content:
@@ -970,15 +551,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultUserUpdateResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserResponseDto"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
@@ -998,145 +580,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultVoid"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/user/delete:
-    delete:
-      tags: [User]
-      summary: 회원 탈퇴
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVoid"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/user/me:
-    get:
-      tags: [User]
-      summary: 현재 사용자 정보
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultUserResponseDto"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  # Auth APIs
-  /api/auth/signUp:
-    post:
-      tags: [Auth]
-      summary: 회원 가입
-      security: [] # 인증 제외
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SignUpRequestDto"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVoid"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/auth/login:
-    post:
-      tags: [Auth]
-      summary: 로그인
-      security: [] # 인증 제외
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LoginRequestDto"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultAuthUserInfoDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/auth/refresh:
-    post:
-      tags: [Auth]
-      summary: 토큰 재발급
-      security: [] # 인증 제외
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultAuthUserInfoDto"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/auth/logout:
-    post:
-      tags: [Auth]
-      summary: 로그아웃
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVoid"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
   # Location APIs
-  /api/location:
+  /api/location/register:
     post:
       tags: [Location]
-      summary: 지역 생성
+      summary: 지역 등록
       requestBody:
         required: true
         content:
@@ -1149,19 +611,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultLocationResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/LocationResponseDto"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
-  /api/location/{locationId}:
+  /api/location/remove/{locationId}:
     delete:
       tags: [Location]
       summary: 지역 삭제
@@ -1173,15 +636,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultVoid"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
@@ -1195,13 +662,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultLocationListResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LocationResponseDto"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
@@ -1210,7 +680,6 @@ paths:
     post:
       tags: [Task]
       summary: 작업 생성
-      description: 유저가 모듈에 입력할 저장소 코드를 받습니다.
       parameters:
         - $ref: "#/components/parameters/LocationId"
       responses:
@@ -1219,15 +688,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultTaskFirstResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TaskFirstResponseDto"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
@@ -1235,7 +707,6 @@ paths:
     get:
       tags: [Task]
       summary: 작업 상세 조회
-      description: 작업에 대한 모든 정보를 가져옵니다.
       parameters:
         - $ref: "#/components/parameters/TaskId"
       responses:
@@ -1244,13 +715,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultTaskDetailResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TaskDetailResponseDto"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
@@ -1259,7 +733,6 @@ paths:
     delete:
       tags: [Task]
       summary: 작업 삭제
-      description: 유저가 작업을 삭제합니다.
       parameters:
         - $ref: "#/components/parameters/TaskId"
       responses:
@@ -1268,15 +741,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultVoid"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
@@ -1284,7 +761,6 @@ paths:
     get:
       tags: [Task]
       summary: 지역별 작업 목록 조회
-      description: 유저가 갖고 있는 지역별로 했던 모든 작업을 가져옵니다.
       parameters:
         - $ref: "#/components/parameters/LocationId"
       responses:
@@ -1293,15 +769,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultTaskListResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/TaskResponseDto"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
@@ -1309,400 +788,27 @@ paths:
     get:
       tags: [Task]
       summary: 전체 작업 목록 조회
-      description: 유저가 갖고 있는 모든 작업을 가져옵니다.
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultTaskListResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/TaskResponseDto"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  # Video APIs
-  /api/video/list:
-    get:
-      tags: [Video]
-      summary: 전체 영상 목록 조회
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVideoListResponseDto"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/video/list/{locationId}:
-    get:
-      tags: [Video]
-      summary: 구역별 영상 목록 조회
-      parameters:
-        - $ref: "#/components/parameters/LocationId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVideoListResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/video/{taskId}:
-    get:
-      tags: [Video]
-      summary: 작업 영상 조회
-      parameters:
-        - $ref: "#/components/parameters/TaskId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVideoResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-
-  /api/video/{videoId}:
-    get:
-      tags: [Video]
-      summary: 영상 상세 조회
-      parameters:
-        - $ref: "#/components/parameters/VideoId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVideoResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-    delete:
-      tags: [Video]
-      summary: 영상 삭제
-      parameters:
-        - $ref: "#/components/parameters/VideoId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVoid"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  # detecting
-  /api/detecting/list:
-    get:
-      tags: [Detecting]
-      summary: 전체 디텍팅 목록 조회
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultDetectingListResponseDto"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  # 작업별 조회 (taskId)
-  /api/detecting/task/{taskId}:
-    get:
-      tags: [Detecting]
-      summary: 작업별 디텍팅 조회
-      parameters:
-        - $ref: "#/components/parameters/TaskId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultDetectingListResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  # 지역별 조회 (locationId)
-  /api/detecting/location/{locationId}:
-    get:
-      tags: [Detecting]
-      summary: 지역별 디텍팅 목록 조회
-      parameters:
-        - $ref: "#/components/parameters/LocationId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultDetectingListResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  # 상세 조회 (detectId)
-  /api/detecting/{detectId}:
-    get:
-      tags: [Detecting]
-      summary: 디텍팅 상세 조회
-      parameters:
-        - $ref: "#/components/parameters/DetectId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultDetectingResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-    delete:
-      tags: [Detecting]
-      summary: 디텍팅 삭제
-      parameters:
-        - $ref: "#/components/parameters/DetectId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVoid"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-
-  # modeling
-  /api/modeling/list:
-    get:
-      tags: [3DModeling]
-      summary: 전체 3D 모델링 목록 조회
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResult3DModelingListResponseDto"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/modeling/task/{taskId}:
-    get:
-      tags: [3DModeling]
-      summary: 작업별 3D 모델링 조회
-      parameters:
-        - $ref: "#/components/parameters/TaskId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResult3DModelingListResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  /api/modeling/{locationId}:
-    get:
-      tags: [3DModeling]
-      summary: 지역별 3D 모델링 조회
-      parameters:
-        - $ref: "#/components/parameters/LocationId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResult3DModelingListResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-
-  /api/modeling/{modelId}:
-    get:
-      tags: [3DModeling]
-      summary: 3D 모델링 상세 조회
-      parameters:
-        - $ref: "#/components/parameters/ModelId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResult3DModelingResponseDto"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-    delete:
-      tags: [3DModeling]
-      summary: 3D 모델링 삭제
-      parameters:
-        - $ref: "#/components/parameters/ModelId"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultVoid"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
   # Crack APIs
-  /api/crack/list:
-    get:
-      tags: [Crack]
-      summary: 전체 균열 목록 조회
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResultCrackListResponseDto"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalError"
-
-  # 작업별 조회 (taskId)
-  /api/crack/task/{taskId}:
+  /api/cracks/task/{taskId}:
     get:
       tags: [Crack]
       summary: 작업별 균열 목록 조회
@@ -1714,20 +820,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultCrackListResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CrackResponseDto"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
 
-  # 상세 조회 (crackId)
-  /api/crack/{crackId}:
+  /api/cracks/{crackId}:
     get:
       tags: [Crack]
       summary: 균열 상세 조회
@@ -1739,13 +847,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultCrackDetailResponseDto"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/CrackResponseDto"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    put:
+      tags: [Crack]
+      summary: 균열 검사
+      description: 균열에 대해 이미 인지하고 있거나 관리했다는 마킹
+      parameters:
+        - $ref: "#/components/parameters/CrackId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/CrackResponseDto"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
@@ -1762,14 +900,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResultVoid"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  # Lambda APIs
+  /api/lambda/event:
+    post:
+      tags: [Lambda]
+      summary: Lambda 이벤트 처리
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LambdaEventRequestDto"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResult"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "500":
           $ref: "#/components/responses/InternalError"

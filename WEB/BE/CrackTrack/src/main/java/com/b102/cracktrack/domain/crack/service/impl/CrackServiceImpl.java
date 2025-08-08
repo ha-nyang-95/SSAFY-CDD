@@ -2,6 +2,7 @@ package com.b102.cracktrack.domain.crack.service.impl;
 
 import com.b102.cracktrack.common.exception.ApiException;
 import com.b102.cracktrack.common.exception.ErrorMessage;
+import com.b102.cracktrack.common.util.FileTypeParser;
 import com.b102.cracktrack.domain.crack.dto.CrackResponseDto;
 import com.b102.cracktrack.domain.crack.entity.Crack;
 import com.b102.cracktrack.domain.crack.repository.CrackRepository;
@@ -14,8 +15,6 @@ import com.b102.cracktrack.domain.segment.entity.Segment;
 import com.b102.cracktrack.domain.segment.repository.SegmentRepository;
 import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.task.repository.TaskRepository;
-import com.b102.cracktrack.domain.user.entity.User;
-import com.b102.cracktrack.domain.user.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +44,19 @@ public class CrackServiceImpl implements CrackService {
           return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
         });
 
-    Crack c = Crack.builder().task(t).build();
+    // URL에서 crackId 추출
+    String crackIdString = FileTypeParser.extractCrackId(url);
+    if (crackIdString == null || crackIdString.isEmpty()) {
+      log.error("균열 등록 실패: crackId 추출 실패 url:{}", url);
+      throw new ApiException(HttpStatus.BAD_REQUEST.value(), "URL에서 크랙 ID를 추출할 수 없습니다.");
+    }
+
+    Crack c = Crack.builder()
+        .task(t)
+        .crackIdString(crackIdString)  // crackIdString 설정
+        .build();
     crackRepository.save(c);
-    log.info("균열 등록 성공: crackId: {}", c.getCrackId());
+    log.info("균열 등록 성공: crackId:{}, crackIdString:{}", c.getCrackId(), crackIdString);
   }
 
   @Transactional
@@ -111,15 +120,20 @@ public class CrackServiceImpl implements CrackService {
     log.info("균열 작업별 목록 불러오기: taskId:{}", taskId);
     List<Crack> cracks = crackRepository.findByTaskTaskId(taskId);
 
+    // 균열이 없는 경우 빈 리스트 반환 (정상적인 상황)
     if (cracks.isEmpty()) {
-      throw new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
+      log.info("균열 작업별 목록 불러오기 완료: taskId:{} - 탐지된 균열 없음", taskId);
+      return List.of(); // 빈 리스트 반환
     }
+    
+    // 첫 번째 균열의 작업 소유자 확인 (권한 체크)
     if (!cracks.get(0).getTask().getUser().getUserId().equals(userId)) {
       log.error("균열 작업별 목록 불러오기 실패: 유저 권한없음. 균열 등록 유저Id :{}, userId : {}",
           cracks.get(0).getTask().getUser().getUserId(), userId);
       throw new ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.FORBIDDEN);
     }
-    log.info("균열 작업별 목록 불러오기 성공: userId:{}, taskId:{}", userId, taskId);
+    
+    log.info("균열 작업별 목록 불러오기 성공: userId:{}, taskId:{}, 균열 개수:{}", userId, taskId, cracks.size());
     return cracks.stream()
         .map(crack -> {
           Long currentCrackId = crack.getCrackId();
