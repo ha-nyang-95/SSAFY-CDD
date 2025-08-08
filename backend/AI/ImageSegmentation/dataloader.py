@@ -1,0 +1,86 @@
+"""
+TODO: K-fold datalaoder 구현
+"""
+
+import os
+from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms
+from PIL import Image
+from pathlib import Path
+
+
+class CrackDataset(Dataset):
+    def __init__(self, image_dir, mask_dir, img_transform=None, mask_transform=None):
+        self.image_dir = image_dir
+        self.mask_dir = mask_dir
+        self.img_transform = img_transform
+        self.mask_transform = mask_transform
+        self.images = []
+        self.masks = []
+
+        """
+        K-fold 안쓰는 버전
+        데이터 self.images에 다 합침
+        """
+        image_dir_path = Path(self.image_dir)
+        mask_dir_path = Path(self.mask_dir)
+
+        # image - mask 정확하게 매핑 되도록 정렬
+        self.images = sorted([p.name for p in image_dir_path.iterdir()])
+        self.masks = sorted([p.name for p in mask_dir_path.iterdir()])
+
+        assert len(self.images) == len(self.masks), \
+            f"Dataset error: num of Images != num of Masks"
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        img_name = self.images[idx]
+        mask_name = self.masks[idx]
+
+        img_path = os.path.join(self.image_dir, img_name)
+        mask_path = os.path.join(self.mask_dir, mask_name)
+
+        image = Image.open(img_path).convert("RGB")
+        mask = Image.open(mask_path).convert("L")
+
+        if self.img_transform:
+            image = self.img_transform(image)
+        if self.mask_transform:
+            mask = self.mask_transform(mask)
+        
+        # BCEWithLogitsLoss requires target to be float
+        mask = (mask > 0).float()
+
+        return image, mask
+
+
+def get_dataloaders(**hp):
+    img_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    mask_transform = transforms.Compose([
+        transforms.ToTensor(),
+    ])
+
+    train_dataset = CrackDataset(
+        hp["train_img_dir"],
+        hp["train_mask_dir"],
+        img_transform=img_transform, 
+        mask_transform=mask_transform
+    )
+    
+    val_dataset = CrackDataset(
+        hp["valid_img_dir"],
+        hp["valid_mask_dir"],
+        img_transform=img_transform, 
+        mask_transform=mask_transform                               
+    )
+
+    train_loader = DataLoader(train_dataset, batch_size=hp["batch_size"], shuffle=True, num_workers=hp["num_workers"], pin_memory=True, persistent_workers=True)
+    val_loader = DataLoader(val_dataset, batch_size=hp["batch_size"], shuffle=False, num_workers=hp["num_workers"], pin_memory=True, persistent_workers=True)
+
+    return train_loader, val_loader

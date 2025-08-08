@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>🚁 드론 실시간 YOLO 객체인식 스트리밍</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 1200px;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .status {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .status.connecting {
+            background-color: #ffa500;
+        }
+        
+        .status.connected {
+            background-color: #4CAF50;
+        }
+        
+        .status.error {
+            background-color: #f44336;
+        }
+        
+        #video-container {
+            border: 3px solid #333;
+            border-radius: 10px;
+            background-color: #000;
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            min-height: 400px;
+            background-color: #000;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        .btn {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚁 드론 실시간 YOLO 객체인식 스트리밍</h1>
+        <div id="status" class="status connecting">연결 중...</div>
+        
+        <div id="video-container">
+            <video id="droneVideo" 
+                   autoplay 
+                   playsinline 
+                   muted 
+                   controls>
+                브라우저가 video 태그를 지원하지 않습니다.
+            </video>
+        </div>
+        
+        <div class="controls">
+            <button id="playBtn" class="btn" onclick="playVideo()">▶️ 재생</button>
+            <button id="muteBtn" class="btn" onclick="toggleMute()">🔊 음소거 해제</button>
+        </div>
+        
+        <div class="info">
+            <h3>📊 연결 정보</h3>
+            <p><strong>상태:</strong> <span id="connectionState">연결 중...</span></p>
+            <p><strong>비디오 해상도:</strong> <span id="videoInfo">대기 중...</span></p>
+            <p><strong>감지 가능한 객체:</strong> 사람, 자동차, 자전거, 개, 고양이, 새 등 80가지</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. 시그널링 서버에 연결합니다.
+        // 'localhost' 대신 server.js를 실행하는 PC의 IP 주소를 입력해야
+        // 다른 PC나 모바일 기기에서도 접속할 수 있습니다.
+        // 예: 'ws://192.168.0.10:8080'
+        const signalingServer = new WebSocket('ws://shyo2.com:8080');
+        
+        // 상태 표시 요소들
+        const statusElement = document.getElementById('status');
+        const connectionStateElement = document.getElementById('connectionState');
+        const videoInfoElement = document.getElementById('videoInfo');
+        const playBtn = document.getElementById('playBtn');
+        const muteBtn = document.getElementById('muteBtn');
+
+        // 2. WebRTC PeerConnection 객체를 생성합니다.
+        // STUN 서버는 자신의 공인 IP를 찾는 데 도움을 주고,
+        // TURN 서버는 방화벽 등으로 직접 연결이 불가능할 때 데이터를 중계해줍니다.
+        const peerConnection = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                {
+                    urls: 'turn:numb.viagenie.ca?transport=tcp',
+                    username: 'webrtc@live.com',
+                    credential: 'muazkh'
+                }
+            ]
+        });
+
+        // 연결 상태 모니터링
+        peerConnection.onconnectionstatechange = () => {
+            const state = peerConnection.connectionState;
+            connectionStateElement.textContent = state;
+            
+            if (state === 'connected') {
+                statusElement.className = 'status connected';
+                statusElement.textContent = '✅ 드론 연결됨 - 실시간 스트리밍 중';
+            } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ 연결 끊김 (' + state + ')';
+            }
+        };
+
+        // 7. 드론으로부터 비디오 트랙(영상 데이터)을 받으면 video 태그에 연결합니다.
+        peerConnection.ontrack = (event) => {
+            console.log('🎥 드론으로부터 영상 스트림 수신!');
+            const videoElement = document.getElementById('droneVideo');
+            
+            if (videoElement.srcObject !== event.streams[0]) {
+                videoElement.srcObject = event.streams[0];
+                
+                // 비디오 메타데이터 로드 시 정보 업데이트
+                videoElement.onloadedmetadata = () => {
+                    const width = videoElement.videoWidth;
+                    const height = videoElement.videoHeight;
+                    videoInfoElement.textContent = `${width}x${height}`;
+                    
+                    // 자동 재생 시도
+                    playVideo();
+                };
+                
+                // 재생 시작 시
+                videoElement.onplay = () => {
+                    statusElement.className = 'status connected';
+                    statusElement.textContent = '🎬 실시간 YOLO 객체인식 스트리밍 중';
+                    playBtn.textContent = '⏸️ 일시정지';
+                };
+                
+                // 일시정지 시
+                videoElement.onpause = () => {
+                    playBtn.textContent = '▶️ 재생';
+                };
+            }
+        };
+        
+        // 4. 네트워크 연결 후보(ICE candidate)가 생성되면 시그널링 서버를 통해 드론에게 보냅니다.
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                console.log('🌐 네트워크 연결 후보(ICE Candidate) 전송:', event.candidate);
+                signalingServer.send(JSON.stringify({ 
+                    type: 'candidate', 
+                    candidate: event.candidate 
+                }));
+            }
+        };
+
+        // 시그널링 서버로부터 메시지를 받았을 때의 처리
+        signalingServer.onmessage = async (message) => {
+            const data = JSON.parse(message.data);
+            console.log('📡 시그널링 서버로부터 메시지 수신:', data.type);
+
+            try {
+                switch(data.type) {
+                    // 6. 드론이 보낸 'Offer'를 받으면, 원격 세션 정보로 설정하고 'Answer'를 만들어 보냅니다.
+                    case 'offer':
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                        const answer = await peerConnection.createAnswer();
+                        await peerConnection.setLocalDescription(answer);
+                        signalingServer.send(JSON.stringify({ 
+                            type: 'answer', 
+                            answer: answer 
+                        }));
+                        break;
+                    // 8. 드론이 보낸 네트워크 후보 정보를 PeerConnection에 추가합니다.
+                    case 'candidate':
+                        // 간혹 null candidate가 올 수 있으므로 예외 처리
+                        if (data.candidate) { 
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        }
+                        break;
+                }
+            } catch (error) {
+                console.error('WebRTC 처리 오류:', error);
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ WebRTC 처리 오류: ' + error.message;
+            }
+        };
+
+        // 3. 시그널링 서버 연결 이벤트
+        signalingServer.onopen = () => {
+            console.log('📡 시그널링 서버에 연결되었습니다. 드론의 연결을 기다립니다...');
+            statusElement.className = 'status connecting';
+            statusElement.textContent = '📡 시그널링 서버 연결됨 - 드론 대기 중...';
+        };
+
+        signalingServer.onerror = (error) => {
+            console.error('❌ 시그널링 서버 에러:', error);
+            statusElement.className = 'status error';
+            statusElement.textContent = '❌ 시그널링 서버 연결 실패';
+        };
+        
+        signalingServer.onclose = () => {
+            statusElement.className = 'status error';
+            statusElement.textContent = '❌ 시그널링 서버 연결 끊김';
+        };
+
+        // 비디오 재생 함수
+        function playVideo() {
+            const video = document.getElementById('droneVideo');
+            
+            if (video.paused) {
+                video.play().catch((error) => {
+                    console.warn('⚠️ 자동 재생 실패, 사용자 상호작용 필요:', error);
+                    // 자동 재생 정책으로 인해 실패 시, 음소거 후 재시도
+                    if (error.name === "NotAllowedError") {
+                        video.muted = true;
+                        muteBtn.textContent = '🔊 음소거 해제';
+                        video.play().catch(err => console.error("음소거 후 재생도 실패:", err));
+                    }
+                });
+            } else {
+                video.pause();
+            }
+        }
+        
+        // 음소거 토글 함수
+        function toggleMute() {
+            const video = document.getElementById('droneVideo');
+            video.muted = !video.muted;
+            muteBtn.textContent = video.muted ? '🔊 음소거 해제' : '🔇 음소거';
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 드론 YOLO 스트리밍 클라이언트 시작');
+        });
+    </script>
+</body>
+</html>
