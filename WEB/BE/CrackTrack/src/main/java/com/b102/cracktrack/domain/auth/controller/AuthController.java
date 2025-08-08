@@ -68,14 +68,18 @@ public class AuthController {
         .body(ApiResult.success(tokenResponse));
   }
 
-  @Operation(summary = "로그아웃", description = "로그아웃하고 쿠키를 삭제합니다.")
+  @Operation(summary = "로그아웃", description = "로그아웃하고 쿠키를 삭제하고 리프레시 토큰을 데이터베이스에서 삭제합니다.")
   @PostMapping("/logout")
   public ResponseEntity<ApiResult<Void>> logout(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
+    // 리프레시 토큰을 데이터베이스에서 삭제
+    authService.logout(userPrincipal.getId());
+
+    // 쿠키 삭제
     HttpHeaders headers = CookieUtil.cleanCookies();
 
     return ResponseEntity.ok()
         .headers(headers)
-        .body(ApiResult.success(204,"토큰 삭제 완료",null));
+        .body(ApiResult.success(204,"로그아웃 완료",null));
   }
 }

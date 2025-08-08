@@ -149,4 +149,15 @@ public class AuthServiceImpl implements AuthService {
         newRefreshToken
     );
   }
+
+  @Transactional
+  @Override
+  public void logout(Long userId) {
+    log.info("[AuthService] 로그아웃 시도: userId={}", userId);
+
+    // 리프레시 토큰 삭제
+    refreshTokenRepository.deleteByUserId(userId);
+    
+    log.info("[AuthService] 로그아웃 완료: userId={}", userId);
+  }
 } 
