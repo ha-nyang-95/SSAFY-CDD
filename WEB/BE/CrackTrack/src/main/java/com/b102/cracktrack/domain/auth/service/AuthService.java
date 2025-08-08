@@ -22,4 +22,9 @@ public interface AuthService {
    * 토큰 재발급
    */
   TokenResponseDto refreshToken(String refreshToken);
+
+  /**
+   * 로그아웃 - 리프레시 토큰 삭제
+   */
+  void logout(Long userId);
 }
