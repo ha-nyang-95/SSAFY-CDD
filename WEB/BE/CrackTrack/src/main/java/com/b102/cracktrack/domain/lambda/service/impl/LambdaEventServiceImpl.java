@@ -14,8 +14,10 @@ import com.b102.cracktrack.domain.task.repository.TaskRepository;
 import com.b102.cracktrack.domain.video.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,11 @@ public class LambdaEventServiceImpl implements LambdaEventService {
   private final LidarService lidarService;
   private final SegmentService segmentService;
 
+  @Value("${cloud.aws.s3.bucket}")
+  private String bucketName;
+
   @Override
+  @Transactional  // 전체 파일 처리를 하나의 트랜잭션으로 묶기
   public void processEvent(LambdaEventRequestDto requestDto) {
     log.info("Lambda 이벤트 처리 시작 - uuid: {}, 파일 개수: {}", 
         requestDto.getUuid(), requestDto.getFiles().size());
@@ -56,7 +62,7 @@ public class LambdaEventServiceImpl implements LambdaEventService {
 
       log.info("파일 분류 완료 - {}", filesByType);
 
-      // 각 타입별로 엔티티 생성
+      // 각 타입별로 엔티티 생성 (S3 URL과 함께)
       processFilesByType(task, filesByType);
 
       log.info("Lambda 이벤트 처리 성공 - uuid: {}, taskId: {}", 
@@ -110,8 +116,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     log.info("비디오 파일 처리 시작 - taskId: {}, 파일 개수: {}", task.getTaskId(), videoFiles.size());
     
     for (String fileName : videoFiles) {
-      log.info("비디오 파일 처리 중: {}", fileName);
-      videoService.createVideo(task.getTaskId(), fileName);
+      String s3Url = FileTypeParser.generateS3PublicUrl(bucketName, task.getS3Name(), fileName);
+      log.info("비디오 파일 처리 중: {}, S3 URL: {}", fileName, s3Url);
+      videoService.createVideo(task.getTaskId(), s3Url);
     }
     
     log.info("비디오 파일 처리 완료");
@@ -121,8 +128,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     log.info("디텍션 파일 처리 시작 - taskId: {}, 파일 개수: {}", task.getTaskId(), detectionFiles.size());
     
     for (String fileName : detectionFiles) {
-      log.info("디텍션 파일 처리 중: {}", fileName);
-      detectionService.createDetection(task.getTaskId(), fileName);
+      String s3Url = FileTypeParser.generateS3PublicUrl(bucketName, task.getS3Name(), fileName);
+      log.info("디텍션 파일 처리 중: {}, S3 URL: {}", fileName, s3Url);
+      detectionService.createDetection(task.getTaskId(), s3Url);
     }
     
     log.info("디텍션 파일 처리 완료");
@@ -132,8 +140,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     log.info("모델링 파일 처리 시작 - taskId: {}, 파일 개수: {}", task.getTaskId(), modelingFiles.size());
     
     for (String fileName : modelingFiles) {
-      log.info("모델링 파일 처리 중: {}", fileName);
-      modelingService.createModeling(task.getTaskId(), fileName);
+      String s3Url = FileTypeParser.generateS3PublicUrl(bucketName, task.getS3Name(), fileName);
+      log.info("모델링 파일 처리 중: {}, S3 URL: {}", fileName, s3Url);
+      modelingService.createModeling(task.getTaskId(), s3Url);
     }
     
     log.info("모델링 파일 처리 완료");
@@ -144,8 +153,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     
     for (String fileName : segmentFiles) {
       String crackId = FileTypeParser.extractCrackId(fileName);
-      log.info("세그먼트 파일 처리 중: {}, crackId: {}", fileName, crackId);
-      segmentService.createSegment(task.getTaskId(), fileName, crackId);
+      String s3Url = FileTypeParser.generateS3PublicUrl(bucketName, task.getS3Name(), fileName);
+      log.info("세그먼트 파일 처리 중: {}, crackId: {}, S3 URL: {}", fileName, crackId, s3Url);
+      segmentService.createSegment(task.getTaskId(), s3Url, crackId);
     }
     
     log.info("세그먼트 파일 처리 완료");
@@ -156,8 +166,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     
     for (String fileName : imageFiles) {
       String crackId = FileTypeParser.extractCrackId(fileName);
-      log.info("이미지 파일 처리 중: {}, crackId: {}", fileName, crackId);
-      imageService.createImage(task.getTaskId(), fileName, crackId);
+      String s3Url = FileTypeParser.generateS3PublicUrl(bucketName, task.getS3Name(), fileName);
+      log.info("이미지 파일 처리 중: {}, crackId: {}, S3 URL: {}", fileName, crackId, s3Url);
+      imageService.createImage(task.getTaskId(), s3Url, crackId);
     }
     
     log.info("이미지 파일 처리 완료");
@@ -168,8 +179,9 @@ public class LambdaEventServiceImpl implements LambdaEventService {
     
     for (String fileName : lidarFiles) {
       String crackId = FileTypeParser.extractCrackId(fileName);
-      log.info("라이더 파일 처리 중: {}, crackId: {}", fileName, crackId);
-      lidarService.createLidar(task.getTaskId(), fileName, crackId);
+      String s3Url = FileTypeParser.generateS3PublicUrl(bucketName, task.getS3Name(), fileName);
+      log.info("라이더 파일 처리 중: {}, crackId: {}, S3 URL: {}", fileName, crackId, s3Url);
+      lidarService.createLidar(task.getTaskId(), s3Url, crackId);
     }
     
     log.info("라이더 파일 처리 완료");

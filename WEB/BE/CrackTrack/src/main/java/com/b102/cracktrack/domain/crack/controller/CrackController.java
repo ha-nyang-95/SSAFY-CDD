@@ -5,6 +5,7 @@ import com.b102.cracktrack.domain.crack.dto.CrackResponseDto;
 import com.b102.cracktrack.domain.crack.service.CrackService;
 import com.b102.cracktrack.domain.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "균열", description = "균열 관련 API")
 @RestController
 @RequestMapping("/api/cracks")
 @RequiredArgsConstructor

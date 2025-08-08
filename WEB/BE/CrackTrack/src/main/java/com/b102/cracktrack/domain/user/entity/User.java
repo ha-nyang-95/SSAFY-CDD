@@ -57,4 +57,9 @@ public class User extends BaseEntity {
   public void changeRole(Role newRole) {
     this.role = newRole;
   }
+
+  // 이메일 변경 (정규화된 이메일 저장 용도)
+  public void changeEmail(String newEmail) {
+    this.email = newEmail;
+  }
 }

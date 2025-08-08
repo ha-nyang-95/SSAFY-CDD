@@ -25,7 +25,7 @@ public class Image {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "image_id")
+  @Column(name = "resource_image_id")
   private Long imageId;
 
   @Column(name = "s3_url", nullable = false)

@@ -13,7 +13,7 @@ import lombok.Getter;
 public abstract class BaseEntity {
 
   public enum Status {
-    ACTIVE,INACTIVE,DELETED
+    ACTIVE, INACTIVE, DELETED
   }
 
   @Enumerated(EnumType.STRING)
@@ -30,21 +30,21 @@ public abstract class BaseEntity {
   private LocalDateTime deletedAt;
 
   @PrePersist
-  protected void setActive(){
-    if(this.activatedAt == null){
+  protected void setActive() {
+    if (this.activatedAt == null) {
       this.status = Status.ACTIVE;
       this.activatedAt = LocalDateTime.now();
     }
   }
 
 
-  public void setInactive(){
+  public void setInactive() {
     this.status = Status.INACTIVE;
     this.deactivatedAt = LocalDateTime.now();
   }
 
-  public void softDelete(){
+  public void softDelete() {
     this.status = Status.DELETED;
-    this.deactivatedAt = LocalDateTime.now();
+    this.deletedAt = LocalDateTime.now();
   }
 }

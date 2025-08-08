@@ -5,9 +5,9 @@ public interface SegmentService {
   /**
    * 세그먼트 데이터 생성
    * @param taskId 작업 ID
-   * @param fileName 파일명
+   * @param s3Url S3 URL
    * @param crackId 균열 ID
    */
-  void createSegment(Long taskId, String fileName, String crackId);
+  void createSegment(Long taskId, String s3Url, String crackId);
 
 } 

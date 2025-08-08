@@ -1,6 +1,0 @@
-numpy
-aiortc
-ultralytics
-opencv-python
-av
-websockets

@@ -8,7 +8,7 @@ public class FileTypeParser {
   /**
    * S3 파일명을 보고 엔티티 타입을 파싱합니다.
    * 
-   * @param fileName 파일명 (예: raw_video20250806154500.mp4, Modeling20250806154500.obj, uuid/crackId001/segment.jpg)
+   * @param fileName 파일명 (예: raw_video001.mp4, detected_video001.mp4, modeling001.obj, crackId001/segment.jpg, crackId001/image.jpg, crackId001/lidar.json)
    * @return 엔티티 타입 (VIDEO, DETECTION, MODELING, SEGMENT, IMAGE, LIDAR)
    */
   public static String parseFileType(String fileName) {
@@ -42,17 +42,24 @@ public class FileTypeParser {
     }
     
     // 세그먼트 파일 (segment.jpeg, segment.jpg)
-    if (lowerFileName.equals("segment.jpeg") || lowerFileName.equals("segment.jpg")) {
+    if (lowerFileName.equals("segment.jpeg") || lowerFileName.equals("segment.jpg") ||
+        lowerFileName.endsWith("/segment.jpeg") || lowerFileName.endsWith("/segment.jpg")) {
       return "SEGMENT";
     }
     
     // 이미지 파일 (image.jpeg, image.jpg)
-    if (lowerFileName.equals("image.jpeg") || lowerFileName.equals("image.jpg")) {
+    if (lowerFileName.equals("image.jpeg") || lowerFileName.equals("image.jpg") ||
+        lowerFileName.endsWith("/image.jpeg") || lowerFileName.endsWith("/image.jpg")) {
       return "IMAGE";
     }
     
     // 라이더 파일 (lidar.json)
-    if (lowerFileName.equals("lidar.json")) {
+    if (lowerFileName.equals("lidar.json") || lowerFileName.endsWith("/lidar.json")) {
+      return "LIDAR";
+    }
+    
+    // 추가적인 확장자 기반 검사
+    if (lowerFileName.endsWith(".json") && (lowerFileName.contains("lidar") || lowerFileName.contains("/lidar"))) {
       return "LIDAR";
     }
     
@@ -63,8 +70,8 @@ public class FileTypeParser {
   /**
    * 파일명에서 crackId를 추출합니다.
    * 
-   * @param fileName 파일명 (예: crackId0/image.jpeg, uuid/crackId001/segment.jpg)
-   * @return crackId (예: crackId0, crackId001)
+   * @param fileName 파일명 (예: crackId001/image.jpeg, crackId001/segment.jpg)
+   * @return crackId (예: crackId001, crackId002)
    */
   public static String extractCrackId(String fileName) {
     if (fileName == null || fileName.isEmpty()) {
@@ -75,17 +82,9 @@ public class FileTypeParser {
     if (fileName.contains("/")) {
       String[] parts = fileName.split("/");
       
-      // UUID/crackId001/segment.jpg 형태인 경우
-      if (parts.length >= 3) {
-        // 두 번째 부분이 crackId로 시작하는지 확인
-        if (parts[1].startsWith("crackId")) {
-          return parts[1]; // crackId001, crackId002 등
-        }
-      }
-      
-      // crackId001/segment.jpg 형태인 경우 (기존 로직)
+      // crackId001/segment.jpg 형태인 경우
       if (parts.length >= 2 && parts[0].startsWith("crackId")) {
-        return parts[0]; // crackId0, crackId1 등
+        return parts[0]; // crackId001, crackId002 등
       }
     }
     
@@ -113,5 +112,26 @@ public class FileTypeParser {
     }
     
     return null;
+  }
+
+  /**
+   * Task S3 경로와 파일명으로 S3 public URL 생성
+   * 
+   * @param bucketName S3 버킷명
+   * @param taskS3Path Task의 S3 경로 (예: u1/2025-08-07/3c61e459-6b81-4b8b-a2ef-0e1e6c6db146)
+   * @param fileName 파일명 (예: raw_video001.mp4, crackId001/image.jpg)
+   * @return S3 public URL
+   */
+  public static String generateS3PublicUrl(String bucketName, String taskS3Path, String fileName) {
+    if (bucketName == null || bucketName.isEmpty() || 
+        taskS3Path == null || taskS3Path.isEmpty() || 
+        fileName == null || fileName.isEmpty()) {
+      log.warn("S3 URL 생성 실패: 필수 파라미터 누락 - bucketName={}, taskS3Path={}, fileName={}", 
+          bucketName, taskS3Path, fileName);
+      return null;
+    }
+    
+    String fullKey = taskS3Path + "/" + fileName;
+    return String.format("https://%s.s3.amazonaws.com/%s", bucketName, fullKey);
   }
 } 

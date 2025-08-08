@@ -62,8 +62,15 @@ public class TaskServiceImpl implements TaskService {
     Location l = locationRepository.findById(locationId).orElseThrow(
         () -> {
           log.warn("Task 생성 에러: 지역 없음. locationId:{}", locationId);
-          return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
+          return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.LOCATION_NOT_FOUND);
         });
+
+    // location 소유권 검증
+    if (!l.getUser().getUserId().equals(userId)) {
+      log.warn("Task 생성 에러: location 소유권 없음. locationId:{}, location 소유자:{}, 요청자:{}", 
+          locationId, l.getUser().getUserId(), userId);
+      throw new ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.FORBIDDEN);
+    }
 
     Task task = Task.builder()
         .user(u)
