@@ -1,0 +1,10 @@
+[33m7d8374e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mbackend[m[33m, [m[1;31morigin/backend[m[33m)[m Merge branch 'feature/service' into 'backend'
+[33m6897e32[m[33m ([m[1;32mfeature/service[m[33m)[m fix: 람다서비스 개선
+[33mf1a33bd[m feat: s3 url 적용
+[33m528fb71[m feat: 추가 기능 구현
+[33m5afe8ec[m[33m ([m[1;31morigin/web[m[33m, [m[1;31morigin/dev[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mweb[m[33m, [m[1;32mdev[m[33m)[m Docs: README.md 작성
+[33mc3da262[m Merge: WEB 정리 및 모든 branch 통합
+[33mfcfd9bf[m Merge branch 'AI' into 'dev'
+[33mdb3ca11[m Merge branch 'web' into 'dev'
+[33me2d7b6c[m Merge branch 'embe' into 'dev'
+[33m6d0fa36[m Merge branch 'frontend' into 'web'
