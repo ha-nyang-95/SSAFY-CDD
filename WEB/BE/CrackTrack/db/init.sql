@@ -1,15 +1,15 @@
 -- 사용자 테이블
 CREATE TABLE `users`
 (
-    `user_id`        BIGINT                                 NOT NULL AUTO_INCREMENT,
-    `email`          VARCHAR(30)                            NOT NULL UNIQUE,
-    `password`       TEXT                                   NOT NULL COMMENT 'Bcrypt 해시 처리',
-    `name`           VARCHAR(20)                            NOT NULL,
+    `user_id`        BIGINT      NOT NULL AUTO_INCREMENT,
+    `email`          VARCHAR(30) NOT NULL UNIQUE,
+    `password`       TEXT        NOT NULL COMMENT 'Bcrypt 해시 처리',
+    `name`           VARCHAR(20) NOT NULL,
     `role`           ENUM ('GENERAL', 'ADMIN')              NOT NULL DEFAULT 'GENERAL',
     `status`         ENUM ('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
-    `activated_at`   TIMESTAMP                              NOT NULL DEFAULT NOW(),
-    `deactivated_at` TIMESTAMP                              NULL,
-    `deleted_at`     TIMESTAMP                              NULL,
+    `activated_at`   TIMESTAMP   NOT NULL DEFAULT NOW(),
+    `deactivated_at` TIMESTAMP NULL,
+    `deleted_at`     TIMESTAMP NULL,
     PRIMARY KEY (`user_id`)
 );
 
@@ -37,14 +37,15 @@ CREATE TABLE `locations`
 -- 작업 테이블
 CREATE TABLE `tasks`
 (
-    `task_id`        BIGINT                                 NOT NULL AUTO_INCREMENT,
-    `location_id`    BIGINT                                 NOT NULL,
-    `user_id`        BIGINT                                 NOT NULL,
-    `s3_name`        VARCHAR(100)                           NOT NULL,
+    `task_id`        BIGINT       NOT NULL AUTO_INCREMENT,
+    `location_id`    BIGINT       NOT NULL,
+    `user_id`        BIGINT       NOT NULL,
+    `s3_name`        VARCHAR(100) NOT NULL,
+    `description`    VARCHAR(500) NULL,
     `status`         ENUM ('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
-    `activated_at`   TIMESTAMP                              NOT NULL DEFAULT NOW(),
-    `deactivated_at` TIMESTAMP                              NULL,
-    `deleted_at`     TIMESTAMP                              NULL,
+    `activated_at`   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    `deactivated_at` TIMESTAMP NULL,
+    `deleted_at`     TIMESTAMP NULL,
     PRIMARY KEY (`task_id`),
     FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
@@ -83,13 +84,13 @@ CREATE TABLE `modelings`
 -- 균열 테이블
 CREATE TABLE `cracks`
 (
-    `crack_id`        BIGINT                                 NOT NULL AUTO_INCREMENT,
-    `task_id`         BIGINT                                 NOT NULL,
-    `crack_id_string` VARCHAR(20)                            NOT NULL COMMENT 'crackId0, crackId1 등의 문자열',
+    `crack_id`        BIGINT      NOT NULL AUTO_INCREMENT,
+    `task_id`         BIGINT      NOT NULL,
+    `crack_id_string` VARCHAR(20) NOT NULL COMMENT 'crackId0, crackId1 등의 문자열',
     `status`          ENUM ('ACTIVE', 'INACTIVE', 'DELETED') NOT NULL DEFAULT 'ACTIVE',
-    `activated_at`    TIMESTAMP                              NOT NULL DEFAULT NOW(),
-    `deactivated_at`  TIMESTAMP                              NULL,
-    `deleted_at`      TIMESTAMP                              NULL COMMENT '잘못된 검출은 삭제처리',
+    `activated_at`    TIMESTAMP   NOT NULL DEFAULT NOW(),
+    `deactivated_at`  TIMESTAMP NULL,
+    `deleted_at`      TIMESTAMP NULL COMMENT '잘못된 검출은 삭제처리',
     PRIMARY KEY (`crack_id`),
     FOREIGN KEY (`task_id`) REFERENCES `tasks` (`task_id`)
 );

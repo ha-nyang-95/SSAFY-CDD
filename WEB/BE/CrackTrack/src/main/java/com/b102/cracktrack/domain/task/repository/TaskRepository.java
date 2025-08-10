@@ -21,10 +21,4 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
   // UUID로 Task 조회
   Optional<Task> findByS3Name(String s3Name);
 
-  @Query("SELECT new com.b102.cracktrack.domain.task.dto.TaskResponseDto("
-      + "t.taskId, l.name, t.activatedAt) "
-      + "FROM Task t JOIN Location l ON t.locationId = l.locationId "
-      + "WHERE t.user.userId = :userId")
-  List<TaskResponseDto> findTaskResponseDtoByUserId(@Param("userId") Long userId);
-
 }

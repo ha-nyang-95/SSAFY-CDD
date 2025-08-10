@@ -7,6 +7,7 @@ import java.util.List;
 public record TaskDetailResponseDto(
     Long taskId,
     String locationName,
+    String description,
     String detectionURL,
     String modelingURL,
     String videoURL,

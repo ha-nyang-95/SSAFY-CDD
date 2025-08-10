@@ -39,8 +39,15 @@ public class Task extends BaseEntity {
   @Column(name = "s3_name", nullable = false)
   private String s3Name;
 
+  @Column
+  private String description;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
 
+
+  public void ChangeDescription(String description) {
+    this.description = description;
+  }
 }

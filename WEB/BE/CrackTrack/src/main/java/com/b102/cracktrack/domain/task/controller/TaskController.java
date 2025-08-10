@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,5 +68,11 @@ public class TaskController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
     return ResponseEntity.ok(
         ApiResult.success(taskService.findTaskDetails(taskId, userPrincipal.getUserId())));
+  }
+
+  @Operation(summary = "작업 메모 작성", description = "작업에 사용자의 메모를 추가합니다.")
+  @PutMapping("/task/{taskId}")
+  public ResponseEntity<ApiResult<TaskDetailResponseDto>> updateTask(@PathVariable Long taskId, @AuthenticationPrincipal UserPrincipal userPrincipal,@RequestBody String description) {
+    return ResponseEntity.ok(ApiResult.success(taskService.writeDescription(taskId, userPrincipal.getUserId(), description)));
   }
 }

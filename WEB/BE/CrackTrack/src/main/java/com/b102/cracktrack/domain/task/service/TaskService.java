@@ -12,13 +12,13 @@ public interface TaskService {
 
   void deleteTask(Long taskId, Long userId);
 
+  void completeTask(String s3Name);
+
   List<TaskResponseDto> findByLocationId(Long locationId, Long userId);
 
   List<TaskResponseDto> findAllTasks(Long userId);
 
   TaskDetailResponseDto findTaskDetails(Long taskId, Long userId);
 
-
-
-
+  TaskDetailResponseDto writeDescription(Long taskId, Long userId, String description);
 }

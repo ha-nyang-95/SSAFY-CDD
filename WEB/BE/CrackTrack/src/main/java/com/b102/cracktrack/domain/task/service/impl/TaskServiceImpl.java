@@ -99,6 +99,18 @@ public class TaskServiceImpl implements TaskService {
     log.info("Task 삭제 성공: taskId: {}", taskId);
   }
 
+  @Transactional
+  @Override
+  public void completeTask(String s3Name) {
+    log.info("Task 완료 처리: taskName: {}", s3Name);
+
+    Task t = taskRepository.findByS3Name(s3Name).orElseThrow(()->{
+      log.error("Task 완료 처리 실패: 작업없음, s3Name: {}", s3Name);
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
+    });
+    t.setInactive();
+  }
+
   @Transactional(readOnly = true)
   @Override
   public List<TaskResponseDto> findByLocationId(Long locationId, Long userId) {
@@ -160,6 +172,7 @@ public class TaskServiceImpl implements TaskService {
    * @param taskId 상세 보기를 하고 싶은 주체의 Id
    * @return 한 작업의 영상, 랜더링, 디텍팅 영상, 균열 정보들
    */
+  @Transactional(readOnly = true)
   @Override
   public TaskDetailResponseDto findTaskDetails(Long taskId, Long userId) {
     log.info("Task 유저 작업 상세 조회 taskId:{}, userId: {}", taskId, userId);
@@ -190,7 +203,49 @@ public class TaskServiceImpl implements TaskService {
 
     List<CrackResponseDto> cracks = crackService.findCracksByTaskId(taskId, userId);
 
-    return new TaskDetailResponseDto(taskId, locationName, d.getS3Url(), m.getS3Url(), v.getS3Url(),
+    return new TaskDetailResponseDto(taskId, locationName, task.getDescription(), d.getS3Url(), m.getS3Url(), v.getS3Url(),
+        cracks,
+        task.getActivatedAt());
+  }
+
+  @Transactional
+  @Override
+  public TaskDetailResponseDto writeDescription(Long taskId, Long userId, String description) {
+    log.info("Task 메모 작성: taskId: {}, userId: {}", taskId, userId);
+    Task task = taskRepository.findById(taskId).orElseThrow(()->{
+      log.error("Task 메모 작성 실패: 작업 없음 taskId: {}", taskId);
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
+    });
+    if(!task.getUser().getUserId().equals(userId)){
+      log.error("Task 메모 작성 실패: 작업 유저 아님 task의 유저Id: {}, userId: {}", task.getUser().getUserId(), userId);
+      throw new  ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.LOCATION_NOT_FOUND);
+    }
+    task.ChangeDescription(description);
+    log.info("Task 메모 작성 성공");
+
+    String locationName = locationRepository.findById(task.getLocationId()).orElseThrow(() -> {
+      log.error("Task 메모 작성 실패: 지역없음 locationId: {}", task.getLocationId());
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.LOCATION_NOT_FOUND);
+    }).getName();
+
+    Detection d = detectionRepository.findByTaskTaskId(taskId).orElseThrow(() -> {
+      log.error("Task 메모 작성 실패: 디텍팅 없음 taskId: {}", taskId);
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.DETECTION_NOT_FOUND);
+    });
+
+    Modeling m = modelingRepository.findByTaskTaskId(taskId).orElseThrow(() -> {
+      log.error("Task 메모 작성 실패: 모델링 없음 taskId: {}", taskId);
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.MODELING_NOT_FOUND);
+    });
+
+    Video v = videoRepository.findByTaskTaskId(taskId).orElseThrow(() -> {
+      log.error("Task 메모 작성 실패: 영상없음 videoId: {}", taskId);
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.VIDEO_NOT_FOUND);
+    });
+
+    List<CrackResponseDto> cracks = crackService.findCracksByTaskId(taskId, userId);
+
+    return new TaskDetailResponseDto(taskId, locationName, task.getDescription(), d.getS3Url(), m.getS3Url(), v.getS3Url(),
         cracks,
         task.getActivatedAt());
   }
