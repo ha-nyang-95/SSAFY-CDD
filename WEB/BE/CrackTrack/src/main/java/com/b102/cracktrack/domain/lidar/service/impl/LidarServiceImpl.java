@@ -9,6 +9,7 @@ import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.task.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +22,16 @@ public class LidarServiceImpl implements LidarService {
   private final CrackRepository crackRepository;
   private final TaskRepository taskRepository;
 
+  @Value("${cloud.aws.s3.bucket}")
+  private String s3Bucket;
+
+  @Value("${cloud.aws.region.static}")
+  private String awsRegion;
+
   @Override
   @Transactional
-  public void createLidar(Long taskId, String s3Url, String crackId) {
-    log.info("라이더 데이터 생성 시작 - taskId: {}, s3Url: {}, crackId: {}", taskId, s3Url, crackId);
+  public void createLidar(Long taskId, String fileName, String crackId) {
+    log.info("라이더 데이터 생성 시작 - taskId: {}, fileName: {}, crackId: {}", taskId, fileName, crackId);
     
     // crackId를 통해 Crack 엔티티 찾기 (없으면 생성)
     Crack crack = crackRepository.findByTaskTaskIdAndCrackIdString(taskId, crackId)
@@ -33,9 +40,12 @@ public class LidarServiceImpl implements LidarService {
           return createNewCrack(taskId, crackId);
         });
     
+    // S3 퍼블릭 URL 생성 (브라우저에서 접근 가능한 형태)
+    String s3Url = String.format("https://%s.s3.%s.amazonaws.com/%s", s3Bucket, awsRegion, fileName);
+    
     Lidar lidar = Lidar.builder()
         .crack(crack)
-        .s3Url(s3Url)  // 실제 S3 URL 사용
+        .s3Url(s3Url)
         .build();
     
     lidarRepository.save(lidar);

@@ -5,9 +5,9 @@ public interface ImageService {
   /**
    * 이미지 생성
    * @param taskId 작업 ID
-   * @param s3Url S3 URL
+   * @param fileName 파일명
    * @param crackId 균열 ID
    */
-  void createImage(Long taskId, String s3Url, String crackId);
+  void createImage(Long taskId, String fileName, String crackId);
 
 } 

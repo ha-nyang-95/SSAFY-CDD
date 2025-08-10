@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,12 @@ public class DetectionServiceImpl implements DetectionService {
   private final TaskRepository taskRepository;
   private final LocationRepository locationRepository;
   private final UserRepository userRepository;
+
+  @Value("${cloud.aws.s3.bucket}")
+  private String s3Bucket;
+
+  @Value("${cloud.aws.region.static}")
+  private String awsRegion;
 
   @Override
   public List<DetectionResponseDto> findAllByUserId(Long userId) {
@@ -108,8 +115,8 @@ public class DetectionServiceImpl implements DetectionService {
     Task task = taskRepository.findById(taskId)
         .orElseThrow(() -> new RuntimeException("Task를 찾을 수 없습니다: " + taskId));
     
-    // S3 URL 생성 (실제 구현에서는 S3 경로로 변경)
-    String s3Url = "s3://cracktrack/" + fileName;
+    // S3 퍼블릭 URL 생성 (브라우저에서 접근 가능한 형태)
+    String s3Url = String.format("https://%s.s3.%s.amazonaws.com/%s", s3Bucket, awsRegion, fileName);
     
     Detection detection = Detection.builder()
         .task(task)
