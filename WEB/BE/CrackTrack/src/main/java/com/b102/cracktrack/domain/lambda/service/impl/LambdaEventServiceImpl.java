@@ -11,6 +11,7 @@ import com.b102.cracktrack.domain.modeling.service.ModelingService;
 import com.b102.cracktrack.domain.segment.service.SegmentService;
 import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.task.repository.TaskRepository;
+import com.b102.cracktrack.domain.task.service.TaskService;
 import com.b102.cracktrack.domain.video.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class LambdaEventServiceImpl implements LambdaEventService {
   private final ImageService imageService;
   private final LidarService lidarService;
   private final SegmentService segmentService;
+  private final TaskService taskService;
 
   @Value("${cloud.aws.s3.bucket}")
   private String bucketName;
@@ -64,6 +66,8 @@ public class LambdaEventServiceImpl implements LambdaEventService {
 
       // 각 타입별로 엔티티 생성 (S3 URL과 함께)
       processFilesByType(task, filesByType);
+      
+      taskService.completeTask(requestDto.getUuid());
 
       log.info("Lambda 이벤트 처리 성공 - uuid: {}, taskId: {}", 
           requestDto.getUuid(), task.getTaskId());
