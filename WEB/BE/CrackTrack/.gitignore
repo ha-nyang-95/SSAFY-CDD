@@ -46,6 +46,7 @@ env.development
 application-local.properties
 application-dev.properties
 application-prod.properties
+secrets/**
 
 ### Logs ###
 *.log

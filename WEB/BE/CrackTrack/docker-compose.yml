@@ -1,14 +1,53 @@
+# 도커 컴포즈 설정: Spring Boot + MySQL
+# - 로컬 개발용 기본 계정/비밀번호 포함 (운영 절대 금지)
+
 services:
   db:
     image: mysql:8.0
     container_name: cracktrack-mysql
-    restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
     environment:
-      MYSQL_ROOT_PASSWORD: b102b102
-      MYSQL_DATABASE: cracktrack
+      # 로컬/EC2 모두 .env에서 주입받도록 구성
+      # 주의: 비밀번호류는 기본값 없이 .env 필수 설정 권장
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-cracktrack}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       TZ: Asia/Seoul
     ports:
-      - "3306:3306"
+      # 좌측 3307 포트는 호스트 포트 (충돌 시 3308 등으로 변경 가능)
+      - "3307:3306"
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # MySQL 데이터 영속화 볼륨
+      - mysql_data:/var/lib/mysql
+      # 초기 스키마/데이터 로드 (있을 경우 적용)
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      # $ 환경변수는 런타임에서 확장되도록 $$ 이스케이프
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cracktrack-app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    environment:
+      TZ: Asia/Seoul
+      # 프로파일은 기본 docker, 필요 시 .env에서 오버라이드 가능
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+
