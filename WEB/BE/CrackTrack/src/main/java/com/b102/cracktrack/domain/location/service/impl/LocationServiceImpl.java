@@ -11,8 +11,10 @@ import com.b102.cracktrack.domain.user.entity.User;
 import com.b102.cracktrack.domain.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,15 @@ public class LocationServiceImpl implements LocationService {
     return locationResponseDtos;
   }
 
+  /**
+   * 기존 로직 변경
+   * 방안
+   * 지역명 입력받음 있으면 반환
+   * 없으면 새로 생성하고 반환
+   * @param locationRequestDto 유저가 입력한 지역명
+   * @param userId userprincipal을 통해 가져온 id
+   * @return 기존 있던 거든 없던 거든 locationResponseDto로 반환
+   */
   @Transactional
   @Override
   public LocationResponseDto registerLocation(LocationRequestDto locationRequestDto, Long userId) {
@@ -44,13 +55,29 @@ public class LocationServiceImpl implements LocationService {
           log.error("[LocationService] 잘못된 유저id={}", userId);
           return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.USER_NOT_FOUND);
         });
+
+    Optional<Location> existing = locationRepository.findByUserUserIdAndName(userId,
+        locationRequestDto.name());
+    if (existing.isPresent()) {
+      log.info("[LocationService] 지역 재사용, locationId={},name={}",existing.get().getLocationId(),existing.get().getName());
+      return LocationResponseDto.from(existing.get());
+    }
+
+
     Location l = Location.builder()
         .name(locationRequestDto.name())
         .user(u)
         .build();
-    locationRepository.save(l);
-    log.info("[LocationService] 지역 등록 성공, locationId={}, locationName={}", l.getLocationId(), l.getName());
-    return LocationResponseDto.from(l);
+
+    try{
+      Location save = locationRepository.save(l);
+      log.info("[LocationService] 지역 등록 성공, locationId={},name={}",l.getLocationId(),l.getName());
+      return LocationResponseDto.from(save);
+    }catch (DataIntegrityViolationException dup){
+      Location concur = locationRepository.findByUserUserIdAndName(userId, locationRequestDto.name()).orElseThrow(()->dup);
+        log.info("[LocationService] 동시성: 기존 지역 반환, locationId={}, name={}",l.getLocationId(),l.getName());
+        return LocationResponseDto.from(concur);
+    }
   }
 
   @Transactional
