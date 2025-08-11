@@ -3,6 +3,7 @@ package com.b102.cracktrack.domain.location.repository;
 import com.b102.cracktrack.domain.location.entity.Location;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.text.html.Option;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface LocationRepository extends JpaRepository<Location, Long> {
 
   List<Location> findByUserUserId(Long userId);
+
+  Optional<Location> findByUserUserIdAndName(Long userId,String name);
 
 }
