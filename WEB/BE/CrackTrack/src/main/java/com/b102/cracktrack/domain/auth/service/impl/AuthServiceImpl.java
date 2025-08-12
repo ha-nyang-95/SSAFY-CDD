@@ -7,8 +7,6 @@ import com.b102.cracktrack.domain.auth.entity.RefreshToken;
 import com.b102.cracktrack.domain.auth.jwt.JwtTokenProvider;
 import com.b102.cracktrack.domain.auth.repository.RefreshTokenRepository;
 import com.b102.cracktrack.domain.auth.service.AuthService;
-import com.b102.cracktrack.domain.location.entity.Location;
-import com.b102.cracktrack.domain.location.repository.LocationRepository;
 import com.b102.cracktrack.domain.user.dto.UserResponseDto;
 import com.b102.cracktrack.domain.user.entity.User;
 import com.b102.cracktrack.domain.user.repository.UserRepository;
@@ -27,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService {
 
   private final UserRepository userRepository;
-  private final LocationRepository locationRepository;
   private final JwtTokenProvider jwtTokenProvider;
   private final AuthenticationManager authenticationManager;
   private final RefreshTokenRepository refreshTokenRepository;
@@ -56,14 +53,6 @@ public class AuthServiceImpl implements AuthService {
     User savedUser = userRepository.save(user);
     log.info("[AuthService] 회원가입 완료, userId={}, email={}", savedUser.getUserId(),
         savedUser.getEmail());
-
-    // 신규 유저에게 기본 'none' location 자동 생성
-    Location defaultLocation = Location.builder()
-        .user(savedUser)
-        .name("none")
-        .build();
-    locationRepository.save(defaultLocation);
-    log.info("[AuthService] 기본 location 생성 완료, userId={}, locationName=none", savedUser.getUserId());
 
     return UserResponseDto.from(savedUser);
   }

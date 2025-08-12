@@ -1,5 +1,6 @@
 package com.b102.cracktrack.domain.auth.dto;
 
+import com.b102.cracktrack.common.enums.Region;
 import com.b102.cracktrack.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -30,16 +31,22 @@ public record SignUpRequestDto(
         regexp = "^[가-힣a-zA-Z]+$",
         message = "이름은 한글 또는 영문만 입력 가능합니다."
     )
-    String name
+    String name,
+
+    @Schema(description = "지역(광역) 한글명", example = "서울특별시")
+    @NotBlank(message = "지역명은 필수 입력 값입니다.")
+    String regionName
 ) {
 
   public static User of(SignUpRequestDto signUpRequestDto) {
-    User u = User.builder()
+    // regionName 을 Region 이넘으로 변환 (공백 제거)
+    Region region = Region.fromKoreanName(signUpRequestDto.regionName.trim());
+
+    return User.builder()
         .email(signUpRequestDto.email)
         .password(signUpRequestDto.password)
         .name(signUpRequestDto.name)
+        .region(region)
         .build();
-
-    return u;
   }
 }

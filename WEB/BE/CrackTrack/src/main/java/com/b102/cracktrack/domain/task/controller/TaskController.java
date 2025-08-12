@@ -30,12 +30,12 @@ public class TaskController {
 
   private final TaskService taskService;
 
-  @Operation(summary = "작업 생성", description = "유저가 모듈에 입력할 저장소 코드를 받습니다.")
-  @PostMapping("/tasks/{locationId}")
-  public ResponseEntity<ApiResult<TaskFirstResponseDto>> createTask(@PathVariable Long locationId,
+  @Operation(summary = "작업 생성", description = "입력 예) '서울특별시 - 강남구' 또는 '경기도 - 성남시 - 분당구'")
+  @PostMapping("/tasks/district")
+  public ResponseEntity<ApiResult<TaskFirstResponseDto>> createTask(@RequestBody String districtPath,
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
     return ResponseEntity.ok(
-        ApiResult.success(taskService.createTask(locationId, userPrincipal.getUserId())));
+        ApiResult.success(taskService.createTask(districtPath, userPrincipal.getUserId())));
   }
 
   @Operation(summary = "작업 삭제", description = "유저가 작업을 삭제합니다.")
@@ -46,12 +46,12 @@ public class TaskController {
     return ResponseEntity.ok(ApiResult.success(204, "삭제 성공", null));
   }
 
-  @Operation(summary = "지역별 작업 목록 조회", description = "유저가 갖고 있는 지역별로 했던 모든 작업을 가져옵니다.")
-  @GetMapping("/tasks/location/{locationId}")
-  public ResponseEntity<ApiResult<List<TaskResponseDto>>> getAllTasksByLocation(
-      @PathVariable Long locationId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+  @Operation(summary = "구역별 작업 목록 조회", description = "유저가 갖고 있는 구역별로 했던 모든 작업을 가져옵니다.")
+  @GetMapping("/tasks/district/{districtId}")
+  public ResponseEntity<ApiResult<List<TaskResponseDto>>> getAllTasksByDistrict(
+      @PathVariable Long districtId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
     return ResponseEntity.ok(
-        ApiResult.success(taskService.findByLocationId(locationId, userPrincipal.getUserId())));
+        ApiResult.success(taskService.findByDistrictId(districtId, userPrincipal.getUserId())));
   }
 
   @Operation(summary = "전체 작업 목록 조회", description = "유저가 갖고 있는 모든 작업을 가져옵니다.")

@@ -19,6 +19,7 @@ public class ErrorMessage {
   public static final String USER_NOT_FOUND = "해당 유저를 찾을 수 없습니다.";
   public static final String TASK_NOT_FOUND = "해당 작업을 찾을 수 없습니다.";
   public static final String LOCATION_NOT_FOUND = "해당 지역을 찾을 수 없습니다.";
+  public static final String DISTRICT_NOT_FOUND = "해당 구역을 찾을 수 없습니다.";
   public static final String DETECTION_NOT_FOUND = "해당 디텍션을 찾을 수 없습니다.";
   public static final String CRACK_NOT_FOUND = "해당 균열을 찾을 수 없습니다.";
   public static final String MODELING_NOT_FOUND = "해당 모델링이 없습니다.";
