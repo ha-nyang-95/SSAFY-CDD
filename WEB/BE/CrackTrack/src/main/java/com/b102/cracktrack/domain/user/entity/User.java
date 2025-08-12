@@ -1,6 +1,7 @@
 package com.b102.cracktrack.domain.user.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
+import com.b102.cracktrack.common.enums.Region;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -36,6 +37,10 @@ public class User extends BaseEntity {
 
   @Column(nullable = false, length = 20)
   private String name;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Region region;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)

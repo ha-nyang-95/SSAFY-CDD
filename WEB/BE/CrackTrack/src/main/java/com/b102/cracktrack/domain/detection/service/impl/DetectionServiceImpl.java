@@ -5,11 +5,8 @@ import com.b102.cracktrack.common.exception.ErrorMessage;
 import com.b102.cracktrack.domain.detection.dto.DetectionResponseDto;
 import com.b102.cracktrack.domain.detection.repository.DetectionRepository;
 import com.b102.cracktrack.domain.detection.service.DetectionService;
-import com.b102.cracktrack.domain.location.entity.Location;
-import com.b102.cracktrack.domain.location.repository.LocationRepository;
 import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.task.repository.TaskRepository;
-import com.b102.cracktrack.domain.user.entity.User;
 import com.b102.cracktrack.domain.user.repository.UserRepository;
 import com.b102.cracktrack.domain.detection.entity.Detection;
 import java.util.ArrayList;
@@ -28,7 +25,6 @@ public class DetectionServiceImpl implements DetectionService {
 
   private final DetectionRepository detectionRepository;
   private final TaskRepository taskRepository;
-  private final LocationRepository locationRepository;
   private final UserRepository userRepository;
 
   @Value("${cloud.aws.s3.bucket}")
@@ -56,8 +52,8 @@ public class DetectionServiceImpl implements DetectionService {
     log.info("디텍션 조회 시작 - 총 작업 개수: {}", tasks.size());
 
     for (Task task : tasks) {
-      log.debug("작업별 디텍션 조회 중 - taskId: {}, locationId: {}", task.getTaskId(),
-          task.getLocationId());
+      log.debug("작업별 디텍션 조회 중 - taskId: {}, districtId: {}", task.getTaskId(),
+          task.getDistrict() == null ? null : task.getDistrict().getDistrictId());
 
       // 각 작업에 해당하는 디텍션 조회 (Optional 사용)
       detectionRepository.findByTaskTaskId(task.getTaskId())
@@ -76,11 +72,16 @@ public class DetectionServiceImpl implements DetectionService {
   }
 
   @Override
-  public List<DetectionResponseDto> findAllByLocationId(Long locationId, Long userId) {
-    log.info("Detection 지역별 작업 목록 조회 시작 - locationId: {}, userId: {}", locationId, userId);
+  public List<DetectionResponseDto> findAllByDistrictId(Long districtId, Long userId) {
+    log.info("Detection 구역별 작업 목록 조회 시작 - districtId: {}, userId: {}", districtId, userId);
 
-
-    return List.of();
+    List<Task> tasks = taskRepository.findByDistrictDistrictId(districtId);
+    List<DetectionResponseDto> result = new ArrayList<>();
+    for (Task task : tasks) {
+      detectionRepository.findByTaskTaskId(task.getTaskId())
+          .ifPresent(d -> result.add(DetectionResponseDto.from(d)));
+    }
+    return result;
   }
 
   @Override
