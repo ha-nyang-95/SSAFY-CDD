@@ -47,11 +47,10 @@ public class TaskController {
   }
 
   @Operation(summary = "구역별 작업 목록 조회", description = "유저가 갖고 있는 구역별로 했던 모든 작업을 가져옵니다.")
-  @GetMapping("/tasks/district/{districtId}")
-  public ResponseEntity<ApiResult<List<TaskResponseDto>>> getAllTasksByDistrict(
-      @PathVariable Long districtId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+  @GetMapping("/tasks/district")
+  public ResponseEntity<ApiResult<List<TaskResponseDto>>> getAllTasksByDistrict(@AuthenticationPrincipal UserPrincipal userPrincipal) {
     return ResponseEntity.ok(
-        ApiResult.success(taskService.findByDistrictId(districtId, userPrincipal.getUserId())));
+        ApiResult.success(taskService.findAllTaskByUserRegion(userPrincipal.getUserId())));
   }
 
   @Operation(summary = "전체 작업 목록 조회", description = "유저가 갖고 있는 모든 작업을 가져옵니다.")

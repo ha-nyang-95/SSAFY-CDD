@@ -42,8 +42,8 @@ public class UserController {
 
   @Operation(summary = "현재 사용자 정보", description = "현재 로그인한 사용자의 기본 정보를 반환합니다.(상태바)")
   @GetMapping("/me")
-  public ResponseEntity<ApiResult<UserPrincipal>> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-    return ResponseEntity.ok().body(ApiResult.success(userPrincipal));
+  public ResponseEntity<ApiResult<String>> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    return ResponseEntity.ok().body(ApiResult.success(userPrincipal.getRegion()));
   }
 
   @Operation(summary = "권한 확인", description = "현재 사용자의 권한 정보를 확인합니다.")

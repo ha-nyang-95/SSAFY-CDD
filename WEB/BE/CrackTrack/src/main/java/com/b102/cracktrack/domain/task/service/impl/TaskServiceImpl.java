@@ -22,9 +22,9 @@ import com.b102.cracktrack.domain.user.repository.UserRepository;
 import com.b102.cracktrack.domain.video.entity.Video;
 import com.b102.cracktrack.domain.video.repository.VideoRepository;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +63,8 @@ public class TaskServiceImpl implements TaskService {
     // 양끝 따옴표 제거 후 공백 기준 분리
     String normalizedPath = districtPath == null ? "" : districtPath.trim();
     log.debug("Task 생성 입력 정규화 전: raw='{}'", districtPath);
-    if (normalizedPath.startsWith("\"") && normalizedPath.endsWith("\"") && normalizedPath.length() >= 2) {
+    if (normalizedPath.startsWith("\"") && normalizedPath.endsWith("\"")
+        && normalizedPath.length() >= 2) {
       normalizedPath = normalizedPath.substring(1, normalizedPath.length() - 1).trim();
     }
     log.debug("Task 생성 입력 정규화 후: normalized='{}'", normalizedPath);
@@ -94,9 +95,11 @@ public class TaskServiceImpl implements TaskService {
       district = districtRepository.save(
           District.builder().region(region).name(districtName).build()
       );
-      log.info("신규 디스트릭트 생성: id={}, region={}, name='{}'", district.getDistrictId(), region, districtName);
+      log.info("신규 디스트릭트 생성: id={}, region={}, name='{}'", district.getDistrictId(), region,
+          districtName);
     } else {
-      log.info("기존 디스트릭트 사용: id={}, region={}, name='{}'", district.getDistrictId(), region, districtName);
+      log.info("기존 디스트릭트 사용: id={}, region={}, name='{}'", district.getDistrictId(), region,
+          districtName);
     }
 
     Task task = Task.builder()
@@ -132,27 +135,39 @@ public class TaskServiceImpl implements TaskService {
   public void completeTask(String s3Name) {
     log.info("Task 완료 처리: taskName: {}", s3Name);
 
-    Task t = taskRepository.findByS3Name(s3Name).orElseThrow(()->{
+    Task t = taskRepository.findByS3Name(s3Name).orElseThrow(() -> {
       log.error("Task 완료 처리 실패: 작업없음, s3Name: {}", s3Name);
       return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
     });
     t.setInactive();
   }
 
-  @Transactional(readOnly = true)
   @Override
-  public List<TaskResponseDto> findByDistrictId(Long districtId, Long userId) {
-    log.info("Task 구역별 작업 목록 조회: districtId: {}, userId: {}", districtId, userId);
-
-    District district = districtRepository.findById(districtId).orElseThrow(() -> {
-      log.error("Task 구역별 작업 목록 조회 실패: districtId: {}", districtId);
-      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.DISTRICT_NOT_FOUND);
+  public List<TaskResponseDto> findAllTaskByUserRegion(Long userId) {
+    log.info("Task 유저의 지역 전체 작업 조회 userId:{}", userId);
+    User user = userRepository.findById(userId).orElseThrow(() -> {
+      log.error("Task 유저의 지역 전체 작업 조회 실패 : 유저 없음 userId:{} ", userId);
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.USER_NOT_FOUND);
     });
 
-    List<Task> tasks = taskRepository.findByDistrictDistrictId(districtId);
-    log.info("Task 구역별 작업 목록 조회 성공: districtId: {}, userId: {}", districtId, userId);
-    return tasks.stream()
-        .map(task -> TaskResponseDto.from(task, district.getName())).collect(Collectors.toList());
+    List<District> districts = districtRepository.findDistrictByRegion(user.getRegion());
+
+    if (districts.isEmpty()) {
+      log.error("Task 유저의 지역 전체 작업 조회 실패: 등록된 구역이 없습니다. Region: '{}' ", user.getRegion());
+      throw new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.DISTRICT_NOT_FOUND);
+    }
+
+    List<TaskResponseDto> result = new ArrayList<>();
+
+    for (District d : districts) {
+      List<Task> tasks = taskRepository.findByDistrictDistrictId(d.getDistrictId());
+      result.addAll(tasks.stream()
+          .map(task -> TaskResponseDto.from(task, task.getDistrict() == null ? null : task.getDistrict().getName()))
+          .toList());
+    }
+
+    log.info("Task 유저의 지역 전체 작업 조회 성공: userId:{}, 총 작업 수:{}", userId, result.size());
+    return result;
   }
 
   /**
@@ -181,7 +196,8 @@ public class TaskServiceImpl implements TaskService {
 
     log.info("Task 유저 작업 목록 조회 성공 userId: {}", userId);
     return tasks.stream()
-        .map(task -> TaskResponseDto.from(task, task.getDistrict() == null ? null : districtNameMap.get(task.getDistrict().getDistrictId())))
+        .map(task -> TaskResponseDto.from(task, task.getDistrict() == null ? null
+            : districtNameMap.get(task.getDistrict().getDistrictId())))
         .collect(Collectors.toList());
   }
 
@@ -219,7 +235,8 @@ public class TaskServiceImpl implements TaskService {
 
     List<CrackResponseDto> cracks = crackService.findCracksByTaskId(taskId, userId);
 
-    return new TaskDetailResponseDto(taskId, locationName, task.getDescription(), d.getS3Url(), m.getS3Url(), v.getS3Url(),
+    return new TaskDetailResponseDto(taskId, locationName, task.getDescription(), d.getS3Url(),
+        m.getS3Url(), v.getS3Url(),
         cracks,
         task.getActivatedAt());
   }
@@ -228,15 +245,17 @@ public class TaskServiceImpl implements TaskService {
   @Override
   public TaskDetailResponseDto writeDescription(Long taskId, Long userId, String description) {
     log.info("Task 메모 작성: taskId: {}, userId: {}", taskId, userId);
-    Task task = taskRepository.findById(taskId).orElseThrow(()->{
+    Task task = taskRepository.findById(taskId).orElseThrow(() -> {
       log.error("Task 메모 작성 실패: 작업 없음 taskId: {}", taskId);
       return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
     });
-    if(!task.getUser().getUserId().equals(userId)){
-      log.error("Task 메모 작성 실패: 작업 유저 아님 task의 유저Id: {}, userId: {}", task.getUser().getUserId(), userId);
-      throw new  ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.FORBIDDEN);
+    if (!task.getUser().getUserId().equals(userId)) {
+      log.error("Task 메모 작성 실패: 작업 유저 아님 task의 유저Id: {}, userId: {}", task.getUser().getUserId(),
+          userId);
+      throw new ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.FORBIDDEN);
     }
-    task.ChangeDescription(description);
+    String existDescription = task.getDescription();
+    task.ChangeDescription(existDescription + description);
     log.info("Task 메모 작성 성공");
 
     String locationName = task.getDistrict() == null ? null : task.getDistrict().getName();
@@ -258,7 +277,8 @@ public class TaskServiceImpl implements TaskService {
 
     List<CrackResponseDto> cracks = crackService.findCracksByTaskId(taskId, userId);
 
-    return new TaskDetailResponseDto(taskId, locationName, task.getDescription(), d.getS3Url(), m.getS3Url(), v.getS3Url(),
+    return new TaskDetailResponseDto(taskId, locationName, task.getDescription(), d.getS3Url(),
+        m.getS3Url(), v.getS3Url(),
         cracks,
         task.getActivatedAt());
   }
