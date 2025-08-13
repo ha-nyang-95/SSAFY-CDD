@@ -1,5 +1,6 @@
 package com.b102.cracktrack.domain.task.repository;
 
+import com.b102.cracktrack.common.enums.Region;
 import com.b102.cracktrack.domain.task.entity.Task;
 import java.util.List;
 import java.util.Optional;

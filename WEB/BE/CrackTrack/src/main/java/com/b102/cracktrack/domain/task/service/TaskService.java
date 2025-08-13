@@ -15,7 +15,7 @@ public interface TaskService {
   void completeTask(String s3Name);
 
   // 디스트릭트 기준 작업 목록 조회
-  List<TaskResponseDto> findByDistrictId(Long districtId, Long userId);
+  List<TaskResponseDto> findAllTaskByUserRegion(Long userId);
 
   List<TaskResponseDto> findAllTasks(Long userId);
 
