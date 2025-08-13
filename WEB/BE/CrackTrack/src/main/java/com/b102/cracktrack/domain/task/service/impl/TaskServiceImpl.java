@@ -52,7 +52,7 @@ public class TaskServiceImpl implements TaskService {
     // 작업 생성: "RegionKoreanName - 시/군 - 구" 형태 문자열을 파싱하여 District를 조회/생성 후 Task 생성
     log.info("Task 생성 요청: districtPath: {}, userId: {}", districtPath, userId);
     String uuid = UUID.randomUUID().toString();
-    String key = "u" + userId + "/" + LocalDate.now() + "/" + uuid;
+    String key = "u" + userId + "/" + uuid;
 
     User user = userRepository.findById(userId).orElseThrow(() -> {
       log.warn("Task 생성 에러: 사용자 없음. userId:{}", userId);
