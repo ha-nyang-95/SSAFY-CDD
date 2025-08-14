@@ -27,8 +27,8 @@ public class LambdaController {
   public ResponseEntity<ApiResult<Void>> handleLambdaEvent(
       @RequestBody LambdaEventRequestDto requestDto) {
     
-    log.info("Lambda 이벤트 수신 - uuid: {}, 파일 개수: {}", 
-        requestDto.getUuid(), requestDto.getFiles().size());
+    log.info("Lambda 이벤트 수신 - uuid: {}, ccnt: {}", 
+        requestDto.getUuid(), requestDto.getCcnt());
     
     // 이벤트 처리 (응답은 신경쓰지 않음)
     lambdaEventService.processEvent(requestDto);

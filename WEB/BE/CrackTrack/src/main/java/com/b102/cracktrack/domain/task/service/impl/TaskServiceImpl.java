@@ -254,8 +254,19 @@ public class TaskServiceImpl implements TaskService {
           userId);
       throw new ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.FORBIDDEN);
     }
+    // 입력 본문이 JSON string 형태("text")로 올 수 있어 양끝의 따옴표 제거 및 이스케이프 해제
+    String sanitized = sanitizeDescription(description);
+
     String existDescription = task.getDescription();
-    task.ChangeDescription(existDescription + description);
+    if (existDescription == null || existDescription.isBlank()) {
+      task.ChangeDescription(sanitized);
+    } else if (sanitized == null || sanitized.isBlank()) {
+      // 새 입력이 비어있으면 기존 값 유지
+      task.ChangeDescription(existDescription);
+    } else {
+      // 기존 내용 뒤에 줄바꿈 후 추가
+      task.ChangeDescription(existDescription + "\n" + sanitized);
+    }
     log.info("Task 메모 작성 성공");
 
     String locationName = task.getDistrict() == null ? null : task.getDistrict().getName();
@@ -281,5 +292,17 @@ public class TaskServiceImpl implements TaskService {
         m.getS3Url(), v.getS3Url(),
         cracks,
         task.getActivatedAt());
+  }
+
+  // 요청 본문이 "메모내용" 형태로 들어오는 경우를 처리하기 위한 유틸
+  private String sanitizeDescription(String input) {
+    if (input == null) return null;
+    String trimmed = input.trim();
+    if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+      trimmed = trimmed.substring(1, trimmed.length() - 1);
+    }
+    // 이스케이프된 따옴표 해제
+    trimmed = trimmed.replace("\\\"", "\"");
+    return trimmed;
   }
 }

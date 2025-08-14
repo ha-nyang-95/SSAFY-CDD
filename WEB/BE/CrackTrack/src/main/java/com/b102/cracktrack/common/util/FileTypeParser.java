@@ -4,6 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FileTypeParser {
+  // 파싱 결과 타입 상수
+  public static final String TYPE_VIDEO = "VIDEO";
+  public static final String TYPE_DETECTION = "DETECTION";
+  public static final String TYPE_MODELING = "MODELING";
+  public static final String TYPE_SEGMENT = "SEGMENT";
+  public static final String TYPE_IMAGE = "IMAGE";
+  public static final String TYPE_LIDAR = "LIDAR";
+  public static final String TYPE_UNKNOWN = "UNKNOWN";
 
   /**
    * S3 파일명을 보고 엔티티 타입을 파싱합니다.
@@ -14,57 +22,63 @@ public class FileTypeParser {
   public static String parseFileType(String fileName) {
     if (fileName == null || fileName.isEmpty()) {
       log.warn("파일명이 null이거나 비어있음: {}", fileName);
-      return "UNKNOWN";
+      return TYPE_UNKNOWN;
     }
 
-    // 경로가 포함된 파일명인 경우 파일명만 추출
+    // 전체 키와 파일명 분리
+    String fullKeyLower = fileName.toLowerCase();
     String actualFileName = fileName;
     if (fileName.contains("/")) {
       String[] parts = fileName.split("/");
-      actualFileName = parts[parts.length - 1]; // 마지막 부분이 실제 파일명
+      actualFileName = parts[parts.length - 1];
     }
 
     String lowerFileName = actualFileName.toLowerCase();
-    
-    // 원본 비디오 파일 (raw_video + datetime)
-    if (lowerFileName.startsWith("raw_video")) {
-      return "VIDEO";
+
+    // 확장자 추출
+    String extension = "";
+    int lastDotIndex = lowerFileName.lastIndexOf('.');
+    if (lastDotIndex != -1 && lastDotIndex < lowerFileName.length() - 1) {
+      extension = lowerFileName.substring(lastDotIndex);
     }
-    
-    // 탐지된 비디오 파일 (detected_video + datetime)
-    if (lowerFileName.startsWith("detected_video")) {
-      return "DETECTION";
+
+    // 비디오 파일 (raw_video*, detected_video*)
+    if (lowerFileName.startsWith("raw_video") && (extension.isEmpty() || extension.equals(".mp4") || extension.equals(".mov") || extension.equals(".mkv"))) {
+      return TYPE_VIDEO;
     }
-    
-    // 모델링 파일 (Modeling + datetime)
-    if (lowerFileName.startsWith("modeling")) {
-      return "MODELING";
+    if (lowerFileName.startsWith("detected_video") && (extension.isEmpty() || extension.equals(".mp4") || extension.equals(".mov") || extension.equals(".mkv"))) {
+      return TYPE_DETECTION;
     }
-    
-    // 세그먼트 파일 (segment.jpeg, segment.jpg)
-    if (lowerFileName.equals("segment.jpeg") || lowerFileName.equals("segment.jpg") ||
-        lowerFileName.endsWith("/segment.jpeg") || lowerFileName.endsWith("/segment.jpg")) {
-      return "SEGMENT";
+
+    // 모델링 파일 (modeling* 또는 확장자 기반)
+    if (lowerFileName.startsWith("modeling") || extension.equals(".obj") || extension.equals(".glb") || extension.equals(".gltf") || extension.equals(".ply") || extension.equals(".fbx")) {
+      return TYPE_MODELING;
     }
-    
-    // 이미지 파일 (image.jpeg, image.jpg)
-    if (lowerFileName.equals("image.jpeg") || lowerFileName.equals("image.jpg") ||
-        lowerFileName.endsWith("/image.jpeg") || lowerFileName.endsWith("/image.jpg")) {
-      return "IMAGE";
+
+    // 세그먼트 파일 (segment.*)
+    if ((lowerFileName.equals("segment") || lowerFileName.startsWith("segment")) && (extension.equals(".jpeg") || extension.equals(".jpg") || extension.equals(".png"))) {
+      return TYPE_SEGMENT;
     }
-    
-    // 라이더 파일 (lidar.json)
-    if (lowerFileName.equals("lidar.json") || lowerFileName.endsWith("/lidar.json")) {
-      return "LIDAR";
+
+    // 이미지 파일 (image.*)
+    if ((lowerFileName.equals("image") || lowerFileName.startsWith("image")) && (extension.equals(".jpeg") || extension.equals(".jpg") || extension.equals(".png"))) {
+      return TYPE_IMAGE;
     }
-    
-    // 추가적인 확장자 기반 검사
-    if (lowerFileName.endsWith(".json") && (lowerFileName.contains("lidar") || lowerFileName.contains("/lidar"))) {
-      return "LIDAR";
+
+    // 라이더 파일 (파일명/경로에 lidar 포함 + json 등)
+    if (lowerFileName.equals("lidar") || lowerFileName.startsWith("lidar") || fullKeyLower.contains("/lidar/")) {
+      if (extension.equals(".json") || extension.equals(".las") || extension.equals(".laz")) {
+        return TYPE_LIDAR;
+      }
     }
-    
+
+    // 추가적인 확장자 기반 검사 (lidar)
+    if ((extension.equals(".json") || extension.equals(".las") || extension.equals(".laz")) && (lowerFileName.contains("lidar") || fullKeyLower.contains("/lidar"))) {
+      return TYPE_LIDAR;
+    }
+
     log.warn("알 수 없는 파일 타입: {}", fileName);
-    return "UNKNOWN";
+    return TYPE_UNKNOWN;
   }
 
   /**
@@ -78,16 +92,15 @@ public class FileTypeParser {
       return null;
     }
 
-    // crackId 폴더 내의 파일인 경우 crackId 추출
-    if (fileName.contains("/")) {
-      String[] parts = fileName.split("/");
-      
-      // crackId001/segment.jpg 형태인 경우
-      if (parts.length >= 2 && parts[0].startsWith("crackId")) {
-        return parts[0]; // crackId001, crackId002 등
+    // URL 또는 전체 키 어디에서든 'crack'으로 시작하는 세그먼트를 탐색
+    String[] parts = fileName.split("/");
+    for (String part : parts) {
+      if (part == null || part.isEmpty()) continue;
+      String lowered = part.toLowerCase();
+      if (lowered.startsWith("crack")) {
+        return part; // 원본 케이스 보존
       }
     }
-    
     return null;
   }
 
