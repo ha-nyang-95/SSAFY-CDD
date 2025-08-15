@@ -162,7 +162,8 @@ public class TaskServiceImpl implements TaskService {
     for (District d : districts) {
       List<Task> tasks = taskRepository.findByDistrictDistrictId(d.getDistrictId());
       result.addAll(tasks.stream()
-          .map(task -> TaskResponseDto.from(task, task.getDistrict() == null ? null : task.getDistrict().getName()))
+          .map(task -> TaskResponseDto.from(task,
+              task.getDistrict() == null ? null : task.getDistrict().getName()))
           .toList());
     }
 
@@ -296,7 +297,9 @@ public class TaskServiceImpl implements TaskService {
 
   // 요청 본문이 "메모내용" 형태로 들어오는 경우를 처리하기 위한 유틸
   private String sanitizeDescription(String input) {
-    if (input == null) return null;
+    if (input == null) {
+      return null;
+    }
     String trimmed = input.trim();
     if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
       trimmed = trimmed.substring(1, trimmed.length() - 1);
@@ -304,5 +307,38 @@ public class TaskServiceImpl implements TaskService {
     // 이스케이프된 따옴표 해제
     trimmed = trimmed.replace("\\\"", "\"");
     return trimmed;
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<TaskResponseDto> findPreviousTask(Long taskId, Long userId) {
+    log.info("이전 작업 목록 조회 시작 - taskId: {}, userId: {}", taskId, userId);
+    
+    // 현재 작업 조회
+    Task currentTask = taskRepository.findById(taskId).orElseThrow(() -> {
+      log.error("이전 작업 목록 조회 실패: 현재 작업을 찾을 수 없음 - taskId: {}", taskId);
+      return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
+    });
+    
+    // 권한 확인 (현재 작업의 소유자가 요청한 사용자인지 확인)
+    if (!currentTask.getUser().getUserId().equals(userId)) {
+      log.error("이전 작업 목록 조회 실패: 권한 없음 - task의 userId: {}, 요청한 userId: {}", 
+          currentTask.getUser().getUserId(), userId);
+      throw new ApiException(HttpStatus.FORBIDDEN.value(), ErrorMessage.FORBIDDEN);
+    }
+    
+    // 현재 작업과 같은 지역의 이전 작업들 조회 (생성일 기준 내림차순)
+    List<Task> previousTasks = taskRepository.findByDistrictDistrictIdAndUserUserIdAndActivatedAtBeforeOrderByActivatedAtDesc(
+        currentTask.getDistrict().getDistrictId(), 
+        userId, 
+        currentTask.getActivatedAt());
+    
+    log.info("이전 작업 목록 조회 성공 - taskId: {}, 이전 작업 개수: {}", taskId, previousTasks.size());
+    
+    // TaskResponseDto로 변환하여 반환
+    return previousTasks.stream()
+        .map(task -> TaskResponseDto.from(task, 
+            task.getDistrict() != null ? task.getDistrict().getName() : null))
+        .collect(Collectors.toList());
   }
 }

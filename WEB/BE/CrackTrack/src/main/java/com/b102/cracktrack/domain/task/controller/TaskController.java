@@ -74,4 +74,11 @@ public class TaskController {
   public ResponseEntity<ApiResult<TaskDetailResponseDto>> updateTask(@PathVariable Long taskId, @AuthenticationPrincipal UserPrincipal userPrincipal,@RequestBody String description) {
     return ResponseEntity.ok(ApiResult.success(taskService.writeDescription(taskId, userPrincipal.getUserId(), description)));
   }
+
+  @Operation(summary = "이전 작업 조회", description = "같은 지역에서 이전 작업을 호출합니다.")
+  @GetMapping("/task/district/{taskId}")
+  public ResponseEntity<ApiResult<List<TaskResponseDto>>> findPreviousTask(@PathVariable Long taskId,@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    return ResponseEntity.ok(ApiResult.success(taskService.findPreviousTask(taskId, userPrincipal.getUserId())));
+  }
+
 }
