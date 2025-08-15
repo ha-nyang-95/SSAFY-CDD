@@ -22,4 +22,6 @@ public interface TaskService {
   TaskDetailResponseDto findTaskDetails(Long taskId, Long userId);
 
   TaskDetailResponseDto writeDescription(Long taskId, Long userId, String description);
+
+  List<TaskResponseDto> findPreviousTask(Long taskId, Long userId);
 }
