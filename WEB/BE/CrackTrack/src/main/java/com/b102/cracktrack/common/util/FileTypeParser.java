@@ -144,7 +144,23 @@ public class FileTypeParser {
       return null;
     }
     
-    String fullKey = taskS3Path + "/" + fileName;
-    return String.format("https://%s.s3.amazonaws.com/%s", bucketName, fullKey);
+    // taskS3Path가 URL이면 경로만 추출, 아니면 그대로 사용
+    String cleanPath = taskS3Path;
+    if (taskS3Path.startsWith("http")) {
+      // URL에서 도메인 부분 제거하고 경로만 사용
+      String[] parts = taskS3Path.split("/", 4); // 최대 4개로 분할
+      if (parts.length >= 4) {
+        cleanPath = parts[3]; // 4번째 부분부터가 실제 경로
+        log.info("URL에서 경로 추출: {} -> {}", taskS3Path, cleanPath);
+      } else {
+        log.warn("URL 파싱 실패, 원본 경로 사용: {}", taskS3Path);
+      }
+    }
+    
+    String fullKey = cleanPath + "/" + fileName;
+    String result = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fullKey);
+    log.debug("S3 URL 생성: bucketName={}, cleanPath={}, fileName={}, result={}", 
+        bucketName, cleanPath, fileName, result);
+    return result;
   }
 } 
