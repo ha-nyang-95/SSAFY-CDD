@@ -16,7 +16,6 @@ const Drawer = styled.aside<{ $open: boolean }>((p) => ({
   top: 0,
   right: 0,
   height: '100%',
-  // 한국어 주석: 반응형 너비 - 뷰포트의 약 30%를 목표로 하되 너무 작거나 크지 않도록 제한
   width: p.$open ? 'clamp(300px, 30vw, 560px)' : '0px',
   overflowX: 'hidden',
   overflowY: 'auto',
@@ -27,9 +26,7 @@ const Drawer = styled.aside<{ $open: boolean }>((p) => ({
   transition: 'width 0.25s ease',
   padding: p.$open ? p.theme.spacing.md : '0px',
   zIndex: 10,
-  // 반응형: 모바일에서는 전체 폭의 92%로 표시
   ['@media (max-width: 768px)']: {
-    // 모바일에서는 화면 반(50%)만 차지하도록 조정
     width: p.$open ? '50vw' : '0px',
   },
 }));
@@ -50,6 +47,7 @@ export default function ReportDetailPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+
   // ESC로 드로어 닫기
   useEffect(() => {
     if (!isDrawerOpen) return;
@@ -57,21 +55,6 @@ export default function ReportDetailPage() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [isDrawerOpen]);
-  // 한국어 주석: description이 JSON 문자열일 경우 화면에 노출하지 않도록 판별
-  const isJsonLike = (text: string | undefined | null): boolean => {
-    try {
-      let s = (text ?? '').trim();
-      if (!s) return false;
-      // 선행되는 null, undefined, 괄호 등의 토큰 제거 후 JSON 시작 문자를 탐색
-      const idx = s.search(/[\[{]/);
-      if (idx <= 0) return false;
-      const candidate = s.slice(idx);
-      const parsed = JSON.parse(candidate);
-      return typeof parsed === 'object' && parsed !== null;
-    } catch {
-      return false;
-    }
-  };
 
   useEffect(() => {
     if (!id) return;
@@ -87,8 +70,6 @@ export default function ReportDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // 한국어 주석: 최초에는 목록만 보여주기 위해 자동 선택을 하지 않습니다.
-
   if (loading) return <p aria-busy="true">보고서를 불러오는 중…</p>;
   if (errorMessage) return <p role="alert">{errorMessage}</p>;
   if (!report) return <p>데이터가 없습니다.</p>;
@@ -100,7 +81,6 @@ export default function ReportDetailPage() {
         date={report.date}
         locationArea={report.locationArea}
       />
-      {/* 요청에 따라 메모/설명은 화면에 노출하지 않습니다. 필요 시 관리 화면에서만 확인 */}
       <Layout>
         <MainViewer
           images={report.media.images}
@@ -111,6 +91,7 @@ export default function ReportDetailPage() {
           onSelectCrack={(c) => setSelected(c)}
           onOpenCracks={() => setIsDrawerOpen(true)}
           taskId={id}
+          description={report.description}
         />
         <DrawerScrim $open={isDrawerOpen} onClick={() => setIsDrawerOpen(false)} />
         <Drawer $open={isDrawerOpen}>
@@ -119,13 +100,11 @@ export default function ReportDetailPage() {
             selected={selected} 
             onSelect={setSelected}
             onCrackDeleted={(crackId) => {
-              // 균열 삭제 시 배열에서 제거
               setReport(prev => prev ? {
                 ...prev,
                 cracks: prev.cracks.filter(c => c.id !== crackId)
               } : null);
               
-              // 선택된 균열이 삭제된 경우 선택 해제
               if (selected && selected.id === crackId) {
                 setSelected(null);
               }

@@ -5,6 +5,7 @@ import { lazy, Suspense } from 'react';
 import { getTaskHistory, getPreviousTaskCracks } from '../../api/tasks';
 import Button from '../../components/Button';
 import LidarJsonModal from './LidarJsonModal';
+import DescriptionModal from './DescriptionModal';
 
 // 리포트 하위 뷰어는 용량이 크므로 지연 로딩하여 초기 번들 크기를 줄입니다.
 const Interactive3DViewer = lazy(() => import('./Interactive3DViewer'));
@@ -22,6 +23,7 @@ type Props = {
   onSelectCrack: (c: CrackItem) => void;
   onOpenCracks?: () => void;
   taskId?: string; // 작업 ID 추가
+  description?: string; // 작업 설명 추가
 };
 
 const Card = styled.section((p) => ({
@@ -249,7 +251,17 @@ const EmptyMessage = styled.div((p) => ({
   color: p.theme.colors.neutral[500]
 }));
 
-export default function MainViewer({ images, videoUrl, modelingUrl, detectionUrl, cracks, onSelectCrack, onOpenCracks, taskId }: Props) {
+export default function MainViewer({ 
+  images, 
+  videoUrl, 
+  modelingUrl, 
+  detectionUrl, 
+  cracks, 
+  onSelectCrack, 
+  onOpenCracks,
+  taskId,
+  description
+}: Props) {
   const [tab, setTab] = useState<'composite' | 'media'>('media');
   const [previousTasks, setPreviousTasks] = useState<TaskResponseDto[]>([]);
   const [isLoadingComparison, setIsLoadingComparison] = useState<boolean>(false);
@@ -259,6 +271,7 @@ export default function MainViewer({ images, videoUrl, modelingUrl, detectionUrl
   const [isLoadingPreviousCracks, setIsLoadingPreviousCracks] = useState<boolean>(false);
   const [openLidarModal, setOpenLidarModal] = useState<boolean>(false);
   const [lidarJsonUrlForModal, setLidarJsonUrlForModal] = useState<string | undefined>(undefined);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
 
   // 이전 작업 조회
   useEffect(() => {
@@ -314,7 +327,12 @@ export default function MainViewer({ images, videoUrl, modelingUrl, detectionUrl
             녹화 영상
           </Tab>
         </Tabs>
-        <Button variant="secondary" size="sm" onClick={onOpenCracks}>균열 목록</Button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button variant="secondary" size="sm" onClick={() => setIsNoteModalOpen(true)}>
+            노트보기
+          </Button>
+          <Button variant="secondary" size="sm" onClick={onOpenCracks}>균열 목록</Button>
+        </div>
       </TabsBar>
       
       <Suspense fallback={<div style={{ padding: 12 }}>뷰어를 불러오는 중…</div>}>
@@ -519,8 +537,15 @@ export default function MainViewer({ images, videoUrl, modelingUrl, detectionUrl
         jsonUrl={lidarJsonUrlForModal}
         onClose={() => setOpenLidarModal(false)}
       />
+      
+      {/* 작업 노트 모달 */}
+      <DescriptionModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        description={description || ''}
+        title="작업 노트"
+      />
     </Card>
   );
 }
-
 

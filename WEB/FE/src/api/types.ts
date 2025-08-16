@@ -116,5 +116,3 @@ export interface ReportDetail {
   description?: string; // 전역 메모
   locationArea?: string; // 예: 성남시분당구
 }
-
-

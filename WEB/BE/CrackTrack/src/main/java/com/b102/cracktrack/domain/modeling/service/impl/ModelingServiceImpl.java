@@ -1,5 +1,6 @@
 package com.b102.cracktrack.domain.modeling.service.impl;
 
+import com.b102.cracktrack.common.util.FileTypeParser;
 import com.b102.cracktrack.domain.modeling.entity.Modeling;
 import com.b102.cracktrack.domain.modeling.repository.ModelingRepository;
 import com.b102.cracktrack.domain.modeling.service.ModelingService;
@@ -33,8 +34,13 @@ public class ModelingServiceImpl implements ModelingService {
     Task task = taskRepository.findById(taskId)
         .orElseThrow(() -> new RuntimeException("Task를 찾을 수 없습니다: " + taskId));
     
-    // S3 퍼블릭 URL 생성 (브라우저에서 접근 가능한 형태)
-    String s3Url = String.format("https://%s.s3.%s.amazonaws.com/%s", s3Bucket, awsRegion, fileName);
+    // FileTypeParser를 사용하여 일관된 S3 URL 생성
+    String s3Url = FileTypeParser.generateS3PublicUrl(s3Bucket, task.getS3Name(), fileName);
+    
+    if (s3Url == null) {
+      log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", taskId, fileName);
+      throw new RuntimeException("S3 URL 생성에 실패했습니다.");
+    }
     
     Modeling modeling = Modeling.builder()
         .task(task)
@@ -43,6 +49,6 @@ public class ModelingServiceImpl implements ModelingService {
     
     modelingRepository.save(modeling);
     
-    log.info("모델링 데이터 생성 완료 - modelingId: {}", modeling.getModelingId());
+    log.info("모델링 데이터 생성 완료 - modelingId: {}, S3 URL: {}", modeling.getModelingId(), s3Url);
   }
 } 
