@@ -139,7 +139,7 @@ export default function DetailPanel({ cracks, selected, onSelect, onCrackDeleted
             if (!taskId) throw new Error('유효하지 않은 작업 ID');
             const raw = text ?? '';
             const memo = raw.endsWith('\n\n') ? raw : raw.endsWith('\n') ? raw + '\n' : raw + '\n\n';
-            const payload = { crackId: selected.id, label: selected.label, memo };
+            const payload = { crackName: selected.crackName, label: selected.label, memo };
             await saveCrackMemo(taskId, payload);
             window.dispatchEvent(new CustomEvent('app:toast', { 
               detail: { message: '메모를 저장했습니다.', type: 'success' } 

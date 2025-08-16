@@ -1,5 +1,6 @@
 package com.b102.cracktrack.domain.lidar.service.impl;
 
+import com.b102.cracktrack.common.util.FileTypeParser;
 import com.b102.cracktrack.domain.crack.entity.Crack;
 import com.b102.cracktrack.domain.crack.repository.CrackRepository;
 import com.b102.cracktrack.domain.lidar.entity.Lidar;
@@ -40,8 +41,13 @@ public class LidarServiceImpl implements LidarService {
           return createNewCrack(taskId, crackId);
         });
     
-    // S3 퍼블릭 URL 생성 (브라우저에서 접근 가능한 형태)
-    String s3Url = String.format("https://%s.s3.%s.amazonaws.com/%s", s3Bucket, awsRegion, fileName);
+    // FileTypeParser를 사용하여 일관된 S3 URL 생성
+    String s3Url = FileTypeParser.generateS3PublicUrl(s3Bucket, crack.getTask().getS3Name(), fileName);
+    
+    if (s3Url == null) {
+      log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", taskId, fileName);
+      throw new RuntimeException("S3 URL 생성에 실패했습니다.");
+    }
     
     Lidar lidar = Lidar.builder()
         .crack(crack)
@@ -50,7 +56,7 @@ public class LidarServiceImpl implements LidarService {
     
     lidarRepository.save(lidar);
     
-    log.info("라이더 데이터 생성 완료 - lidarId: {}", lidar.getLidarId());
+    log.info("라이더 데이터 생성 완료 - lidarId: {}, S3 URL: {}", lidar.getLidarId(), s3Url);
   }
 
   /**

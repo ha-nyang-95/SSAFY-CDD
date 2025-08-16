@@ -144,23 +144,56 @@ public class FileTypeParser {
       return null;
     }
     
-    // taskS3Path가 URL이면 경로만 추출, 아니면 그대로 사용
-    String cleanPath = taskS3Path;
+    // taskS3Path가 이미 완전한 S3 URL인 경우, 파일명만 추가
     if (taskS3Path.startsWith("http")) {
-      // URL에서 도메인 부분 제거하고 경로만 사용
-      String[] parts = taskS3Path.split("/", 4); // 최대 4개로 분할
-      if (parts.length >= 4) {
-        cleanPath = parts[3]; // 4번째 부분부터가 실제 경로
-        log.info("URL에서 경로 추출: {} -> {}", taskS3Path, cleanPath);
+      // URL에서 파일 경로 부분만 추출
+      String filePath = extractFilePathFromUrl(taskS3Path);
+      if (filePath != null) {
+        String fullKey = filePath + "/" + fileName;
+        String result = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fullKey);
+        log.debug("기존 URL에서 파일명 추가: taskS3Path={}, fileName={}, result={}", 
+            taskS3Path, fileName, result);
+        return result;
       } else {
-        log.warn("URL 파싱 실패, 원본 경로 사용: {}", taskS3Path);
+        log.warn("URL에서 파일 경로 추출 실패, 기본 방식 사용: {}", taskS3Path);
       }
     }
     
-    String fullKey = cleanPath + "/" + fileName;
+    // 일반적인 경우: 경로 + 파일명으로 URL 생성
+    String fullKey = taskS3Path + "/" + fileName;
     String result = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fullKey);
-    log.debug("S3 URL 생성: bucketName={}, cleanPath={}, fileName={}, result={}", 
-        bucketName, cleanPath, fileName, result);
+    log.debug("일반 경로로 S3 URL 생성: bucketName={}, taskS3Path={}, fileName={}, result={}", 
+        bucketName, taskS3Path, fileName, result);
     return result;
+  }
+
+  /**
+   * S3 URL에서 파일 경로 부분만 추출
+   * 
+   * @param s3Url S3 URL (예: https://bucket.s3.amazonaws.com/u1/2025-08-07/uuid)
+   * @return 파일 경로 (예: u1/2025-08-07/uuid) 또는 null
+   */
+  private static String extractFilePathFromUrl(String s3Url) {
+    try {
+      // S3 URL 패턴: https://bucket.s3.amazonaws.com/path 또는 https://bucket.s3.region.amazonaws.com/path
+      if (s3Url.contains(".s3.amazonaws.com/")) {
+        String[] parts = s3Url.split(".s3.amazonaws.com/", 2);
+        if (parts.length == 2) {
+          return parts[1];
+        }
+      } else if (s3Url.contains(".s3.") && s3Url.contains(".amazonaws.com/")) {
+        // 지역별 S3 URL 패턴: https://bucket.s3.region.amazonaws.com/path
+        String[] parts = s3Url.split(".amazonaws.com/", 2);
+        if (parts.length == 2) {
+          return parts[1];
+        }
+      }
+      
+      log.warn("알 수 없는 S3 URL 패턴: {}", s3Url);
+      return null;
+    } catch (Exception e) {
+      log.error("URL 파싱 중 오류 발생: {}, error: {}", s3Url, e.getMessage());
+      return null;
+    }
   }
 } 

@@ -2,21 +2,24 @@ package com.b102.cracktrack.domain.detection.service.impl;
 
 import com.b102.cracktrack.common.exception.ApiException;
 import com.b102.cracktrack.common.exception.ErrorMessage;
+import com.b102.cracktrack.common.util.FileTypeParser;
 import com.b102.cracktrack.domain.detection.dto.DetectionResponseDto;
+import com.b102.cracktrack.domain.detection.entity.Detection;
 import com.b102.cracktrack.domain.detection.repository.DetectionRepository;
 import com.b102.cracktrack.domain.detection.service.DetectionService;
 import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.task.repository.TaskRepository;
 import com.b102.cracktrack.domain.user.repository.UserRepository;
-import com.b102.cracktrack.domain.detection.entity.Detection;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -116,8 +119,13 @@ public class DetectionServiceImpl implements DetectionService {
     Task task = taskRepository.findById(taskId)
         .orElseThrow(() -> new RuntimeException("Task를 찾을 수 없습니다: " + taskId));
     
-    // S3 퍼블릭 URL 생성 (브라우저에서 접근 가능한 형태)
-    String s3Url = String.format("https://%s.s3.%s.amazonaws.com/%s", s3Bucket, awsRegion, fileName);
+    // FileTypeParser를 사용하여 일관된 S3 URL 생성
+    String s3Url = FileTypeParser.generateS3PublicUrl(s3Bucket, task.getS3Name(), fileName);
+    
+    if (s3Url == null) {
+      log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", taskId, fileName);
+      throw new RuntimeException("S3 URL 생성에 실패했습니다.");
+    }
     
     Detection detection = Detection.builder()
         .task(task)
@@ -126,6 +134,6 @@ public class DetectionServiceImpl implements DetectionService {
     
     detectionRepository.save(detection);
     
-    log.info("디텍션 생성 완료 - detectionId: {}", detection.getDetectionId());
+    log.info("디텍션 생성 완료 - detectionId: {}, S3 URL: {}", detection.getDetectionId(), s3Url);
   }
 }

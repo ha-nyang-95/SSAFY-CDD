@@ -36,38 +36,31 @@ public class FileProcessingService {
      * @param fileType 파일 타입
      */
     public void createFileByType(Task task, String fileName, String fileType) {
-        String s3Url = FileTypeParser.generateS3PublicUrl(bucketName, task.getS3Name(), fileName);
-        
-        if (s3Url == null) {
-            log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", task.getTaskId(), fileName);
-            return;
-        }
-
-        log.info("파일 생성 시작 - taskId: {}, fileName: {}, fileType: {}, S3 URL: {}", 
-            task.getTaskId(), fileName, fileType, s3Url);
+        log.info("파일 생성 시작 - taskId: {}, fileName: {}, fileType: {}", 
+            task.getTaskId(), fileName, fileType);
 
         try {
             switch (fileType) {
                 case FileTypeParser.TYPE_VIDEO:
-                    videoService.createVideo(task.getTaskId(), s3Url);
+                    videoService.createVideo(task.getTaskId(), fileName);
                     break;
                 case FileTypeParser.TYPE_DETECTION:
-                    detectionService.createDetection(task.getTaskId(), s3Url);
+                    detectionService.createDetection(task.getTaskId(), fileName);
                     break;
                 case FileTypeParser.TYPE_MODELING:
-                    modelingService.createModeling(task.getTaskId(), s3Url);
+                    modelingService.createModeling(task.getTaskId(), fileName);
                     break;
                 case FileTypeParser.TYPE_SEGMENT:
                     String segmentCrackId = FileTypeParser.extractCrackId(fileName);
-                    segmentService.createSegment(task.getTaskId(), s3Url, segmentCrackId);
+                    segmentService.createSegment(task.getTaskId(), fileName, segmentCrackId);
                     break;
                 case FileTypeParser.TYPE_IMAGE:
                     String imageCrackId = FileTypeParser.extractCrackId(fileName);
-                    imageService.createImage(task.getTaskId(), s3Url, imageCrackId);
+                    imageService.createImage(task.getTaskId(), fileName, imageCrackId);
                     break;
                 case FileTypeParser.TYPE_LIDAR:
                     String lidarCrackId = FileTypeParser.extractCrackId(fileName);
-                    lidarService.createLidar(task.getTaskId(), s3Url, lidarCrackId);
+                    lidarService.createLidar(task.getTaskId(), fileName, lidarCrackId);
                     break;
                 default:
                     log.warn("알 수 없는 파일 타입: {} - fileName: {}", fileType, fileName);
