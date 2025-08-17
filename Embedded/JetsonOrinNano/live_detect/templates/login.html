@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, height=600, initial-scale=1.0">
+    <title>CDD Login</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        :root {
+            --font-main: 'Noto Sans KR', sans-serif;
+            --font-accent: 'Inter', sans-serif;
+            --color-primary: #0A3D62;
+            --color-accent: #0984E3;
+            --color-white: #FFFFFF;
+            --color-light-gray: #F1F2F6;
+            --color-gray: #CED6E0;
+            --color-dark-gray: #747D8C;
+            --color-danger: #E74C3C;
+        }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 1024px;
+            height: 600px;
+            margin: auto;
+        }
+        .login-container {
+            background-color: var(--color-white);
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            width: 550px;
+            text-align: center;
+            border-top: 5px solid var(--color-accent);
+        }
+        .login-title {
+            font-family: var(--font-accent);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+        }
+        .login-subtitle {
+            font-size: 16px;
+            color: var(--color-dark-gray);
+            margin-bottom: 30px;
+        }
+        /* 입력창 스타일 수정 */
+        .login-form input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px; /* 간격 조정 */
+            border: 1px solid var(--color-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: var(--font-main);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .login-form input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.2);
+        }
+        .login-form .button {
+            width: 100%;
+            margin-top: 10px; /* 버튼 위 간격 추가 */
+            font-size: 18px;
+            font-weight: 500;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: var(--color-accent);
+            color: var(--color-white);
+            transition: background-color 0.3s;
+        }
+        .login-form .button:hover {
+            background-color: #0871c2;
+        }
+        .error-message {
+            color: var(--color-danger);
+            margin-top: 15px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="login-title">CDD: Drone System Login</h1>
+        <p class="login-subtitle">사용자 ID와 작업 ID를 입력하여 시스템을 활성화하세요.</p>
+        
+        <form class="login-form" method="post">
+            <input type="text" name="user_id" placeholder="사용자 ID (e.g., test_user)" required>
+            <input type="text" name="task_id" placeholder="작업 ID (e.g., task_01)" required>
+            
+            <button type="submit" class="button">인증 및 시작</button>
+            
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
+        </form>
+    </div>
+</body>
+</html>

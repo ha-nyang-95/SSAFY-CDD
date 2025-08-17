@@ -1,0 +1,15 @@
+# Docker 빌드 컨텍스트에서 제외할 파일/디렉터리
+.git
+.gitignore
+.gradle
+build
+out
+**/*.iml
+.idea
+node_modules
+*.log
+*.tmp
+*.swp
+.env
+
+
