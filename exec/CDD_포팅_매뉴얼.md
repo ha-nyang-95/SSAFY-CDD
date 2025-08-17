@@ -29,7 +29,7 @@
 - [JDK 17 3.5.4](https://www.oracle.com/java/technologies/javase/jdk17-0-13-later-archive-downloads.html)
 - [Intellij IDE 2025.1.3 (Runtime version: 21.0.7+9-b895.130 amd64 (JCEF 122.1.9))](https://www.jetbrains.com/idea/download/?section=windows)
 - [Visual Studio Code 1.103.1](https://code.visualstudio.com/docs?dv=win)
-- [React 18.2.43](https://github.com/facebook/react/releases/tag/v18.2.0)
+- [React 19.1.9](https://github.com/facebook/react/releases/tag/v18.2.0)
 
 **AI (Yolo)**
 - [Yolov8n](https://docs.ultralytics.com/ko/models/yolov8/)
