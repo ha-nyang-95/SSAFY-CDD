@@ -2,7 +2,6 @@ package com.b102.cracktrack.domain.crack.service.impl;
 
 import com.b102.cracktrack.common.exception.ApiException;
 import com.b102.cracktrack.common.exception.ErrorMessage;
-import com.b102.cracktrack.common.util.FileTypeParser;
 import com.b102.cracktrack.domain.crack.dto.CrackResponseDto;
 import com.b102.cracktrack.domain.crack.entity.Crack;
 import com.b102.cracktrack.domain.crack.repository.CrackRepository;
@@ -34,30 +33,7 @@ public class CrackServiceImpl implements CrackService {
   private final ImageRepository imageRepository;
   private final TaskRepository taskRepository;
 
-  @Transactional
-  @Override
-  public void createCrack(String trackingKey, String url) {
-    log.info("균열 등록: uuid:{}, s3url:{}", trackingKey, url);
-    Task t = taskRepository.findByS3Name(trackingKey).orElseThrow(
-        () -> {
-          log.error("균열 등록 실패: 작업 없음 uuid:{}", trackingKey);
-          return new ApiException(HttpStatus.NOT_FOUND.value(), ErrorMessage.TASK_NOT_FOUND);
-        });
 
-    // URL에서 crackId 추출
-    String crackIdString = FileTypeParser.extractCrackId(url);
-    if (crackIdString == null || crackIdString.isEmpty()) {
-      log.error("균열 등록 실패: crackId 추출 실패 url:{}", url);
-      throw new ApiException(HttpStatus.BAD_REQUEST.value(), "URL에서 크랙 ID를 추출할 수 없습니다.");
-    }
-
-    Crack c = Crack.builder()
-        .task(t)
-        .crackIdString(crackIdString)  // crackIdString 설정
-        .build();
-    crackRepository.save(c);
-    log.info("균열 등록 성공: crackId:{}, crackIdString:{}", c.getCrackId(), crackIdString);
-  }
 
   @Transactional
   @Override

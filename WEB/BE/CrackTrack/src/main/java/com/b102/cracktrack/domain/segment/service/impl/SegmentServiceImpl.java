@@ -1,6 +1,6 @@
 package com.b102.cracktrack.domain.segment.service.impl;
 
-import com.b102.cracktrack.common.util.FileTypeParser;
+import com.b102.cracktrack.common.service.FileProcessingService;
 import com.b102.cracktrack.domain.crack.entity.Crack;
 import com.b102.cracktrack.domain.crack.repository.CrackRepository;
 import com.b102.cracktrack.domain.segment.entity.Segment;
@@ -22,6 +22,7 @@ public class SegmentServiceImpl implements SegmentService {
   private final SegmentRepository segmentRepository;
   private final CrackRepository crackRepository;
   private final TaskRepository taskRepository;
+  private final FileProcessingService fileProcessingService;
 
   @Value("${cloud.aws.s3.bucket}")
   private String s3Bucket;
@@ -41,8 +42,8 @@ public class SegmentServiceImpl implements SegmentService {
           return createNewCrack(taskId, crackId);
         });
     
-    // FileTypeParser를 사용하여 일관된 S3 URL 생성
-    String s3Url = FileTypeParser.generateS3PublicUrl(s3Bucket, crack.getTask().getS3Name(), fileName);
+    // FileProcessingService를 사용하여 S3 URL 생성
+    String s3Url = fileProcessingService.generateS3Url(crack.getTask().getS3Name(), fileName);
     
     if (s3Url == null) {
       log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", taskId, fileName);
@@ -63,7 +64,7 @@ public class SegmentServiceImpl implements SegmentService {
    * 새로운 Crack 엔티티를 생성합니다.
    * 
    * @param taskId 작업 ID
-   * @param crackIdString 크랙 ID 문자열 (예: crackId001)
+   * @param crackIdString 크랙 ID 문자열 (예: crack_001, crack_002)
    * @return 생성된 Crack 엔티티
    */
   private Crack createNewCrack(Long taskId, String crackIdString) {
