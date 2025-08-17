@@ -31,6 +31,11 @@ const Brand = styled.div((p) => ({
   // 상단바 높이에 비례해 글씨 크기를 키워 상단바와 비율 맞춤
   fontSize: `calc(${p.theme.components.navigation.height} * 0.5)`,
   lineHeight: p.theme.components.navigation.height,
+  cursor: 'pointer', // 로고 클릭 시 커서 포인터 표시
+  transition: 'opacity 0.2s ease', // 투명도만 부드럽게 전환
+  '&:hover': {
+    opacity: 0.6, // 호버 시 더 명확한 투명도 변화
+  },
   '@media (max-width: 768px)': {
     fontSize: 'clamp(18px, 5vw, 22px)',
   },

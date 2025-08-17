@@ -17,7 +17,8 @@ npm run dev:demo
 
 # 실서버와 연결 (프록시)
 # macOS/zsh 예시
-VITE_API_PROXY_TARGET=https://your-dev-api.example.com npm run dev:server
+VITE_API_PROXY_TARGET=https://your-dev-api.example.com
+ npm run dev:server
 ```
 
 상단 우측에 `DEMO MODE` 또는 `LIVE MODE` 배지가 표시됩니다. 대시보드 제목에는 `(Demo Preview)` 표시가 추가됩니다.
