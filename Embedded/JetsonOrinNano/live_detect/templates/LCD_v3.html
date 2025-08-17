@@ -39,7 +39,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 10px; /* 전체 여백 조금 줄임 */
+            padding: 20px;
         }
 
         /* --- 헤더 --- */
@@ -47,7 +47,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding-bottom: 10px; /* 헤더 아래 여백 조금 줄임 */
+            padding-bottom: 15px;
         }
         .header-left .title {
             font-family: var(--font-accent);
@@ -71,34 +71,22 @@
         .status.precision-complete { color: var(--color-success); }
 
         /* --- 메인 콘텐츠 (비디오) --- */
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
-        /* ▼▼▼ 여기가 수정된 부분입니다 ▼▼▼ */
-========
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
         .main-content {
-            /* flex-grow: 1;  <-- 삭제 */
-            width: 800px;    /* <-- 가로 크기 800px로 고정 */
-            height: 600px;   /* <-- 세로 크기 600px로 고정 */
+            flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: #000000;
             border-radius: 8px;
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
-            margin-bottom: 10px; /* 영상 아래 여백 조금 줄임 */
-            overflow: hidden;
-            margin-left: auto;   /* <-- 가운데 정렬 */
-            margin-right: auto;  /* <-- 가운데 정렬 */
-        }
-        /* ▲▲▲▲▲ 여기가 수정된 부분입니다 ▲▲▲▲▲ */
-
-        #video-feed-img[src=""] {
-            visibility: hidden;
-========
             margin-bottom: 15px;
             overflow: hidden;
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
         }
+
+        /* ▼▼▼ 1. 깨진 이미지 아이콘 숨기기 (추가된 부분) ▼▼▼ */
+        #video-feed-img[src=""] {
+            visibility: hidden;
+        }
+        /* ▲▲▲▲▲ 1. 깨진 이미지 아이콘 숨기기 (추가된 부분) ▲▲▲▲▲ */
 
         /* --- 푸터 (컨트롤) --- */
         .footer {
@@ -128,7 +116,9 @@
         .modal-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0); 
+            /* ▼▼▼ 2. 모달 배경 투명도 100% (수정된 부분) ▼▼▼ */
+            background-color: rgba(0, 0, 0, 0); /* 0.6 -> 0 으로 변경하여 완전 투명하게 */
+            /* ▲▲▲▲▲ 2. 모달 배경 투명도 100% (수정된 부분) ▲▲▲▲▲ */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -139,11 +129,7 @@
             background-color: var(--color-white);
             padding: 30px;
             border-radius: 8px;
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
             width: 450px;
-========
-            width: 450px; /* 너비 조정 */
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             position: relative;
         }
@@ -178,11 +164,7 @@
         </header>
 
         <main class="main-content">
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
              <img id="video-feed-img" src="" style="width: 100%; height: 100%; object-fit: cover; background-color: #000;">
-========
-             <img id="video-feed-img" src="" style="width: 100%; height: 100%; object-fit: contain; background-color: #000;">
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
         </main>
 
         <footer class="footer">
@@ -201,22 +183,17 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM 요소 참조 ---
             const statusDisplay = document.getElementById('status-display');
             const powerButton = document.getElementById('power-button');
             const precisionButton = document.getElementById('precision-button');
             const resultModal = document.getElementById('result-modal');
             const modalCloseButton = document.getElementById('modal-close-button');
             const logoutButton = document.getElementById('logout-button');
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
             const videoFeedImg = document.getElementById('video-feed-img');
 
-            let systemStatus = 'IDLE';
-========
-            const videoFeedImg = document.getElementById('video-feed-img'); // [추가] 비디오 이미지 태그 참조
-
             // --- 시스템 상태 변수 ---
-            let systemStatus = 'IDLE'; // IDLE: 꺼짐, DETECTING: 탐지중, PRECISION_DETECTING: 정밀탐지중, PRECISION_COMPLETE: 정밀탐지완료
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
+            let systemStatus = 'IDLE';
             const STATUS_MAP = {
                 IDLE: '전원 꺼짐',
                 DETECTING: '탐지 진행중',
@@ -224,6 +201,7 @@
                 PRECISION_COMPLETE: '정밀 탐지 완료'
             };
 
+            // --- 상태 업데이트 함수 ---
             function updateSystemState(newState) {
                 systemStatus = newState;
                 statusDisplay.textContent = STATUS_MAP[systemStatus];
@@ -236,18 +214,10 @@
                 if (systemStatus === 'IDLE') {
                     powerButton.classList.remove('on');
                     powerButton.classList.add('off');
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
                     videoFeedImg.src = '';
                 } else {
                     powerButton.classList.remove('off');
                     powerButton.classList.add('on');
-========
-                    videoFeedImg.src = ''; // [추가] 스트림 비우기
-                } else {
-                    powerButton.classList.remove('off');
-                    powerButton.classList.add('on');
-                     // [추가] 스트림 주소 설정 (캐시 방지용 타임스탬프 추가)
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
                     videoFeedImg.src = `/video_feed?t=${new Date().getTime()}`;
                 }
                 precisionButton.disabled = (systemStatus !== 'DETECTING');
@@ -257,40 +227,25 @@
                 }
             }
             
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
-========
             // --- 버튼 이벤트 리스너들 ---
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
             powerButton.addEventListener('click', () => {
                 const isTurningOn = systemStatus === 'IDLE';
                 const targetState = isTurningOn ? 'DETECTING' : 'IDLE';
                 const endpoint = isTurningOn ? '/start_stream' : '/stop_stream';
                 
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
-========
-                // [수정] 서버에 스트림 제어 명령 전송
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
                 fetch(endpoint, { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
-                            updateSystemState(targetState);
-                        } else {
-========
                             console.log(`Stream control success: ${targetState}`);
                             updateSystemState(targetState);
                         } else {
                             console.error('Stream control failed:', data.message);
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
                             alert(`작업에 실패했습니다: ${data.message}`);
                         }
                     })
                     .catch(error => {
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
-========
                         console.error('Stream control error:', error);
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
                         alert('서버와 통신 중 오류가 발생했습니다.');
                     });
             });
@@ -308,6 +263,7 @@
                             }
                         })
                         .catch(error => {
+                            console.error('정밀 탐지 명령 전송 실패:', error);
                             alert('정밀 탐지 명령을 보내는 데 실패했습니다.');
                             updateSystemState('DETECTING');
                         });
@@ -325,6 +281,7 @@
                 }
             });
 
+            // --- 주기적으로 센서 데이터를 확인하는 함수 (AJAX Polling) ---
             let pollingInterval;
             function startPollingForSensorData() {
                 if (pollingInterval) clearInterval(pollingInterval);
@@ -341,10 +298,6 @@
                                 const modalBody = resultModal.querySelector('.modal-body');
                                 const sensorData = data.data;
 
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
-========
-                                // [수정] 요청하신 필드에 맞게 모달 내용 업데이트
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
                                 modalBody.innerHTML = `
                                     <div class="result-item">균열 ID:<span>${sensorData.crack_id || 'N/A'}</span></div>
                                     <div class="result-item">균열 여부:<span>${sensorData.crack_detected ? '탐지됨' : '탐지되지 않음'}</span></div>
@@ -355,16 +308,14 @@
                             }
                         })
                         .catch(error => {
+                            console.error('센서 데이터 확인 중 오류:', error);
                             clearInterval(pollingInterval);
-<<<<<<<< HEAD:Embedded/JetsonOrinNano/live_detect/templates/final.html
                             updateSystemState('DETECTING');
-========
-                            updateSystemState('DETECTING'); // 오류 발생 시 이전 상태로 복귀
->>>>>>>> 926ae0c899580cb230beed713fb3c5e5160bad6b:Embedded/JetsonOrinNano/live_detect/templates/LCD_v3_before.html
                         });
                 }, 2000);
             }
 
+            // --- 초기 상태 설정 ---
             updateSystemState('IDLE');
         });
     </script>
