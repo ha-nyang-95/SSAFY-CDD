@@ -5,3 +5,6 @@ pytorch-lightning
 numpy
 Pillow
 boto3
+requests
+psutil
+pynvml
