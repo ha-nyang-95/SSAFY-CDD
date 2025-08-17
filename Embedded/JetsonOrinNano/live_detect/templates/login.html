@@ -48,25 +48,23 @@
             color: var(--color-dark-gray);
             margin-bottom: 30px;
         }
-        /* 입력창 스타일 수정 */
-        .login-form input[type="text"] {
+        .login-form input[type="url"] {
             width: 100%;
             padding: 14px;
-            margin-bottom: 15px; /* 간격 조정 */
+            margin-bottom: 20px;
             border: 1px solid var(--color-gray);
             border-radius: 8px;
             font-size: 16px;
             font-family: var(--font-main);
             transition: border-color 0.3s, box-shadow 0.3s;
         }
-        .login-form input[type="text"]:focus {
+        .login-form input[type="url"]:focus {
             outline: none;
             border-color: var(--color-accent);
             box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.2);
         }
         .login-form .button {
             width: 100%;
-            margin-top: 10px; /* 버튼 위 간격 추가 */
             font-size: 18px;
             font-weight: 500;
             padding: 14px;
@@ -90,14 +88,10 @@
 <body>
     <div class="login-container">
         <h1 class="login-title">CDD: Drone System Login</h1>
-        <p class="login-subtitle">사용자 ID와 작업 ID를 입력하여 시스템을 활성화하세요.</p>
-        
+        <p class="login-subtitle">S3 인증 URL을 입력하여 시스템을 활성화하세요.</p>
         <form class="login-form" method="post">
-            <input type="text" name="user_id" placeholder="사용자 ID (e.g., test_user)" required>
-            <input type="text" name="task_id" placeholder="작업 ID (e.g., task_01)" required>
-            
+            <input type="url" name="auth_url" placeholder="http://s3/userID/taskID 형식" required>
             <button type="submit" class="button">인증 및 시작</button>
-            
             {% if error %}
                 <p class="error-message">{{ error }}</p>
             {% endif %}
