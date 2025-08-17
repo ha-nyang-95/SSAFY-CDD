@@ -29,7 +29,7 @@
 - [JDK 17 3.5.4](https://www.oracle.com/java/technologies/javase/jdk17-0-13-later-archive-downloads.html)
 - [Intellij IDE 2025.1.3 (Runtime version: 21.0.7+9-b895.130 amd64 (JCEF 122.1.9))](https://www.jetbrains.com/idea/download/?section=windows)
 - [Visual Studio Code 1.103.1](https://code.visualstudio.com/docs?dv=win)
-- [React 18.2.43](https://github.com/facebook/react/releases/tag/v18.2.0)
+- [React 19.1.9](https://github.com/facebook/react/releases/tag/v18.2.0)
 
 **AI (Yolo)**
 - [Yolov8n](https://docs.ultralytics.com/ko/models/yolov8/)
@@ -45,8 +45,9 @@
 
 **AI (3D Gaussian Splatting)**
 - [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-- [CuDNN]()
-- [Pytorch]()
+- [CuDNN 8.7.0](https://developer.nvidia.com/rdp/cudnn-archive)
+- [Pytorch 2.0.1](https://pytorch.kr/get-started/previous-versions/)
+- [Flask 2.2.2](https://flask.palletsprojects.com/en/stable/installation/#install-flask)
 - WSL2 (Ubuntu 22.04)
 
 **HW**
@@ -110,28 +111,20 @@ AWS_BUCKET_NAME="cdd-public-bucket"
 git clone https://lab.ssafy.com/s13-webmobile3-sub1/S13P11B102.git CDD
 ```
 
-front
+web
 ```bash
-
-```
-
-back
-```bash
-
-```
-
-ai(segment)
-```bash
-
+cd WEB
+docker compose up -d --build
 ```
 
 ai(3d model)
 ```bash
-
+git clone https://lab.ssafy.com/beem8727/3d_modeling.git
+cd 3d_modeling
 ```
 
 
-## 3. 배포
+## 배포
 
 **web**
 ```bash
@@ -348,7 +341,7 @@ cd ~/YDLidar-SDK
 sudo python3 setup.py install
 ```
 
-ap & mqtt & rtsp 세팅
+AP & MQTT & RTSP 세팅
 ```bash
 pip3 install paho-mqtt
 sudo apt-get update
@@ -407,8 +400,7 @@ dhcp-host=dc:a6:32:56:9d:90,192.168.4.10
 
 
 
-## 4. 외부 서비스
-# 외부 서비스
+## 외부 서비스
 
 1. AWS
 2. GCP
@@ -730,7 +722,7 @@ EC2 CPU 사용하도록 설정
 
 
 
-## 5. 시연 시나리오
+## 시연 시나리오
 1. raspberry pi4에서 서버를 실행한다.
 ```bash
 v4l2rtspserver -W 640 -H 480 -F 15 /dev/video0

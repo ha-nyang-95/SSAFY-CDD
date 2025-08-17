@@ -5,8 +5,6 @@ import java.util.List;
 
 public interface CrackService {
 
-  void createCrack(String trackingKey, String url);
-
   void deleteCrack(Long crackId, Long userId);
 
   CrackResponseDto checkCrack(Long crackId, Long userId);
