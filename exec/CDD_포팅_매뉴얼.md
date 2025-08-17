@@ -94,7 +94,14 @@ AWS_REGION=
 LOKI_URL=
 ```
 
-
+**Jetson**
+.env
+```.env
+AWS_ACCESS_KEY_ID="AKIA2CSBXWUJRR3NAXCJ"
+AWS_SECRET_ACCESS_KEY="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"
+AWS_REGION="ap-northeast-2"
+AWS_BUCKET_NAME="cdd-public-bucket"
+```
 
 ## 빌드
 
@@ -113,21 +120,6 @@ back
 
 ```
 
-raspberray pi4
-```bash
-
-```
-
-jetson orin nano
-```bash
-
-```
-
-ai(detect)
-```bash
-
-```
-
 ai(segment)
 ```bash
 
@@ -141,17 +133,278 @@ ai(3d model)
 
 ## 3. 배포
 
-web
+**web**
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-raspberry pi4
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-jetson orin nano
+docker compose up -d
+```
 
-pixhawk
+Nginx
+```bash
+vim /etc/nginx/nginx.config
+```
+```conf
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
 
-aws
+events {
+        worker_connections 768;
+        # multi_accept on;
+}
 
-gcp
+http {
+
+        ##
+        # Basic Settings
+        ##
+
+        sendfile on;
+        tcp_nopush on;
+        types_hash_max_size 2048;
+        # server_tokens off;
+
+        # server_names_hash_bucket_size 64;
+        # server_name_in_redirect off;
+
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        ##
+        # SSL Settings
+        ##
+
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+        ssl_prefer_server_ciphers on;
+
+        ##
+        # Logging Settings
+        ##
+
+        access_log /var/log/nginx/access.log;
+        error_log /var/log/nginx/error.log;
+
+        ##
+        # Gzip Settings
+        ##
+
+        gzip on;
+
+        # gzip_vary on;
+        # gzip_proxied any;
+        # gzip_comp_level 6;
+        # gzip_buffers 16 8k;
+        # gzip_http_version 1.1;
+        # gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+        ##
+        # Virtual Host Configs
+        ##
+
+        include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/sites-enabled/*;
+}
+
+
+#mail {
+#       # See sample authentication script at:
+#       # http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+#
+#       # auth_http localhost/auth.php;
+#       # pop3_capabilities "TOP" "USER";
+#       # imap_capabilities "IMAP4rev1" "UIDPLUS";
+#
+#       server {
+#               listen     localhost:110;
+#               protocol   pop3;
+#               proxy      on;
+#       }
+#
+#       server {
+#               listen     localhost:143;
+#               protocol   imap;
+#               proxy      on;
+#       }
+#}
+```
+
+```bash
+udo apt update
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx
+```
+
+```
+vim /etc/nginx/sites-enable/default
+```
+
+```bash
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    # 프론트(도커 nginx: 호스트 8081)로 프록시
+    location / {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 백엔드(Spring Boot: 호스트 8080)로 프록시
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+server {
+    server_name shyo2.com; # managed by Certbot
+
+    # 프론트(도커 nginx: 호스트 8081)로 프록시
+    location / {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 백엔드(Spring Boot: 호스트 8080)로 프록시
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/shyo2.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/shyo2.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}server {
+    if ($host = shyo2.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80 ;
+    listen [::]:80 ;
+    server_name shyo2.com;
+    return 404; # managed by Certbot
+
+
+}
+```
+
+**raspberray pi4**
+lidar 세팅
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install git cmake g++ build--essential swig
+sudo apt install python3-pip python3-venv
+pip install -r requirements.txt
+
+cd ~
+git clone https://github.com/YDLIDAR/YDLidar-SDK.git
+
+cd ~/YDLidar-SDK
+mkdir build
+
+cd build
+cmake ..
+make
+sudo make install
+
+cd ~/YDLidar-SDK
+sudo python3 setup.py install
+```
+
+ap & mqtt & rtsp 세팅
+```bash
+pip3 install paho-mqtt
+sudo apt-get update
+sudo apt-get install cmake g++ liblivemedia-dev libv4l-dev git -y
+git clone https://github.com/mpromonet/v4l2rtspserver.git
+cd v4l2rtspserver
+cmake .
+make
+sudo make install
+
+v4l2rtspserver --help
+```
+
+**jetson orin nano**
+```bash
+sudo apt-get update
+sudo apt-get install hostapd dnsmasq python3-pip
+pip3 install ultralytics flask paho-mqtt boto3 python-dotenv
+```
+
+* **주요 설정**:
+* **SSID (Wi-Fi 이름)**: `JetsonAP`
+* **비밀번호**: `ssafy1234`
+* **네트워크 인터페이스**: `wlP1p1s0`
+
+Jetson에서 Wi-Fi AP를 활성화하기 위해 `hostapd`를 설정
+```bash
+vim /etc/hostapd/hostapd.conf
+```
+```conf
+interface=wlP1p1s0
+driver=nl80211
+ssid=JetsonAP
+hw_mode=g
+channel=6
+auth_algs=1
+wmm_enabled=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=ssafy1234
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+country_code=KR
+```
+
+Raspberry Pi의 MAC 주소(`dc:a6:32:56:9d:90`)에는 항상 `192.168.4.10`이라는 고정 IP를 할당
+```bash
+vim /etc/dnsmasq.conf
+```
+```conf
+port=0
+interface=wlP1p1s0
+dhcp-range=192.168.4.10,192.168.4.100,12h
+dhcp-host=dc:a6:32:56:9d:90,192.168.4.10
+```
+
 
 
 ## 4. 외부 서비스
@@ -479,10 +732,14 @@ EC2 CPU 사용하도록 설정
 
 ## 5. 시연 시나리오
 1. raspberry pi4에서 서버를 실행한다.
-```BASH
-
+```bash
+v4l2rtspserver -W 640 -H 480 -F 15 /dev/video0
+python3 rpi_mqtt.py
 ```
 2. jetson orin nano 보드에 전원을 연결한다. (자동으로 AP 연결됨)
+```bash
+python3 app.py
+```
 3. 핫스팟을 통해 jetson과 외부 네트워크를 연결한다.
 4. 노트북으로 https://shyo2.com에 접속하여 로그인한다.
 5. 작업을 생성한다.
