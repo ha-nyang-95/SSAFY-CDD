@@ -101,8 +101,13 @@ public class FileProcessingService {
     public void createCrackAssets(Task task, int crackCount) {
         log.info("균열 관련 파일 생성 시작 - taskId: {}, crackCount: {}", task.getTaskId(), crackCount);
         
+        // userId와 uuid 추출
+        String userId = String.valueOf(task.getUserId()); // 또는 task에서 userId 가져오기
+        String uuid = task.getUuid(); // Task 엔티티에 uuid 필드가 있어야 함
+        
         for (int i = 1; i <= crackCount; i++) {
-            String crackIdString = String.format("crack_%03d", i);
+            // 새로운 형식: u+userId/uuid/crack_num/crackId
+            String crackIdString = String.format("u%s/%s/crack_num/crack_%03d", userId, uuid, i);
             
             // 세그먼트 파일 생성
             createFileByType(task, crackIdString + "/segment.png", FileTypeParser.TYPE_SEGMENT);

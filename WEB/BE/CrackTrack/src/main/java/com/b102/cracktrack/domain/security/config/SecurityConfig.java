@@ -75,7 +75,7 @@ public class SecurityConfig {
                 "/api/auth/**"
             ).permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers("/api/lambda/**","/api/mqtt/**").permitAll()
+            .requestMatchers("/api/lambda/**").permitAll()
             .anyRequest().hasRole("GENERAL")
         )
         .exceptionHandling(exceptions -> exceptions
