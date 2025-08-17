@@ -1,6 +1,6 @@
 package com.b102.cracktrack.domain.modeling.service.impl;
 
-import com.b102.cracktrack.common.util.FileTypeParser;
+import com.b102.cracktrack.common.service.FileProcessingService;
 import com.b102.cracktrack.domain.modeling.entity.Modeling;
 import com.b102.cracktrack.domain.modeling.repository.ModelingRepository;
 import com.b102.cracktrack.domain.modeling.service.ModelingService;
@@ -19,6 +19,7 @@ public class ModelingServiceImpl implements ModelingService {
 
   private final ModelingRepository modelingRepository;
   private final TaskRepository taskRepository;
+  private final FileProcessingService fileProcessingService;
 
   @Value("${cloud.aws.s3.bucket}")
   private String s3Bucket;
@@ -34,8 +35,8 @@ public class ModelingServiceImpl implements ModelingService {
     Task task = taskRepository.findById(taskId)
         .orElseThrow(() -> new RuntimeException("Task를 찾을 수 없습니다: " + taskId));
     
-    // FileTypeParser를 사용하여 일관된 S3 URL 생성
-    String s3Url = FileTypeParser.generateS3PublicUrl(s3Bucket, task.getS3Name(), fileName);
+    // FileProcessingService를 사용하여 S3 URL 생성
+    String s3Url = fileProcessingService.generateS3Url(task.getS3Name(), fileName);
     
     if (s3Url == null) {
       log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", taskId, fileName);

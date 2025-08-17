@@ -2,7 +2,7 @@ package com.b102.cracktrack.domain.detection.service.impl;
 
 import com.b102.cracktrack.common.exception.ApiException;
 import com.b102.cracktrack.common.exception.ErrorMessage;
-import com.b102.cracktrack.common.util.FileTypeParser;
+import com.b102.cracktrack.common.service.FileProcessingService;
 import com.b102.cracktrack.domain.detection.dto.DetectionResponseDto;
 import com.b102.cracktrack.domain.detection.entity.Detection;
 import com.b102.cracktrack.domain.detection.repository.DetectionRepository;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +28,7 @@ public class DetectionServiceImpl implements DetectionService {
   private final DetectionRepository detectionRepository;
   private final TaskRepository taskRepository;
   private final UserRepository userRepository;
+  private final FileProcessingService fileProcessingService;
 
   @Value("${cloud.aws.s3.bucket}")
   private String s3Bucket;
@@ -115,25 +115,25 @@ public class DetectionServiceImpl implements DetectionService {
   @Transactional
   public void createDetection(Long taskId, String fileName) {
     log.info("디텍션 생성 시작 - taskId: {}, fileName: {}", taskId, fileName);
-    
+
     Task task = taskRepository.findById(taskId)
         .orElseThrow(() -> new RuntimeException("Task를 찾을 수 없습니다: " + taskId));
-    
-    // FileTypeParser를 사용하여 일관된 S3 URL 생성
-    String s3Url = FileTypeParser.generateS3PublicUrl(s3Bucket, task.getS3Name(), fileName);
+
+    // FileProcessingService를 사용하여 S3 URL 생성
+    String s3Url = fileProcessingService.generateS3Url(task.getS3Name(), fileName);
     
     if (s3Url == null) {
       log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", taskId, fileName);
       throw new RuntimeException("S3 URL 생성에 실패했습니다.");
     }
-    
+
     Detection detection = Detection.builder()
         .task(task)
         .s3Url(s3Url)
         .build();
-    
+
     detectionRepository.save(detection);
-    
+
     log.info("디텍션 생성 완료 - detectionId: {}, S3 URL: {}", detection.getDetectionId(), s3Url);
   }
 }
