@@ -87,7 +87,7 @@ public class FileProcessingService {
         createFileByType(task, "raw_video.mp4", FileTypeParser.TYPE_VIDEO);
         
         // 디텍션 파일 생성
-        createFileByType(task, "detected_video.mp4", FileTypeParser.TYPE_DETECTION);
+        createFileByType(task, "detect.mp4", FileTypeParser.TYPE_DETECTION);
         
         // 모델링 파일 생성
         createFileByType(task, "model.splat", FileTypeParser.TYPE_MODELING);
