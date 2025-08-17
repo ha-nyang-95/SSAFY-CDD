@@ -102,8 +102,8 @@ public class FileProcessingService {
         log.info("균열 관련 파일 생성 시작 - taskId: {}, crackCount: {}", task.getTaskId(), crackCount);
         
         // userId와 uuid 추출
-        String userId = String.valueOf(task.getUserId()); // 또는 task에서 userId 가져오기
-        String uuid = task.getUuid(); // Task 엔티티에 uuid 필드가 있어야 함
+        String userId = String.valueOf(task.getUser().getUserId()); // 또는 task에서 userId 가져오기
+        String uuid = task.getS3Name(); // Task 엔티티에 uuid 필드가 있어야 함
         
         for (int i = 1; i <= crackCount; i++) {
             // 새로운 형식: u+userId/uuid/crack_num/crackId
