@@ -36,3 +36,35 @@ workspace.xml
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables ###
+.env
+*.env
+env.local
+env.production
+env.development
+application-local.properties
+application-dev.properties
+application-prod.properties
+secrets/**
+
+### Logs ###
+*.log
+logs/
+app.log
+
+### OS Generated Files ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+### Temporary Files ###
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

@@ -4,91 +4,103 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FileTypeParser {
+  // 파싱 결과 타입 상수
+  public static final String TYPE_VIDEO = "VIDEO";
+  public static final String TYPE_DETECTION = "DETECTION";
+  public static final String TYPE_MODELING = "MODELING";
+  public static final String TYPE_SEGMENT = "SEGMENT";
+  public static final String TYPE_IMAGE = "IMAGE";
+  public static final String TYPE_LIDAR = "LIDAR";
+  public static final String TYPE_UNKNOWN = "UNKNOWN";
 
   /**
    * S3 파일명을 보고 엔티티 타입을 파싱합니다.
    * 
-   * @param fileName 파일명 (예: raw_video20250806154500.mp4, Modeling20250806154500.obj, uuid/crackId001/segment.jpg)
+   * @param fileName 파일명 (예: raw_video001.mp4, detected_video001.mp4, modeling001.obj, crackId001/segment.jpg, crackId001/image.jpg, crackId001/lidar.json)
    * @return 엔티티 타입 (VIDEO, DETECTION, MODELING, SEGMENT, IMAGE, LIDAR)
    */
   public static String parseFileType(String fileName) {
     if (fileName == null || fileName.isEmpty()) {
       log.warn("파일명이 null이거나 비어있음: {}", fileName);
-      return "UNKNOWN";
+      return TYPE_UNKNOWN;
     }
 
-    // 경로가 포함된 파일명인 경우 파일명만 추출
+    // 전체 키와 파일명 분리
+    String fullKeyLower = fileName.toLowerCase();
     String actualFileName = fileName;
     if (fileName.contains("/")) {
       String[] parts = fileName.split("/");
-      actualFileName = parts[parts.length - 1]; // 마지막 부분이 실제 파일명
+      actualFileName = parts[parts.length - 1];
     }
 
     String lowerFileName = actualFileName.toLowerCase();
-    
-    // 원본 비디오 파일 (raw_video + datetime)
-    if (lowerFileName.startsWith("raw_video")) {
-      return "VIDEO";
+
+    // 확장자 추출
+    String extension = "";
+    int lastDotIndex = lowerFileName.lastIndexOf('.');
+    if (lastDotIndex != -1 && lastDotIndex < lowerFileName.length() - 1) {
+      extension = lowerFileName.substring(lastDotIndex);
     }
-    
-    // 탐지된 비디오 파일 (detected_video + datetime)
-    if (lowerFileName.startsWith("detected_video")) {
-      return "DETECTION";
+
+    // 비디오 파일 (raw_video*, detected_video*)
+    if (lowerFileName.startsWith("raw_video") && (extension.isEmpty() || extension.equals(".mp4") || extension.equals(".mov") || extension.equals(".mkv"))) {
+      return TYPE_VIDEO;
     }
-    
-    // 모델링 파일 (Modeling + datetime)
-    if (lowerFileName.startsWith("modeling")) {
-      return "MODELING";
+    if (lowerFileName.startsWith("detected_video") && (extension.isEmpty() || extension.equals(".mp4") || extension.equals(".mov") || extension.equals(".mkv"))) {
+      return TYPE_DETECTION;
     }
-    
-    // 세그먼트 파일 (segment.jpeg, segment.jpg)
-    if (lowerFileName.equals("segment.jpeg") || lowerFileName.equals("segment.jpg")) {
-      return "SEGMENT";
+
+    // 모델링 파일 (modeling* 또는 확장자 기반)
+    if (lowerFileName.startsWith("modeling") || extension.equals(".obj") || extension.equals(".glb") || extension.equals(".gltf") || extension.equals(".ply") || extension.equals(".fbx")) {
+      return TYPE_MODELING;
     }
-    
-    // 이미지 파일 (image.jpeg, image.jpg)
-    if (lowerFileName.equals("image.jpeg") || lowerFileName.equals("image.jpg")) {
-      return "IMAGE";
+
+    // 세그먼트 파일 (segment.*)
+    if ((lowerFileName.equals("segment") || lowerFileName.startsWith("segment")) && (extension.equals(".jpeg") || extension.equals(".jpg") || extension.equals(".png"))) {
+      return TYPE_SEGMENT;
     }
-    
-    // 라이더 파일 (lidar.json)
-    if (lowerFileName.equals("lidar.json")) {
-      return "LIDAR";
+
+    // 이미지 파일 (image.*)
+    if ((lowerFileName.equals("image") || lowerFileName.startsWith("image")) && (extension.equals(".jpeg") || extension.equals(".jpg") || extension.equals(".png"))) {
+      return TYPE_IMAGE;
     }
-    
+
+    // 라이더 파일 (파일명/경로에 lidar 포함 + json 등)
+    if (lowerFileName.equals("lidar") || lowerFileName.startsWith("lidar") || fullKeyLower.contains("/lidar/")) {
+      if (extension.equals(".json") || extension.equals(".las") || extension.equals(".laz")) {
+        return TYPE_LIDAR;
+      }
+    }
+
+    // 추가적인 확장자 기반 검사 (lidar)
+    if ((extension.equals(".json") || extension.equals(".las") || extension.equals(".laz")) && (lowerFileName.contains("lidar") || fullKeyLower.contains("/lidar"))) {
+      return TYPE_LIDAR;
+    }
+
     log.warn("알 수 없는 파일 타입: {}", fileName);
-    return "UNKNOWN";
+    return TYPE_UNKNOWN;
   }
 
   /**
    * 파일명에서 crackId를 추출합니다.
    * 
-   * @param fileName 파일명 (예: crackId0/image.jpeg, uuid/crackId001/segment.jpg)
-   * @return crackId (예: crackId0, crackId001)
+   * @param fileName 파일명 (예: crackId001/image.jpeg, crackId001/segment.jpg)
+   * @return crackId (예: crackId001, crackId002)
    */
   public static String extractCrackId(String fileName) {
     if (fileName == null || fileName.isEmpty()) {
       return null;
     }
 
-    // crackId 폴더 내의 파일인 경우 crackId 추출
-    if (fileName.contains("/")) {
-      String[] parts = fileName.split("/");
-      
-      // UUID/crackId001/segment.jpg 형태인 경우
-      if (parts.length >= 3) {
-        // 두 번째 부분이 crackId로 시작하는지 확인
-        if (parts[1].startsWith("crackId")) {
-          return parts[1]; // crackId001, crackId002 등
-        }
-      }
-      
-      // crackId001/segment.jpg 형태인 경우 (기존 로직)
-      if (parts.length >= 2 && parts[0].startsWith("crackId")) {
-        return parts[0]; // crackId0, crackId1 등
+    // URL 또는 전체 키 어디에서든 'crack'으로 시작하는 세그먼트를 탐색
+    String[] parts = fileName.split("/");
+    for (String part : parts) {
+      if (part == null || part.isEmpty()) continue;
+      String lowered = part.toLowerCase();
+      if (lowered.startsWith("crack")) {
+        return part; // 원본 케이스 보존
       }
     }
-    
     return null;
   }
 
@@ -113,5 +125,75 @@ public class FileTypeParser {
     }
     
     return null;
+  }
+
+  /**
+   * Task S3 경로와 파일명으로 S3 public URL 생성
+   * 
+   * @param bucketName S3 버킷명
+   * @param taskS3Path Task의 S3 경로 (예: u1/2025-08-07/3c61e459-6b81-4b8b-a2ef-0e1e6c6db146)
+   * @param fileName 파일명 (예: raw_video001.mp4, crackId001/image.jpg)
+   * @return S3 public URL
+   */
+  public static String generateS3PublicUrl(String bucketName, String taskS3Path, String fileName) {
+    if (bucketName == null || bucketName.isEmpty() || 
+        taskS3Path == null || taskS3Path.isEmpty() || 
+        fileName == null || fileName.isEmpty()) {
+      log.warn("S3 URL 생성 실패: 필수 파라미터 누락 - bucketName={}, taskS3Path={}, fileName={}", 
+          bucketName, taskS3Path, fileName);
+      return null;
+    }
+    
+    // taskS3Path가 이미 완전한 S3 URL인 경우, 파일명만 추가
+    if (taskS3Path.startsWith("http")) {
+      // URL에서 파일 경로 부분만 추출
+      String filePath = extractFilePathFromUrl(taskS3Path);
+      if (filePath != null) {
+        String fullKey = filePath + "/" + fileName;
+        String result = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fullKey);
+        log.debug("기존 URL에서 파일명 추가: taskS3Path={}, fileName={}, result={}", 
+            taskS3Path, fileName, result);
+        return result;
+      } else {
+        log.warn("URL에서 파일 경로 추출 실패, 기본 방식 사용: {}", taskS3Path);
+      }
+    }
+    
+    // 일반적인 경우: 경로 + 파일명으로 URL 생성
+    String fullKey = taskS3Path + "/" + fileName;
+    String result = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fullKey);
+    log.debug("일반 경로로 S3 URL 생성: bucketName={}, taskS3Path={}, fileName={}, result={}", 
+        bucketName, taskS3Path, fileName, result);
+    return result;
+  }
+
+  /**
+   * S3 URL에서 파일 경로 부분만 추출
+   * 
+   * @param s3Url S3 URL (예: https://bucket.s3.amazonaws.com/u1/2025-08-07/uuid)
+   * @return 파일 경로 (예: u1/2025-08-07/uuid) 또는 null
+   */
+  private static String extractFilePathFromUrl(String s3Url) {
+    try {
+      // S3 URL 패턴: https://bucket.s3.amazonaws.com/path 또는 https://bucket.s3.region.amazonaws.com/path
+      if (s3Url.contains(".s3.amazonaws.com/")) {
+        String[] parts = s3Url.split(".s3.amazonaws.com/", 2);
+        if (parts.length == 2) {
+          return parts[1];
+        }
+      } else if (s3Url.contains(".s3.") && s3Url.contains(".amazonaws.com/")) {
+        // 지역별 S3 URL 패턴: https://bucket.s3.region.amazonaws.com/path
+        String[] parts = s3Url.split(".amazonaws.com/", 2);
+        if (parts.length == 2) {
+          return parts[1];
+        }
+      }
+      
+      log.warn("알 수 없는 S3 URL 패턴: {}", s3Url);
+      return null;
+    } catch (Exception e) {
+      log.error("URL 파싱 중 오류 발생: {}, error: {}", s3Url, e.getMessage());
+      return null;
+    }
   }
 } 

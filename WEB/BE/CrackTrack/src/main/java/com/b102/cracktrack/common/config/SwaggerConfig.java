@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
   @Bean
-  public OpenAPI openAPI(){
+  public OpenAPI openAPI() {
 
     final String securitySchemeName = "AccessToken";
     return new OpenAPI()

@@ -1,5 +1,6 @@
 package com.b102.cracktrack.domain.segment.service.impl;
 
+import com.b102.cracktrack.common.util.FileTypeParser;
 import com.b102.cracktrack.domain.crack.entity.Crack;
 import com.b102.cracktrack.domain.crack.repository.CrackRepository;
 import com.b102.cracktrack.domain.segment.entity.Segment;
@@ -9,6 +10,7 @@ import com.b102.cracktrack.domain.task.entity.Task;
 import com.b102.cracktrack.domain.task.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,12 @@ public class SegmentServiceImpl implements SegmentService {
   private final SegmentRepository segmentRepository;
   private final CrackRepository crackRepository;
   private final TaskRepository taskRepository;
+
+  @Value("${cloud.aws.s3.bucket}")
+  private String s3Bucket;
+
+  @Value("${cloud.aws.region.static}")
+  private String awsRegion;
 
   @Override
   @Transactional
@@ -33,8 +41,13 @@ public class SegmentServiceImpl implements SegmentService {
           return createNewCrack(taskId, crackId);
         });
     
-    // S3 URL 생성 (실제 구현에서는 S3 경로로 변경)
-    String s3Url = "s3://cracktrack/" + fileName;
+    // FileTypeParser를 사용하여 일관된 S3 URL 생성
+    String s3Url = FileTypeParser.generateS3PublicUrl(s3Bucket, crack.getTask().getS3Name(), fileName);
+    
+    if (s3Url == null) {
+      log.error("S3 URL 생성 실패 - taskId: {}, fileName: {}", taskId, fileName);
+      throw new RuntimeException("S3 URL 생성에 실패했습니다.");
+    }
     
     Segment segment = Segment.builder()
         .crack(crack)
@@ -43,7 +56,7 @@ public class SegmentServiceImpl implements SegmentService {
     
     segmentRepository.save(segment);
     
-    log.info("세그먼트 데이터 생성 완료 - segmentId: {}", segment.getSegmentId());
+    log.info("세그먼트 데이터 생성 완료 - segmentId: {}, S3 URL: {}", segment.getSegmentId(), s3Url);
   }
 
   /**

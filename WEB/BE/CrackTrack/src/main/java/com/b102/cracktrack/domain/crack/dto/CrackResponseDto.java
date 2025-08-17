@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 public record CrackResponseDto(
     Long crackId,
+    String crackName,
     String segmentS3Url,
     String imageS3Url,
     String lidarS3Url,
@@ -19,6 +20,7 @@ public record CrackResponseDto(
   public static CrackResponseDto from(Crack crack, Segment segment, Lidar lidar, Image image) {
     return new CrackResponseDto(
         crack.getCrackId(),
+        crack.getCrackIdString(),
         segment.getS3Url(),
         lidar.getS3Url(),
         image.getS3Url(),

@@ -1,7 +1,0 @@
-fastapi
-uvicorn[standard]
-python-multipart
-pytorch-lightning
-numpy
-Pillow
-boto3

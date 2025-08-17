@@ -12,8 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Spring Security에서 사용하는 사용자 인증 정보
- * 컨트롤러에서 @AuthenticationPrincipal로 현재 사용자 정보 접근 가능
+ * Spring Security에서 사용하는 사용자 인증 정보 컨트롤러에서 @AuthenticationPrincipal로 현재 사용자 정보 접근 가능
  */
 @Getter
 @RequiredArgsConstructor
@@ -23,7 +22,8 @@ public class UserPrincipal implements UserDetails {
   private final String email;
   private final String name;
   private final String role;
-  
+  private final String region;
+
   @JsonIgnore  // API 응답에서 비밀번호 제외
   private final String password;
 
@@ -33,6 +33,7 @@ public class UserPrincipal implements UserDetails {
         user.getEmail(),
         user.getName(),
         user.getRole().name(),
+        user.getRegion().name(),
         user.getPassword()
     );
   }
@@ -80,8 +81,7 @@ public class UserPrincipal implements UserDetails {
   }
 
   /**
-   * 현재 사용자가 특정 권한을 가지고 있는지 확인
-   * hasrole로 대체가능
+   * 현재 사용자가 특정 권한을 가지고 있는지 확인 hasrole로 대체가능
    */
   public boolean hasRole(String role) {
     return this.role.equals(role);

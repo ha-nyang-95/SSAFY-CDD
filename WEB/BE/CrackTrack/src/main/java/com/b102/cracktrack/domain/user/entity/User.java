@@ -1,6 +1,7 @@
 package com.b102.cracktrack.domain.user.entity;
 
 import com.b102.cracktrack.common.entity.BaseEntity;
+import com.b102.cracktrack.common.enums.Region;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -38,6 +39,10 @@ public class User extends BaseEntity {
   private String name;
 
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Region region;
+
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private Role role;
 
@@ -56,5 +61,10 @@ public class User extends BaseEntity {
 
   public void changeRole(Role newRole) {
     this.role = newRole;
+  }
+
+  // 이메일 변경 (정규화된 이메일 저장 용도)
+  public void changeEmail(String newEmail) {
+    this.email = newEmail;
   }
 }

@@ -7,7 +7,7 @@ public interface DetectionService {
 
   List<DetectionResponseDto> findAllByUserId(Long userId);
 
-  List<DetectionResponseDto> findAllByLocationId(Long locationId, Long userId);
+  List<DetectionResponseDto> findAllByDistrictId(Long districtId, Long userId);
 
   void deleteDetection(Long detectionId);
 
