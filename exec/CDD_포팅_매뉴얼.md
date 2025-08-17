@@ -49,7 +49,7 @@
 - [Pytorch]()
 - WSL2 (Ubuntu 22.04)
 
-**DRONE**
+**HW**
 - [ArduPilot Firmware](https://firmware.ardupilot.org/)
 - [Raspberry Pi 4](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/)
 - [Jetson Orin Nano](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/)
@@ -58,8 +58,7 @@
 - [로지텍 코리아 BRIO 100](https://www.logitech.com/ko-kr/shop/p/brio-100-webcam)
 - [S500 쿼드콥터 드론 PDB 에디션 Kit](https://www.falconshop.co.kr/shop/goods/goods_view.php?goodsno=100091886&category=064001070)
 - [win-usbipd](https://github.com/dorssel/usbipd-win)
-- Battery (전압, 전류량)
-- cmake
+
 
 
 ## 환경 변수
