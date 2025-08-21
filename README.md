@@ -2,7 +2,9 @@
 
 드론에 부착하여 균열 탐지를 수행할 수 있도록 하는 AIoT 서비스
 
-![Main Banner](./images/MainBanner.png)
+![포스터](./images/CDD_포스터.png)
+
+<!-- ![Main Banner](./images/MainBanner.png) -->
 
 </br></br>
 
