@@ -13,19 +13,6 @@
 
 ### 인원 : 6명 (팀장: 문소윤, 팀원: 문빈, 유승현, 장철환, 조정래, 진효창)
 
-### 작업 일정
-Sprint1 (7/14 - 7/20) : 기획 ✓
-
-Sprint2 (7/21 - 7/27) : 설계 ✓
-
-Sprint3 (7/28 - 8/3) : 개발 및 중간 발표 1 ✓
-
-Sprint4 (8/4 - 8/10) : 개발 및 중간 발표 2 ✓
-
-Sprint5 (8/11 - 8/17) : 개발 및 최종 발표 준비 ✓
-
-Sprint6 (8/18 - 8/22) : 발표 ✓
-
 </br></br>
 
 ## 기획배경
@@ -166,42 +153,3 @@ Sprint6 (8/18 - 8/22) : 발표 ✓
 ![S3](https://img.shields.io/badge/S3-569A31?style=flat-square&logo=amazon-s3&logoColor=white)
 ![Database](https://img.shields.io/badge/Database-336791?style=flat-square&logo=postgresql&logoColor=white)
 ![API](https://img.shields.io/badge/API_Design-FF9500?style=flat-square)
-
-
-</br></br></br>
-
-## 역할 상세
-| 파트       | 개발자           | 작업                                       | 작업물                                                                                                                   |
-| -------- | ------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| 문서       | 문소윤           | 중간 발표 PPT 제작                             | [PPT1](https://www.canva.com/design/DAGusDYyric/qWsFGGX1pLcTjngtjfHk9A/edit)                                          |
-| 문서       | 문소윤, 장철환, 조정래 | 최종 발표 PPT 제작                             |                                                                                                                       |
-| 문서       | 유승현           | Infra 및 아키텍쳐 설계                          | [아키텍쳐](./images/CDD_Architecture.png)                                                                                                           |
-| 문서       | 진효창           | API 설계                                   | [API문서](https://1nikuly037.apidog.io/)                                                                                |
-| 문서       | 장철환           | Figma 작성                                 | [Figam](https://www.figma.com/files/team/1521835363839329961/project/409403809/Team-project?fuid=1244578519188196494) |
-| 문서       | 전원            | Notion                                   | [Notion](https://www.notion.so/SSAFY-AIoT-22203d7e871380968f41e5f363e2e073)                                           |
-| 발표       | 문소윤           | 중간 발표                                    |                                                                                                                       |
-| 발표       | 유승현, 조정래      | 최종 발표                                    |                                                                                                                       |
-| Embedded | 문소윤           | 라즈베리파이4와 Jetson Orin Nano 내부망 RTSP 무선 통신 |                                                                                                                       |
-| Embedded | 문소윤           | 정밀탐지 MQTT 통신 구현                          |                                                                                                                       |
-| Embedded | 문소윤           | Yolov8n Jetson 보드에 탑재 및 라이브러리 버전 문제 해결   |                                                                                                                       |
-| Embedded | 문소윤           | 드론 조립 및 조종                               |                                                                                                                       |
-| Embedded | 문소윤           | Flask 개발                                 |                                                                                                                       |
-| Embedded | 유승현           | LiDAR 설정 및 균열 탐지 알고리즘 개발                 |                                                                                                                       |
-| Embedded | 장철환           | FE 개발 (LCD 화면 구현)                        |                                                                                                                       |
-| AI       | 문빈            | Segment AI 개발 (FCN, SegNet)              |                                                                                                                       |
-| AI       | 문빈            | 3D AI 개발 (Nef, 3D Gaussian Splatting)    |                                                                                                                       |
-| AI       | 문빈            | 3D AI 배포 (Serverless)                    |                                                                                                                       |
-| AI       | 조정래           | Segment AI 개발 (DeepLab, U-Net)           |                                                                                                                       |
-| AI       | 조정래           | Segment AI 배포 (Serverless)               |                                                                                                                       |
-| AI       | 조정래           | Yolov8n 최적화 (데이터 전처리 및 추가 학습)            |                                                                                                                       |
-| AI       | 유승현           | Yolov8n 개발 (데이터 전처리 및 1차 학습)             |                                                                                                                       |
-| AI       | 유승현           | 3D AI 개발 (Neuralangelo, TripoSR)         |                                                                                                                       |
-| AI       | 장철환           | Segment Dataset 전처리                      |                                                                                                                       |
-| Web      | 장철환           | FE 개발 (3D Model 시각화 구현)                  |                                                                                                                       |
-| Web      | 진효창           | BE 개발 (인증 기능 구현)                         |                                                                                                                       |
-| Web      | 진효창           | S3 및 DB 설계                               |                                                                                                                       |
-| Infra    | 유승현           | AWS 인프라 구축                               |                                                                                                                       |
-| Infra    | 조정래           | 모니터링 시스템 구축                              |                                                                                                                       |
-
-
-
