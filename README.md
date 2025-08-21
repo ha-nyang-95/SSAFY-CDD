@@ -28,7 +28,7 @@
 [![프로젝트 시연 영상](https://img.youtube.com/vi/M6N3P6Uup3A/0.jpg)](https://youtu.be/M6N3P6Uup3A)
 
 ### 아키텍처 소개
-![Architecture](images/architect.png)
+![Architecture](/uploads/bd360479c99dfdb90126f38a3ca3215d/Web_App_Reference_Architecture_Grid.png)
 
 
 ### 파트 별 역할 
