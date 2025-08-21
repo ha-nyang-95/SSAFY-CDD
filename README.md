@@ -175,7 +175,7 @@ Sprint6 (8/18 - 8/22) : 발표 ✓
 | -------- | ------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | 문서       | 문소윤           | 중간 발표 PPT 제작                             | [PPT1](https://www.canva.com/design/DAGusDYyric/qWsFGGX1pLcTjngtjfHk9A/edit)                                          |
 | 문서       | 문소윤, 장철환, 조정래 | 최종 발표 PPT 제작                             |                                                                                                                       |
-| 문서       | 유승현           | Infra 및 아키텍쳐 설계                          | [[아키텍쳐 5차]]                                                                                                           |
+| 문서       | 유승현           | Infra 및 아키텍쳐 설계                          | [아키텍쳐](./images/CDD_Architecture.png)                                                                                                           |
 | 문서       | 진효창           | API 설계                                   | [API문서](https://1nikuly037.apidog.io/)                                                                                |
 | 문서       | 장철환           | Figma 작성                                 | [Figam](https://www.figma.com/files/team/1521835363839329961/project/409403809/Team-project?fuid=1244578519188196494) |
 | 문서       | 전원            | Notion                                   | [Notion](https://www.notion.so/SSAFY-AIoT-22203d7e871380968f41e5f363e2e073)                                           |
