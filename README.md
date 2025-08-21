@@ -15,16 +15,19 @@
 
 </br></br>
 
-## 기획배경
-그동안의 균열 탐지 방법은 사람이 직접 눈으로 확인하는 방식이었습니다. 하지만 이러한 방식은 비용과 많은 시간이 필요하고 많은 사람이 필요했습니다. 이 때문에 자주 검사할 수 없어 위험 요소를 뒤늦게 발견하기도 합니다.
+### 🚀 프로젝트 시연 영상
 
-이러한 문제를 해결하기 위해 드론을 통해 균열을 탐지하고자 하였습니다. 드론에 고해상도 카메라와 AI 기반 균열 인식 시스템을 탑재하여 자동으로 균열을 감지하고, LiDAR 센서를 통해 균열의 깊이까지 정확하게 측정할 수 있도록 구현했습니다.
+아래 이미지를 클릭하면 영상이 재생됩니다.
 
-수집된 데이터는 웹 기반 3D 시각화 플랫폼을 통해 사용자가 직관적으로 현장 상황을 파악할 수 있도록 제공됩니다. 사용자는 브라우저에서 3D 환경을 통해 균열의 위치, 크기, 심각도를 실시간으로 확인하고 분석할 수 있습니다.
-
-이를 통해 기존 방식 대비 검사 시간을 크게 단축하고 비용을 절감하면서도, 위험 지역에 인력을 투입하지 않고도 정확하고 객관적인 구조물 안전 점검이 가능한 통합 솔루션을 구축하였습니다.
+[![프로젝트 시연 영상](https://img.youtube.com/vi/M6N3P6Uup3A/0.jpg)](https://youtu.be/M6N3P6Uup3A)
 
 </br></br>
+
+## 기획배경
+그동안의 균열 탐지 방법은 사람이 직접 눈으로 확인하는 방식이었습니다. 하지만 이러한 방식은 비용과 많은 시간이 필요하고 많은 사람이 필요했습니다. 이 때문에 자주 검사할 수 없어 위험 요소를 뒤늦게 발견하기도 합니다.</br>
+이러한 문제를 해결하기 위해 드론을 통해 균열을 탐지하고자 하였습니다. 드론에 고해상도 카메라와 AI 기반 균열 인식 시스템을 탑재하여 자동으로 균열을 감지하고, LiDAR 센서를 통해 균열의 깊이까지 정확하게 측정할 수 있도록 구현했습니다.</br>
+수집된 데이터는 웹 기반 3D 시각화 플랫폼을 통해 사용자가 직관적으로 현장 상황을 파악할 수 있도록 제공됩니다. 사용자는 브라우저에서 3D 환경을 통해 균열의 위치, 크기, 심각도를 실시간으로 확인하고 분석할 수 있습니다.</br>
+이를 통해 기존 방식 대비 검사 시간을 크게 단축하고 비용을 절감하면서도, 위험 지역에 인력을 투입하지 않고도 정확하고 객관적인 구조물 안전 점검이 가능한 통합 솔루션을 구축하였습니다.
 
 </br></br>
 
@@ -41,13 +44,6 @@
 2. Crack Segmentation : 균열을 정밀하게 탐지하는 AI
 3. 3D Modeling : 촬영한 영상을 바탕으로 구조물을 3D 모델로 변환하고, 이를 활용해 균열의 위치와 크기를 알 수 있게 합니다.
 
-</br></br>
-
-### 🚀 프로젝트 시연 영상
-
-아래 이미지를 클릭하면 영상이 재생됩니다.
-
-[![프로젝트 시연 영상](https://img.youtube.com/vi/M6N3P6Uup3A/0.jpg)](https://youtu.be/M6N3P6Uup3A)
 
 </br></br>
 
@@ -66,7 +62,7 @@
 ## 팀 구성 및 역할
 
 ### 👨‍💼 문소윤 (팀장)
-[![GitHub](https://img.shields.io/badge/GitHub-msy-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/msy)
+[![GitHub](https://img.shields.io/badge/GitHub-kookso-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/kookso)
 
 **역할:** ![TeamLead](https://img.shields.io/badge/TeamLead-FF6B6B?style=flat-square) ![Embedded](https://img.shields.io/badge/Embedded-FF8C42?style=flat-square)
 
@@ -82,7 +78,7 @@
 ---
 
 ### 👨‍🔬 문빈
-[![GitHub](https://img.shields.io/badge/GitHub-moonbin-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/moonbin)
+[![GitHub](https://img.shields.io/badge/GitHub-BinMoon55-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/BinMoon55)
 
 **역할:** ![AI](https://img.shields.io/badge/AI_Developer-4ECDC4?style=flat-square)
 
@@ -114,7 +110,7 @@
 ---
 
 ### 👨‍💼 장철환
-[![GitHub](https://img.shields.io/badge/GitHub-jch-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jch)
+[![GitHub](https://img.shields.io/badge/GitHub-ha--nyang--95-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ha-nyang-95)
 
 **역할:** ![PM](https://img.shields.io/badge/Project_Manager-45B7D1?style=flat-square) ![DataEngineer](https://img.shields.io/badge/Data_Engineer-2E8B57?style=flat-square) ![Frontend](https://img.shields.io/badge/Frontend-61DAFB?style=flat-square)
 
@@ -128,7 +124,7 @@
 ---
 
 ### 👨‍🔬 조정래
-[![GitHub](https://img.shields.io/badge/GitHub-jjr-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jjr)
+[![GitHub](https://img.shields.io/badge/GitHub-wjdfo-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/wjdfo)
 
 **역할:** ![AI](https://img.shields.io/badge/AI_Developer-4ECDC4?style=flat-square) ![CloudEngineer](https://img.shields.io/badge/Cloud_Engineer-FF9500?style=flat-square)
 
@@ -142,7 +138,7 @@
 ---
 
 ### 👨‍💻 진효창
-[![GitHub](https://img.shields.io/badge/GitHub-jhc-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jhc)
+[![GitHub](https://img.shields.io/badge/GitHub-Hyochang098-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Hyochang098)
 
 **역할:** ![Backend](https://img.shields.io/badge/Backend-96CEB4?style=flat-square) ![Frontend](https://img.shields.io/badge/Frontend-61DAFB?style=flat-square)
 
