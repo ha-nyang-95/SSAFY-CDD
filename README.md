@@ -196,3 +196,15 @@
 ![S3](https://img.shields.io/badge/S3-569A31?style=flat-square&logo=amazon-s3&logoColor=white)
 ![Database](https://img.shields.io/badge/Database-336791?style=flat-square&logo=postgresql&logoColor=white)
 ![API](https://img.shields.io/badge/API_Design-FF9500?style=flat-square)
+
+
+
+
+
+</br></br>
+
+## CDD 서비스 웹 페이지 상세
+### **LCD 화면 페이지**
+![image](/uploads/c3e498c3a9ec0c1f9d307ffc695c89bc/image.png){width=564 height=318}
+![image](/uploads/592db326099618e68a9bce4aed448cbb/image.png){width=563 height=313}
+![image](/uploads/f4d515c71ad8f11534aa5dae527dfd2e/image.png){width=546 height=315}
