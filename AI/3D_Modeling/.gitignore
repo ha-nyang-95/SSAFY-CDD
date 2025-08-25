@@ -1,0 +1,17 @@
+# Ignore SIBR_viewers, as it's a viewer and not needed for the automated pipeline
+3D_gaussian_splatting/gaussian-splatting/SIBR_viewers/
+
+# Ignore generated output directories and files
+3D_gaussian_splatting/gaussian-splatting/output/
+3D_gaussian_splatting/splat/*.splat
+
+# Python-specific ignores
+__pycache__/
+*.pyc
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+venv/
+env/

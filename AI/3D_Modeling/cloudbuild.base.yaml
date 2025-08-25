@@ -1,0 +1,25 @@
+# This file is used to build the base image for the 3D modeling service.
+# Run this once, or whenever the base dependencies change.
+
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'build'
+    - '-t'
+    - '${_AR_HOSTNAME}/${PROJECT_ID}/${_REPO_NAME}/3d-modeling-base:latest'
+    - '-f'
+    - 'AI/3D_Modeling/Dockerfile.base'
+    - '.'
+  id: 'Build Base Image'
+
+images:
+  - '${_AR_HOSTNAME}/${PROJECT_ID}/${_REPO_NAME}/3d-modeling-base:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 7200s # 2 hours timeout for this heavy build
+
+substitutions:
+  _AR_HOSTNAME: 'asia-northeast3-docker.pkg.dev'
+  _REPO_NAME: 'b102-3d-modeling'
