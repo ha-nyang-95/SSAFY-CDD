@@ -1,0 +1,73 @@
+# This is a base image for the 3D modeling service.
+# It contains all the heavy dependencies that take a long time to compile.
+# Build this image once and push it to the Artifact Registry.
+
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+
+# Set non-interactive frontend
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Seoul
+ENV PYTHONUNBUFFERED=1
+
+# Install system packages, ffmpeg, and COLMAP dependencies
+RUN apt-get update --fix-missing && apt-get install -y \
+    build-essential \
+    python3.10 python3-pip \
+    git \
+    cmake \
+    ffmpeg \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libboost-program-options-dev \
+    libboost-filesystem-dev \
+    libboost-graph-dev \
+    libboost-regex-dev \
+    libboost-system-dev \
+    libboost-test-dev \
+    libeigen3-dev \
+    libsuitesparse-dev \
+    libfreeimage-dev \
+    libmetis-dev \
+    libgoogle-glog-dev \
+    libgflags-dev \
+    libglew-dev \
+    qtbase5-dev \
+    libqt5opengl5-dev \
+    libcgal-dev \
+    libsqlite3-dev \
+    libceres-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install COLMAP from source
+RUN git clone https://github.com/colmap/colmap.git /opt/colmap && \
+    cd /opt/colmap && \
+    git checkout main && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DCUDA_ENABLED=ON -DCMAKE_CUDA_ARCHITECTURES=86 && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /opt/colman
+
+# Set up a working directory for subsequent Python installations
+WORKDIR /app
+
+# Copy only the requirements files
+COPY 3D_gaussian_splatting/requirements.txt 3D_gaussian_splatting/requirements.txt
+COPY requirements.txt requirements.txt
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r 3D_gaussian_splatting/requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Copy the gaussian splatting submodule code to install it
+COPY 3D_gaussian_splatting/gaussian-splatting/submodules/ /app/submodules/
+
+# Install 3D Gaussian Splatting submodules
+ENV TORCH_CUDA_ARCH_LIST="8.6"
+RUN pip3 install -e /app/submodules/simple-knn --no-build-isolation
+RUN pip3 install -e /app/submodules/diff-gaussian-rasterization --no-build-isolation
+RUN pip3 install -e /app/submodules/fused-ssim --no-build-isolation
+
+# Clean up the submodule source code after installation
+RUN rm -rf /app/submodules

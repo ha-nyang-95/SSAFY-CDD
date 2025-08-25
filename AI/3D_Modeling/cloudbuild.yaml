@@ -1,0 +1,69 @@
+steps:
+  # 1. Docker 이미지 빌드
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_AR_HOSTNAME}/${PROJECT_ID}/${_REPO_NAME}/modelingapi:${BUILD_ID}'
+      - '.'
+    id: 'Build'
+
+  # 2. Artifact Registry에 이미지 푸시
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_AR_HOSTNAME}/${PROJECT_ID}/${_REPO_NAME}/modelingapi:${BUILD_ID}'
+    id: 'Push'
+
+  # 3. Cloud Run에 배포
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'modelingapi'
+      - '--image=${_AR_HOSTNAME}/${PROJECT_ID}/${_REPO_NAME}/modelingapi:${BUILD_ID}'
+      - '--region=${_DEPLOY_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8000'
+      - '--cpu=4'
+      - '--memory=16Gi'
+      - '--gpu=1'
+      - '--gpu-type=nvidia-l4'
+      - '--timeout=3600'
+      - '--update-secrets=AWS_ACCESS_KEY_ID=${_AWS_ACCESS_KEY_ID_SECRET}:latest,AWS_SECRET_ACCESS_KEY=${_AWS_SECRET_ACCESS_KEY_SECRET}:latest,AWS_REGION=${_AWS_REGION_SECRET}:latest,AWS_BUCKET_NAME=${_AWS_BUCKET_NAME_SECRET}:latest'
+    id: 'Deploy'
+
+  # 4. Cloud Run Job 업데이트 (Simplified)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'jobs'
+      - 'update'
+      - 'modeling-job'
+      - '--image=${_AR_HOSTNAME}/${PROJECT_ID}/${_REPO_NAME}/modelingapi:${BUILD_ID}'
+      - '--region=${_DEPLOY_REGION}'
+      - '--tasks=1'
+      - '--set-env-vars=JOB_FILE_NAME=dummy'
+      - '--task-timeout=7200'
+      - '--cpu=4'
+      - '--memory=16Gi'
+      - '--update-secrets=AWS_ACCESS_KEY_ID=${_AWS_ACCESS_KEY_ID_SECRET}:latest,AWS_SECRET_ACCESS_KEY=${_AWS_SECRET_ACCESS_KEY_SECRET}:latest,AWS_REGION=${_AWS_REGION_SECRET}:latest,AWS_BUCKET_NAME=${_AWS_BUCKET_NAME_SECRET}:latest'
+    id: 'Update Job'
+
+images:
+  - '${_AR_HOSTNAME}/${PROJECT_ID}/${_REPO_NAME}/modelingapi:${BUILD_ID}'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _DEPLOY_REGION: 'asia-southeast1'
+  _AR_HOSTNAME: 'asia-northeast3-docker.pkg.dev'
+  _REPO_NAME: 'b102-3d-modeling'
+  _AWS_ACCESS_KEY_ID_SECRET: 'AWS_ACCESS_KEY_ID'
+  _AWS_SECRET_ACCESS_KEY_SECRET: 'AWS_SECRET_ACCESS_KEY'
+  _AWS_REGION_SECRET: 'AWS_REGION'
+  _AWS_BUCKET_NAME_SECRET: 'AWS_BUCKET_NAME'
