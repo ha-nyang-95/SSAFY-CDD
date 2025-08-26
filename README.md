@@ -1,9 +1,8 @@
-# CDD (Crack Detation Drone) 
+# CDD (Crack Detection Drone) 
 ### 드론에 부착하여 균열 탐지를 수행할 수 있도록 하는 AIoT 서비스
-![드론있는버전](/uploads/2552cb58dfe006c63a307cff3b6df94c/드론있는버전.png)
+![드론있는버전](./images/드론배너.png)
 ![포스터](./images/CDD_포스터.png)
 
-<!-- ![Main Banner](./images/MainBanner.png) -->
 
 </br></br>
 
@@ -205,21 +204,21 @@
 
 ## CDD 서비스 웹 페이지 상세
 ### **- LCD 화면 페이지**
-![image](/uploads/fbcbbc907c408b5db3db28000e07f9bd/image.png){width=594 height=334}
-![image](/uploads/3042957e4e8e00572fe7551be25dbc82/image.png){width=598 height=333}
-![image](/uploads/12655cf8ef2af02a34cbdd204b1e3f75/image.png){width=595 height=334}
+![로그인](./images/LCD로그인.png)
+![실시간](./images/LCD실시간탐지.png)
+![정밀탐지](./images/LCD정밀탐지.png)
 </br></br>
 
 ### **- 웹 페이지**
-![1.로그인_화면](/uploads/4b14a153a086a3d9b2295f1b8b6b06b9/1.로그인_화면.jpg)
-![2.점검_대시보드](/uploads/62bf88c48225ee80a712aeb508ad746f/2.점검_대시보드.jpg)
-![3.지역_필터_점검_대시보드](/uploads/95c3ec30562cc5806446cda10b67236e/3.지역_필터_점검_대시보드.jpg)
-![4.점검_생성_화면](/uploads/206d98c67e76bdb988dae55aa628e27a/4.점검_생성_화면.jpg)
-![5.다시보기_화면](/uploads/56ca1d3a3575864d7d7ae5106980107b/5.다시보기_화면.jpg)
-![6.균열_목록](/uploads/0e4992582318991c2754251af4fb7c0d/6.균열_목록.jpg)
-![7.균열_목록_상세](/uploads/4739ccbc8795ea646d44bf2ae2ca6b55/7.균열_목록_상세.jpg)
-![8.작업_노트](/uploads/a64a53f5994d2295deeb73e8a2a1e790/8.작업_노트.jpg)
-![9.이전_작업_비교](/uploads/295dc3707e5afdf252847dd3c003c4a6/9.이전_작업_비교.jpg)
-![10.이전_작업_균열_결과](/uploads/013c67624938b228c6046f9d106f001e/10.이전_작업_균열_결과.jpg)
-![11.3D_렌더링_화명](/uploads/fabbe10364c398ceb501e6e69baf547f/11.3D_렌더링_화명.jpg)
-![12.다크모드](/uploads/cf6351fd9f05d0ef9dfdebddcefa79c6/12.다크모드.jpg)
+![1.로그인_화면](./images/1.로그인화면.jpg)
+![2.점검_대시보드](./images/2.점검대시보드.jpg)
+![3.지역_필터_점검_대시보드](./images/3.지역필터점검대시보드.jpg)
+![4.점검_생성_화면](./images/4.점검생성화면.jpg)
+![5.다시보기_화면](./images/5.다시보기화면.jpg)
+![6.균열_목록](./images/6.균열목록.jpg)
+![7.균열_목록_상세](./images/7.균열목록상세.jpg)
+![8.작업_노트](./images/8.작업노트.jpg)
+![9.이전_작업_비교](./images/9.이전작업비교.jpg)
+![10.이전_작업_균열_결과](./images/10.이전작업균열결과.jpg)
+![11.3D_렌더링_화명](./images/11.3D렌더링화면.jpg)
+![12.다크모드](./images/12.다크모드.jpg)
