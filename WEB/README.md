@@ -9,22 +9,28 @@
 ## 기술 스택
 
 ### Frontend
-- **Framework**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Emotion (CSS-in-JS)
+- **Framework**: React 19.1 + TypeScript 5.8
+- **Build Tool**: Vite 7 (`@vitejs/plugin-react-swc`)
+- **Styling**: Emotion (CSS-in-JS, `@emotion/react` / `@emotion/styled`)
 - **State Management**: React Hooks
 - **Routing**: React Router v6
-- **HTTP Client**: Axios
+- **HTTP Client**: 네이티브 `fetch` 기반 자체 클라이언트 (`src/api/client.ts`, 쿠키 기반 인증)
+- **Media**: hls.js (실시간 영상 스트리밍 재생)
 - **Container**: Docker
 
 ### Backend
-- **Framework**: Spring Boot 3.x
+- **Framework**: Spring Boot 3.5.4
 - **Language**: Java 17
-- **Database**: MySQL 8.0
-- **Security**: Spring Security + JWT
+- **Database**: MySQL (Spring Data JPA / Hibernate)
+- **Security**: Spring Security + JWT (`jjwt` 0.12.5)
 - **Build Tool**: Gradle
 - **Container**: Docker
-- **Cloud**: AWS (S3, IVS)
+- **Cloud**: AWS SDK v2 (S3, IVS)
+- **API Documentation**: springdoc-openapi (Swagger UI)
+
+### Serverless (AWS Lambda)
+- 모델링/세그멘테이션/영상 후처리를 위한 Lambda 함수 (`WEB/AWS/`)
+- S3 이벤트 트리거 기반 후처리 파이프라인
 
 ### Infrastructure
 - **Containerization**: Docker + Docker Compose
@@ -67,41 +73,45 @@
 
 ```
 WEB/
-├── FE/                    # 프론트엔드 (React + TypeScript + Vite)
+├── FE/                    # 프론트엔드 (React 19 + TypeScript + Vite 7)
 │   ├── src/
 │   │   ├── components/    # 재사용 가능한 컴포넌트
 │   │   ├── pages/         # 페이지 컴포넌트
 │   │   ├── layout/        # 레이아웃 컴포넌트
-│   │   ├── api/           # API 통신 관련
-│   │   ├── theme/         # 테마 및 스타일링
+│   │   ├── api/           # API 통신 (client.ts: fetch 래퍼, 도메인별 모듈)
+│   │   ├── theme/         # 테마 및 스타일링 (Emotion)
+│   │   ├── assets/        # 정적 리소스
 │   │   └── utils/         # 유틸리티 함수
 │   ├── package.json       # 프로젝트 의존성
 │   ├── vite.config.ts     # Vite 설정
 │   └── Dockerfile         # Docker 이미지 설정
 │
-├── BE/                    # 백엔드 (Spring Boot + Java)
+├── BE/                    # 백엔드 (Spring Boot 3.5.4 + Java 17)
 │   └── CrackTrack/        # 메인 프로젝트
 │       ├── src/main/java/com/b102/cracktrack/
-│       │   ├── common/    # 공통 유틸리티
-│       │   ├── domain/    # 도메인별 모듈
-│       │   │   ├── auth/      # 인증 관련
-│       │   │   ├── detection/ # 균열 탐지
-│       │   │   ├── image/     # 이미지 처리
-│       │   │   ├── lidar/     # LiDAR 데이터
-│       │   │   ├── modeling/  # 3D 모델링
-│       │   │   ├── segment/   # 세그먼테이션
-│       │   │   ├── task/      # 작업 관리
-│       │   │   └── video/     # 비디오 처리
-│       │   ├── api/       # API 컨트롤러
-│       │   └── config/    # 설정 클래스
+│       │   ├── domain/    # 도메인별 모듈 (13개)
+│       │   │   ├── auth/       # 인증 (JWT)
+│       │   │   ├── crack/      # 균열
+│       │   │   ├── detection/  # 균열 탐지
+│       │   │   ├── district/   # 지역/구역
+│       │   │   ├── image/      # 이미지 처리
+│       │   │   ├── lambda/     # Lambda 연동
+│       │   │   ├── lidar/      # LiDAR 데이터
+│       │   │   ├── modeling/   # 3D 모델링
+│       │   │   ├── security/   # 보안
+│       │   │   ├── segment/    # 세그멘테이션
+│       │   │   ├── task/       # 작업 관리
+│       │   │   ├── user/       # 사용자
+│       │   │   └── video/      # 비디오 처리
+│       │   └── ...        # 공통/설정 클래스
 │       ├── build.gradle   # Gradle 빌드 설정
 │       └── Dockerfile     # Docker 이미지 설정
 │
-├── WIREFRAME/             # 와이어프레임 문서
-│   ├── dashboard-wireframe.md
-│   ├── login-wireframe.md
-│   ├── layout-wireframe.md
-│   └── user-flow-wireframe.md
+├── AWS/                   # AWS Lambda 후처리 스크립트 (S3 이벤트 트리거)
+│   ├── 3d_lendering.py       # 3D 모델링 API 호출 트리거
+│   ├── post_segmentation.py  # 세그멘테이션 추론 API 호출 트리거
+│   ├── post_back.py          # 처리 결과를 백엔드로 콜백(post-back)
+│   └── video_combine.py      # FFmpeg 기반 영상 결합/후처리
 │
 ├── docker-compose.yml     # Docker 컨테이너 오케스트레이션
 └── README.md              # 이 파일
@@ -110,7 +120,7 @@ WEB/
 ## 실행 방법
 
 ### 1. 환경 요구사항
-- **Frontend**: Node.js 18+
+- **Frontend**: Node.js 20+ (Vite 7 요구사항)
 - **Backend**: Java 17+, MySQL 8.0+
 - **공통**: Docker & Docker Compose
 
@@ -192,11 +202,6 @@ cd BE
 - 계층별 분리 (Controller, Service, Repository)
 - Spring Security를 통한 보안 강화
 - JPA/Hibernate를 통한 데이터 접근
-
-### 와이어프레임
-- UI/UX 설계를 위한 와이어프레임 문서 제공
-- 사용자 플로우 및 페이지 구조 명시
-- 개발 진행 상황 추적 가능
 
 ## 문제 해결
 

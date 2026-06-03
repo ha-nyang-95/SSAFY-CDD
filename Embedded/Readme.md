@@ -16,7 +16,7 @@ Jetson이 독립적인 \*\*Wi-Fi AP(Access Point)\*\*가 되어 자체 네트워
 | **Main AI Board** | `NVIDIA Jetson Orin Nano`                                                   |
 | **Sensor Board** | `Raspberry Pi 4 Model B`                                                    |
 | **Camera Sensor** | `Web Camera` (RTSP Stream)                                                  |
-| **Precision Sensor**| `YDLIDAr X4 Pro`                                                               |
+| **Precision Sensor**| `YDLIDAR X4 Pro`                                                               |
 | **AI Model** | `YOLOv8` for Real-time Crack Detection                                      |
 | **Communication** | `MQTT` Protocol, `Wi-Fi AP Mode` (Hostapd & Dnsmasq)                        |
 | **Web Framework** | `Flask` for UI & Video Streaming                                            |
@@ -67,6 +67,9 @@ EMBEDDED
 │   │  ├─ s3_handler.py          # AWS S3 연동 로직
 │   │  ├─ requirements.txt       # 라이브러리 의존성
 │   │  ├─ best_weights_v2.pt     # 학습된 YOLOv8 모델 가중치
+│   │  ├─ torch-2.3.0-cp310-cp310-linux_aarch64.whl       # Jetson(aarch64)용 PyTorch wheel
+│   │  ├─ torchvision-0.18.0a0+6043bc2-cp310-cp310-linux_aarch64.whl
+│   │  ├─ torchaudio-2.3.0+952ea74-cp310-cp310-linux_aarch64.whl
 │   │  └─ templates              # 웹 UI (HTML)
 │   │
 │   └─ network              # Jetson AP 모드 및 네트워크 설정
@@ -80,3 +83,5 @@ EMBEDDED
        ├─ rpi_mqtt.py            # MQTT 클라이언트 실행 및 메인 로직
        └─ lidar_scanner.py       # LiDAR 센서 제어 및 데이터 처리 클래스
 ```
+
+> 📦 Jetson Orin Nano(aarch64, Python 3.10)에서 GPU 가속이 동작하도록 `torch 2.3.0` / `torchvision 0.18.0` / `torchaudio 2.3.0`의 aarch64 wheel을 `live_detect/`에 동봉했습니다. 일반 PyPI 휠 대신 동봉된 `.whl` 파일로 설치하세요.

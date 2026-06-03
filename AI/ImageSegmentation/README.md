@@ -1,20 +1,33 @@
-### Image Segmentation Directory
+## Image Segmentation
 
-- dataloader.py
-    dataset 불러오는 코드   
+구조물 이미지에서 **균열(Crack)** 영역을 픽셀 단위로 분할(Segmentation)하는 모듈입니다. SegNet / UNet / FCN / DeepLab 등 여러 모델을 동일한 학습 파이프라인으로 학습·비교할 수 있도록 **PyTorch Lightning** 기반으로 구성했으며, **MLflow**로 실험을 추적하고 **Optuna**로 하이퍼파라미터를 탐색합니다.
 
-- util.py
-    학습에 필요한 메서드들 모음
-    optimzer, scheduler, loss 함수 불러오는 로직
-    train, backpropagation 로직
-    validation 평가 로직   
+- **학습 진입점** : `python train.py <model_name>` (예: `segnet`, `unet`, `fcn`, `deeplab`)
+- **하이퍼파라미터 탐색 진입점** : `python run_optuna.py` (또는 `train.py`를 통한 Optuna 모드)
+- **추론/테스트 진입점** : `python test.py <model_name>` — 학습된 체크포인트로 타일 단위 추론 후 균열 영역을 붉은색 마스크로 오버레이해 저장
 
-- evaluation.py
-    mIoU, F1 Score 평가 로직
+### 디렉토리 / 파일 구성
 
-- train.py
-    학습 실행 코드
-    mlflow로 저장
+- `train.py`
+    학습 실행 진입점. PyTorch Lightning Trainer로 일반 fine-tuning, k-fold, Optuna 모드를 분기. MLflow 로깅 및 `ModelCheckpoint` 저장
+- `test.py`
+    학습된 체크포인트(`<Model>/checkpoint/*.ckpt`)를 로드해 `dataset/test`의 이미지에 대해 `tiler` 기반 타일 추론을 수행하고 결과를 `<Model>/result`에 저장
+- `run_optuna.py`
+    Optuna `objective` 정의 및 스터디 실행. 학습률/옵티마이저/배치 크기를 탐색하며 MLflow로 trial 로깅
+- `optuna_hyperparameter.py`
+    Optuna 탐색 범위(`n_trials`, `timeout`, `min_lr`, `max_lr`, `optimizers`, `batch_sizes`) 정의
+- `dataloader.py`
+    데이터셋(이미지/마스크) 로딩 및 DataLoader 구성
+- `util.py`
+    `MODEL_NAME_MAP`(segnet/unet/fcn/deeplab → 디렉토리) 및 `load_module_from_path`(모델/하이퍼파라미터 동적 로드)
+- `lightning_module/`
+    Lightning 기반 공통 모듈 — `factory.py`(모델 팩토리), `model.py`(LightningModule), `kfold_trainer.py`(k-fold 학습)
+- `deploy/`
+    추론 API 서버 배포 코드 (Flask 서버, GCP Cloud Run 배포용 Dockerfile / cloudbuild.yaml). 자세한 내용은 `deploy/README.md` 참고
+- `SegNet/`, `UNet/`, `FCN/`, `DeepLab/`
+    각 모델 디렉토리. 모델별 `model.py`, `hyperparameter.py`, mlflow 로그, checkpoint를 둠
+
+> 의존성(`requirements.txt`): `torch`, `torchvision`, `pytorch_lightning`, `mlflow`, `optuna`, `optuna-integration`, `pandas`, `matplotlib`, `Pillow`, `numpy`, `tqdm` (추론 타일링에는 `tiler` 패키지 필요)
 
 각 모델 디렉토리에 mlflow 로그, 모델 정의, 모델 하이퍼 파라미터 정의하면 됩니다.
 - model.py
